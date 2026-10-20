@@ -183,7 +183,38 @@ async def http_exception_handler(
             request.url.path,
         )
         return RedirectResponse(url="/auth/login", status_code=302)
-    raise exc
+
+    logger.warning(
+        "HTTP %d error on %s %s: %s",
+        exc.status_code,
+        request.method,
+        request.url.path,
+        exc.detail,
+    )
+    if "text/html" in request.headers.get("accept", ""):
+        detail_msg = exc.detail if isinstance(exc.detail, str) else str(exc.detail)
+        return HTMLResponse(
+            content=f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {exc.status_code} | SOS Animales</title>
+    <link rel="stylesheet" href="/static/css/sos-animales.css">
+</head>
+<body>
+    <main class="container" style="padding-top: 3rem;">
+        <article style="text-align: center;">
+            <header><h1>{exc.status_code}</h1><h2>Error</h2></header>
+            <p>{detail_msg}</p>
+            <a href="/" role="button">← Volver al inicio</a>
+        </article>
+    </main>
+</body>
+</html>""",
+            status_code=exc.status_code,
+        )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.exception_handler(Exception)

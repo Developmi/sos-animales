@@ -161,3 +161,29 @@ async def test_health_ready_reports_degraded_when_valkey_down_without_crashing(
         assert data["status"] == "ready"
         assert "degraded" in data["checks"]["valkey"]
         assert data["checks"]["database"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_valkey_outage_login_rate_limit_memory_fallback() -> None:
+    """When Valkey is unreachable, check_login_rate_limit must enforce in-memory rate limiting."""
+    from app.domains.auth.rate_limit import check_login_rate_limit, _login_fallback
+
+    test_ip = "10.0.0.99"
+    _login_fallback.pop(test_ip, None)
+
+    mock_valkey = MagicMock()
+    mock_valkey.incr.side_effect = ConnectionError("Valkey offline")
+
+    with patch("app.shared.cache.valkey_client", mock_valkey):
+        # First 5 attempts within window must be allowed
+        for _ in range(5):
+            allowed = await check_login_rate_limit(test_ip)
+            assert allowed is True
+
+        # 6th attempt must be blocked by the in-memory fallback
+        blocked = await check_login_rate_limit(test_ip)
+        assert blocked is False
+
+        # Different IP should still have its own quota
+        other_ip_allowed = await check_login_rate_limit("10.0.0.100")
+        assert other_ip_allowed is True
