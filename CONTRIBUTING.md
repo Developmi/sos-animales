@@ -1,35 +1,35 @@
-# Contribuir a SOS Animales
+# Contributing to SOS Animales
 
-## Cómo proponer una fuente nueva
+## How to Propose a New Source
 
-1. Abre un issue con el nombre de la fundación/refugio.
-2. Incluye dirección, contacto y redes sociales.
-3. El equipo coordinará una verificación veterinaria.
+1. Open an issue with the foundation or shelter name.
+2. Include the physical address, official contact info, and social media links.
+3. The team will coordinate a two-tier veterinary audit.
 
-## Cómo abrir un Pull Request
+## How to Open a Pull Request
 
-1. Asegúrate de que tu código pase `ruff check .`
-2. Incluye tests para nueva funcionalidad.
-3. Mantén los PRs enfocados (un cambio por PR).
+1. Ensure your code passes all quality gates: `make check`.
+2. Include comprehensive unit and integration tests for new functionality.
+3. Keep pull requests focused on a single change or feature.
 
-## Estándares de código
+## Code Standards
 
-- Linter: `ruff` (sin excepciones).
-- Type hints en todo código nuevo.
-- Docstrings en módulos y funciones públicas.
-- Arquitectura por dominios (cada dominio con models/schemas/tools/router).
-- Las `tools.py` solo contienen lógica pura (sin efectos secundarios).
+- **Linter & Formatter**: `ruff` (zero warnings allowed).
+- **Static Typing**: `mypy --strict` on all new code.
+- **Documentation**: English docstrings on all modules, classes, and public functions.
+- **Domain Architecture**: Modular domain isolation (`models.py`, `schemas.py`, `tools.py`, `router.py`).
+- Pure business logic in `tools.py` decoupled from HTTP transports.
 
-## Alcance del proyecto
+## Project Scope Constraints
 
-Este proyecto NO maneja:
-- Donaciones o dinero.
-- Cuentas de usuario individuales.
-- Chat o mensajería.
-- API de WhatsApp.
+This project strictly does NOT manage:
+- Donations, payments, or money transfers.
+- General public user accounts.
+- Direct user chat or messaging systems.
+- Commercial WhatsApp Cloud APIs.
 
-Si tu contribución toca alguno de estos temas, se rechazará.
+Contributions touching these topics will be declined.
 
-## Licencia
+## License
 
-Al contribuir aceptas que tu código se publique bajo AGPL-3.0.
+By contributing, you agree that your contributions will be licensed under the AGPL-3.0 License.

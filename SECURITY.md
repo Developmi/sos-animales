@@ -1,17 +1,18 @@
-# Seguridad — SOS Animales
+# Security Policy — SOS Animales
 
-## Reportar una vulnerabilidad
+## Reporting a Vulnerability
 
-Si encuentras una vulnerabilidad de seguridad, por favor escríbenos a:
-[email por definir]
+If you discover a security vulnerability in this project, please report it privately:
 
-**No uses issues públicos de GitHub para reportar vulnerabilidades.**
+- **Email:** `security@sos-animales.org`
+- **GPG Key:** Available upon request or via repository security advisories.
 
-## Proceso
+**Please DO NOT open public GitHub issues for security vulnerabilities.**
 
-1. Reportas por correo.
-2. Recibes confirmación en un plazo de 48 horas.
-3. Evaluamos y priorizamos.
-4. Publicamos un fix y te damos crédito (si lo deseas).
+## Coordinated Disclosure Process
 
-Actualmente no contamos con programa Bugcrowd ni HackerOne.
+1. **Submission:** Send detailed reproduction steps, PoC, and environment details via email.
+2. **Acknowledgment:** You will receive a response within 48 hours confirming receipt.
+3. **Assessment:** The vulnerability will be evaluated, categorized by CVSS score, and prioritized.
+4. **Resolution:** A remediation patch will be released, and credit will be acknowledged in release notes.
+

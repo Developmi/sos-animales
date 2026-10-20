@@ -1,33 +1,38 @@
-# Código de Conducta
+# Code of Conduct
 
-## Nuestro compromiso
+## Our Pledge
 
-En el interés de fomentar un entorno abierto y acogedor, nos comprometemos
-a hacer de la participación en este proyecto una experiencia libre de
-acoso para todos, independientemente de edad, cuerpo, discapacidad,
-etnia, identidad de género, nivel de experiencia, nacionalidad,
-apariencia personal, raza, religión o identidad sexual.
+In the interest of fostering an open and welcoming environment, we as
+contributors and maintainers pledge to make participation in our project and
+our community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, caste, color, religion, or sexual identity
+and orientation.
 
-## Comportamiento esperado
+## Expected Behavior
 
-- Uso de lenguaje acogedor e inclusivo.
-- Respeto por puntos de vista distintos.
-- Aceptación de críticas constructivas.
-- Enfoque en el bienestar de la comunidad.
+- Use welcoming and inclusive language.
+- Be respectful of differing viewpoints and experiences.
+- Gracefully accept constructive criticism.
+- Focus on what is best for the community.
+- Show empathy towards other community members.
 
-## Comportamiento inaceptable
+## Unacceptable Behavior
 
-- Conducta o lenguaje sexualizado no consentido.
-- Troleo, insultos o comentarios despectivos.
-- Acoso público o privado.
-- Publicación de información privada sin permiso explícito.
+- The use of sexualized language or imagery, and sexual attention or advances of any kind.
+- Trolling, insulting or derogatory comments, and personal or political attacks.
+- Public or private harassment.
+- Publishing others' private information, such as a physical or email address, without their explicit permission.
+- Other conduct which could reasonably be considered inappropriate in a professional setting.
 
-## Aplicación
+## Enforcement
 
-Las quejas pueden reportarse al correo: [email por definir].
-Todas las quejas serán revisadas e investigadas de manera justa.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the project team at conduct@sos-animales.org. All complaints will be
+reviewed and investigated promptly and fairly.
 
-## Atribución
+## Attribution
 
-Este Código de Conducta está adaptado del Contributor Covenant, versión 2.1,
-disponible en https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+This Code of Conduct is adapted from the Contributor Covenant, version 2.1,
+available at https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
