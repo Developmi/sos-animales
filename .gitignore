@@ -8,3 +8,30 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Ruff, mypy & pytest cache
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# AI agents, harnesses, memory & scratch artifacts (DO NOT COMMIT)
+.agents/
+.engram/
+.atl/
+.envsitter/
+.playwright-mcp/
+.codegraph/
+graphify-out/
+reference-ui/
+openspec/
+odd-*.md
+skills-lock.json
+vex/
+e2e_home_page.txt
+opencodeses.txt
+*.bak
