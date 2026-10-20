@@ -1,0 +1,118 @@
+name: CI Quality Gate & Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# RULE ZERO: Top-level permissions default to empty (least-privilege)
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_SYSTEM_PYTHON: 0
+  PYTHONUNBUFFERED: 1
+
+jobs:
+  lint-and-typecheck:
+    name: Lint, Format & Typecheck
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v5.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies (uv exclusive)
+        run: uv sync --all-groups --frozen
+
+      - name: Lint with Ruff
+        run: uv run ruff check .
+
+      - name: Format Check with Ruff
+        run: uv run ruff format --check .
+
+      - name: Strict Typecheck with Mypy
+        run: uv run mypy app/ tests/
+
+  test-and-migrations:
+    name: Database Migrations & Test Suite
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: sos_animales_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      valkey:
+        image: valkey/valkey:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql+asyncpg://test_user:test_password@localhost:5432/sos_animales_test"
+      TEST_DATABASE_URL: "postgresql+asyncpg://test_user:test_password@localhost:5432/sos_animales_test"
+      VALKEY_URL: "redis://localhost:6379/0"
+      SECRET_KEY: "ci-insecure-test-secret-key-32chars-minimum-safety"
+      COMMUNITY_VOTE_THRESHOLD: "5"
+      SMTP_HOST: "localhost"
+      SMTP_PORT: "587"
+      SMTP_USER: "ci@sos-animales.org"
+      SMTP_PASSWORD: "ci_dummy_password"
+      FROM_EMAIL: "noreply@sos-animales.org"
+      ADMIN_PASSWORD_HASH: "$2b$12$qCUWUQfThvkwxQuRKXuccuBHr5bRliIii4gwru24vRBtyjldh.pGm"
+      JWT_SECRET: "ci-insecure-jwt-test-secret-at-least-32-chars-long"
+      JWT_EXPIRE_MINUTES: "480"
+      FRESHNESS_DAYS: "5"
+      FRESHNESS_HIDE_DAYS: "15"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v5.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies (uv exclusive)
+        run: uv sync --all-groups --frozen
+
+      - name: Validate Alembic migrations execution
+        run: uv run alembic upgrade head
+
+      - name: Execute Pytest Suite
+        run: uv run pytest -v --tb=short

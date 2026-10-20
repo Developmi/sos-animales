@@ -1,0 +1,30 @@
+# Version control
+.git
+.gitignore
+
+# Python virtual environment and bytecode
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Test and lint caches
+.pytest_cache
+.ruff_cache
+.mypy_cache
+tests
+
+# Environment files (preserve only template)
+.env
+.env.*
+!.env.example
+
+# Documentation & temporary artifacts
+README.md
+ROADMAP.md
+E2E_CHECKLIST.md
+docs
+*.md
+*.txt
+*.bak
