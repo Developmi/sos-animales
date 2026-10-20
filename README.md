@@ -16,8 +16,11 @@ SOS Animales es una plataforma open data que conecta ciudadanos, fundaciones y v
 - Dar visibilidad a animales en adopción con perfiles completos.
 - Verificar fundaciones y refugios mediante un proceso estructurado de dos niveles.
 
-**Gobernanza de Acceso (Admin-Gated Ingestion):**
-En esta Fase 1 (MVP), la plataforma no expone registro público abierto de cuentas. Todas las mutaciones (`POST /sterilization/new`, `POST /animals/`, etc.) requieren autenticación administrativa centralizada para prevenir spam y desinformación. La comunidad interactúa libremente mediante consultas públicas, reportes comunitarios y votos gobernados por rate limiting en Valkey.
+**Gobernanza de Acceso y Verificación:**
+En esta Fase 1 (MVP), la plataforma no requiere registro previo de cuentas de usuario:
+- **Jornadas y Auditorías Oficiales:** Las jornadas de esterilización (`POST /sterilization/new`), puntos fijos y visitas veterinarias requieren autenticación administrativa centralizada (`/auth/login`) para garantizar la veracidad de los eventos oficiales.
+- **Adopciones y Registro Comunitario:** Las fundaciones pueden auto-registrarse (`POST /sources/register`, quedando en estado `pending` hasta ser auditadas) y los rescatistas pueden publicar animales en adopción (`POST /animals/`), recibiendo un PIN criptográfico de 4 dígitos en su correo para gestionar el estado del animal sin necesidad de contraseñas ni perfiles permanentes.
+- **Interacción Ciudadana:** La comunidad interactúa libremente consultando mapas, reportando novedades con PIN y validando información mediante votaciones protegidas por rate limiting en Valkey.
 
 ## Arquitectura del Sistema
 
@@ -103,6 +106,10 @@ make dev
 ```bash
 # Construir y levantar toda la pila (web + db + valkey)
 make up
+
+# Aplicar migraciones y seed inicial en el contenedor web
+docker compose exec web alembic upgrade head
+docker compose exec web python -m seed
 
 # Ver logs en vivo
 make logs

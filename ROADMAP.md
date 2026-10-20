@@ -57,7 +57,7 @@ The Phase 1 MVP is considered complete when:
 3. Citizens can browse searchable profiles of adoptable pets with verified photos.
 4. The community can report field updates (confirm, report full capacity, cancel, or flag errors) governed by 4-digit security PINs and rate limiting.
 5. An administrator or volunteer veterinarian can record structured verification visits.
-6. The entire codebase passes strict automated quality gates (`make check`: Ruff, Mypy strict, 134 automated tests).
+6. The entire codebase passes strict automated quality gates (`make check`: Ruff, Mypy strict, 135 automated tests).
 
 ---
 
@@ -363,7 +363,7 @@ Each task specifies: **components involved**, **definition of done**, and **prer
 
 | Metric | Target | Measurement | Status |
 |--------|--------|-------------|--------|
-| **Automated Test Coverage** | 100% Core Passes | `pytest` test suite across all domains | ✅ 134/134 passing |
+| **Automated Test Coverage** | 100% Core Passes | `pytest` test suite across all domains | ✅ 135/135 passing |
 | **Static Type Safety** | 0 Type Errors | `mypy --strict` across backend and tests | ✅ 0 errors |
 | **Code Style & Linting** | 0 Linter Warnings | `ruff check` and `ruff format --check` | ✅ Clean |
 | **Data Freshness Policy** | ≤ 5 Days | Flag campaigns older than 5 days as unconfirmed | ✅ Operational |
@@ -392,7 +392,7 @@ sos-animales/
 ├── migrations/                  # Alembic asynchronous database revisions
 ├── scripts/                     # Helper CLI scripts (admin password hasher, geo data updater)
 ├── seed/                        # Idempotent database seed loader
-├── tests/                       # Unit, integration, and chaos resilience test suites (134 tests)
+├── tests/                       # Unit, integration, and chaos resilience test suites (135 tests)
 ├── Makefile                     # Standard developer commands (dev, test, check, migrate, up)
 ├── pyproject.toml               # Python project dependencies and tool configurations
 ├── README.md                    # Primary user and onboarding guide (Spanish)

@@ -1,7 +1,7 @@
 # E2E Checklist — SOS Animales
 
-**App**: FastAPI + HTMX + Pico.css + PostgreSQL  
-**URL**: http://localhost:9494  
+**App**: FastAPI + HTMX + Pure CSS (sos-animales.css Laika Style) + PostgreSQL  
+**URL**: http://localhost:8000  
 **Browser**: Chromium (Playwright MCP)
 
 ---
