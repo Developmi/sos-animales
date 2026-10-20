@@ -1,0 +1,29 @@
+{% set freshness_days = campaign.last_confirmed_at or campaign.created_at %} {%
+if freshness_days %} {% set days_ago = ((now() - freshness_days).days) if now is
+defined else 0 %} {% endif %} {% if freshness_status == 'stale' %}
+<span
+  style="
+    background-color: #fff3e0;
+    color: #e65100;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+  "
+>
+  ⏳ Datos no confirmados — Verifica antes de ir
+</span>
+{% elif freshness_status == 'unknown' %}
+<span
+  style="
+    background-color: #f3f4f6;
+    color: #666;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+  "
+>
+  ⏳ Frescura desconocida
+</span>
+{% endif %}

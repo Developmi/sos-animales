@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Peluditos en Adopción | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container catalog-header-area">
+  <div class="section-title-group" style="margin-bottom: 24px;">
+    <h1 class="section-title">Encuentra a tu nuevo mejor amigo</h1>
+    <p class="section-desc">Filtra por ciudad, especie y estado de esterilización para adoptar con responsabilidad</p>
+  </div>
+
+  <!-- Floating Search & Filter Bar con HTMX -->
+  <form id="filters-form" class="search-bar-floating" role="search" aria-label="Filtro de peluditos" onsubmit="return false;">
+    <div class="search-segment">
+      {{ icons.search("", 20) }}
+      <input 
+        id="filter-muni"
+        type="text" 
+        name="municipality"
+        class="search-input" 
+        placeholder="¿Qué ciudad o municipio buscas? (Ej: Bogotá)" 
+        aria-label="Buscar por municipio"
+        hx-get="/animals/list"
+        hx-target="#animals-grid"
+        hx-trigger="keyup changed delay:300ms"
+        hx-include="#filters-form"
+      />
+    </div>
+
+    <div class="search-divider"></div>
+
+    <div class="search-segment">
+      {{ icons.dog("", 20) }}
+      <select 
+        id="filter-species"
+        name="species"
+        class="search-select" 
+        aria-label="Filtrar por especie"
+        hx-get="/animals/list"
+        hx-target="#animals-grid"
+        hx-trigger="change"
+        hx-include="#filters-form"
+      >
+        <option value="">Todas las especies</option>
+        <option value="canino">Solo Perros</option>
+        <option value="felino">Solo Gatos</option>
+      </select>
+    </div>
+
+    <button 
+      type="button" 
+      class="btn-primary" 
+      style="min-height: 40px; padding: 8px 20px;"
+      hx-get="/animals/list"
+      hx-target="#animals-grid"
+      hx-include="#filters-form"
+      aria-label="Aplicar filtros"
+    >
+      {{ icons.filter("", 18) }}
+      <span>Filtrar</span>
+    </button>
+  </form>
+
+  <!-- Quick Pill Chips para filtrado rápido -->
+  <div class="quick-pills-bar" aria-label="Filtros rápidos">
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-muni').value = 'Bogotá'; htmx.trigger('#filter-muni', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Bogotá
+    </button>
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-muni').value = 'Medellín'; htmx.trigger('#filter-muni', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Medellín
+    </button>
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-muni').value = 'Cali'; htmx.trigger('#filter-muni', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Cali
+    </button>
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-species').value = 'canino'; htmx.trigger('#filter-species', 'change');"
+    >
+      {{ icons.dog("", 16) }} Perros
+    </button>
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-species').value = 'felino'; htmx.trigger('#filter-species', 'change');"
+    >
+      {{ icons.cat("", 16) }} Gatos
+    </button>
+    <button 
+      type="button"
+      class="search-pill" 
+      onclick="document.getElementById('filter-muni').value = ''; document.getElementById('filter-species').value = ''; htmx.ajax('GET', '/animals/list', '#animals-grid');"
+    >
+      {{ icons.close("", 16) }} Restablecer
+    </button>
+  </div>
+
+  <!-- Stats Line -->
+  <div class="catalog-stats-row">
+    <div>
+      Peluditos registrados esperando un hogar en Colombia
+    </div>
+    <a href="/animals/new" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px; text-decoration: none;">
+      {{ icons.plus("", 16) }} Publicar Caso
+    </a>
+  </div>
+
+  <!-- Responsive Grid de Animales -->
+  <section id="animals-grid" hx-get="/animals/list" hx-trigger="load">
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="color: var(--color-text-muted);">Cargando peluditos en adopción...</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

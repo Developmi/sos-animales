@@ -1,1 +1,37 @@
-<!-- Layout raíz: <head>, HTMX script, Pico.css, bloques Jinja2 para extender -->
+<!-- Layout raíz: <head>, HTMX script, Master CSS (Laika + Petfinder), bloques Jinja2 -->
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}SOS Animales Colombia | Red Colaborativa de Bienestar Animal{% endblock %}</title>
+
+    <!-- Master CSS Design System (Laika + Petfinder Pure CSS) -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/sos-animales.css') }}"
+    />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
+      integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <!-- Accesibilidad: Saltar al contenido principal -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    {% include "legal/cookie_consent_banner.html" ignore missing %}
+
+    {% include "nav.html" ignore missing %}
+
+    <main id="main-content">
+      {% block content %} {% endblock %}
+    </main>
+
+    {% include "footer.html" ignore missing %}
+
+    {% block scripts %} {% endblock %}
+  </body>
+</html>

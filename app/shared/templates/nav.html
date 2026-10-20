@@ -1,1 +1,64 @@
-<!-- Barra de navegación (incluida en base) -->
+{% import "macros/icons.html" as icons %}
+<!-- Header & Navigation Estilo Laika -->
+<header class="laika-header" role="banner">
+  <div class="container header-inner">
+    <a href="/" class="brand-logo" aria-label="Ir a página de inicio" style="text-decoration: none;">
+      <div class="brand-icon-box" aria-hidden="true">
+        {{ icons.paw_heart() }}
+      </div>
+      <div class="brand-text-group">
+        <div class="brand-name">
+          SOS Animales <span>CO</span>
+          <span class="brand-badge">OFICIAL</span>
+        </div>
+        <div class="brand-tagline">Adopta y esteriliza con cero intermediarios</div>
+      </div>
+    </a>
+
+    <nav class="header-nav" aria-label="Navegación principal">
+      <a href="/" class="nav-link">
+        {{ icons.home("", 18) }} Inicio
+      </a>
+      <a href="/animals/" class="nav-link">
+        {{ icons.dog("", 18) }} Adopciones
+      </a>
+      <a href="/sterilization/search" class="nav-link">
+        {{ icons.syringe("", 18) }} Esterilización
+      </a>
+      <a href="/sources/" class="nav-link">
+        {{ icons.shield_check("", 18) }} Fundaciones y Refugios
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="header-dropdown-wrap" style="position: relative;">
+        <button type="button" class="btn-primary header-btn" onclick="const m = document.getElementById('publish-menu'); if (m) { m.style.display = m.style.display === 'block' ? 'none' : 'block'; }" aria-label="Publicar Caso o Jornada">
+          {{ icons.plus("", 18) }}
+          <span class="btn-full-text">Publicar Caso o Jornada</span>
+          <span class="btn-short-text">Publicar</span>
+        </button>
+        <div id="publish-menu" class="header-dropdown-menu" style="display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #ffffff; border-radius: 12px; box-shadow: var(--shadow-modal); min-width: 270px; z-index: 1200; border: 1px solid var(--color-border); padding: 8px 0;">
+          <a href="/animals/new" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--color-text-main); font-weight: 600; text-decoration: none; font-size: 0.95rem;">
+            {{ icons.dog("", 18) }} Publicar Animal en Adopción
+          </a>
+          <a href="/sterilization/new" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--color-text-main); font-weight: 600; text-decoration: none; font-size: 0.95rem;">
+            {{ icons.syringe("", 18) }} Publicar Jornada de Esterilización
+          </a>
+          <a href="/sources/register" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--color-text-main); font-weight: 600; text-decoration: none; font-size: 0.95rem;">
+            {{ icons.shield_check("", 18) }} Registrar Albergue / Fundación
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  document.addEventListener('click', function(e) {
+    const wrap = document.querySelector('.header-dropdown-wrap');
+    const menu = document.getElementById('publish-menu');
+    if (wrap && menu && !wrap.contains(e.target)) {
+      menu.style.display = 'none';
+    }
+  });
+</script>

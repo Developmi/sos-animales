@@ -1,1 +1,192 @@
-<!-- Formulario para que fuente verificada suba un perfil de animal -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Publicar Peludito en Adopción | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container creation-view">
+  <div class="creation-card">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">100% LIBRE Y SIN REGISTRO COMPLEJO</span>
+      <h1 class="form-header-title">Publicar Caso o Peludito en Adopción</h1>
+      <p class="form-header-desc">
+        No necesitas recordar contraseñas. Publica en 2 minutos y gestiona tu caso con el PIN secreto que te enviaremos por correo.
+      </p>
+    </div>
+
+    <form
+      hx-post="/animals/"
+      hx-encoding="multipart/form-data"
+      hx-swap="outerHTML"
+    >
+      <input type="hidden" name="source_id" value="1" />
+
+      <!-- Section 1: Fotos -->
+      <div class="form-section-title">
+        {{ icons.upload_cloud("", 20) }} 1. Fotografías del Peludito
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="foto-principal">Foto Principal del Animal * (Obligatoria)</label>
+        <input 
+          id="foto-principal"
+          type="file" 
+          name="foto" 
+          accept="image/*" 
+          required 
+          class="form-control"
+          style="padding: 10px;"
+          onchange="const file = this.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('preview-main-img').src = e.target.result; document.getElementById('preview-main-box').style.display = 'block'; }; reader.readAsDataURL(file); }"
+        />
+        <div id="preview-main-box" style="display: none; margin-top: 12px;">
+          <div style="width: 140px; height: 140px; border-radius: 12px; overflow: hidden; border: 2px solid var(--color-primary); box-shadow: var(--shadow-sm);">
+            <img id="preview-main-img" src="" alt="Vista previa principal" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+        </div>
+        <small style="color: var(--color-text-muted); font-size: 12px; display: block; margin-top: 4px;">
+          Formatos admitidos: JPG, PNG, WebP. Tamaño recomendado: menos de 5MB.
+        </small>
+      </div>
+
+      <details style="margin-bottom: 24px;">
+        <summary style="font-size: 13px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; padding: 6px 0;">
+          + Agregar fotos adicionales (hasta 4 fotos opcionales)
+        </summary>
+        <div class="form-row two-cols" style="margin-top: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="foto-2">Foto adicional 2</label>
+            <input id="foto-2" type="file" name="foto_2" accept="image/*" class="form-control" style="padding: 8px;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="foto-3">Foto adicional 3</label>
+            <input id="foto-3" type="file" name="foto_3" accept="image/*" class="form-control" style="padding: 8px;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="foto-4">Foto adicional 4</label>
+            <input id="foto-4" type="file" name="foto_4" accept="image/*" class="form-control" style="padding: 8px;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="foto-5">Foto adicional 5</label>
+            <input id="foto-5" type="file" name="foto_5" accept="image/*" class="form-control" style="padding: 8px;" />
+          </div>
+        </div>
+      </details>
+
+      <!-- Section 2: Datos Básicos -->
+      <div class="form-section-title">
+        {{ icons.dog("", 20) }} 2. Información del Animal
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="pet-name">Nombre del Peludito *</label>
+          <input type="text" id="pet-name" name="name" class="form-control" placeholder="Ej: Luna, Rocky, Simón" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pet-species">Especie *</label>
+          <select id="pet-species" name="species" class="form-control" required>
+            <option value="" disabled selected>Selecciona especie...</option>
+            <option value="canino">Canino (Perro)</option>
+            <option value="felino">Felino (Gato)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="pet-muni">Municipio o Ciudad *</label>
+          <input type="text" id="pet-muni" name="municipality" class="form-control" placeholder="Ej: Bogotá, Medellín, Cali, Soacha..." required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pet-age">Edad Estimada (en años)</label>
+          <input type="number" id="pet-age" name="age_years" min="0" max="25" step="1" class="form-control" placeholder="Ej: 2" />
+        </div>
+      </div>
+
+      <div class="form-row three-cols">
+        <div class="form-group">
+          <label class="form-label" for="pet-breed">Raza (o Mestizo)</label>
+          <input type="text" id="pet-breed" name="breed" class="form-control" placeholder="Ej: Criollo / Mestizo" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pet-sexo">Sexo</label>
+          <select id="pet-sexo" name="sexo" class="form-control">
+            <option value="" selected>Desconocido</option>
+            <option value="hembra">Hembra</option>
+            <option value="macho">Macho</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pet-size">Tamaño</label>
+          <select id="pet-size" name="size" class="form-control">
+            <option value="pequeno">Pequeño</option>
+            <option value="mediano" selected>Mediano</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 3: Salud y Convivencia -->
+      <div class="form-section-title">
+        {{ icons.syringe("", 20) }} 3. Salud y Convivencia
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label class="form-checkbox-row">
+          <input type="checkbox" name="is_sterilized" value="true" />
+          <span style="font-weight: 600; color: var(--color-text-main);">¿El animal ya se encuentra esterilizado/a? (Recomendado)</span>
+        </label>
+      </div>
+
+      <div class="form-row two-cols" style="margin-bottom: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="comp-ninos">Compatibilidad con Niños</label>
+          <select id="comp-ninos" name="compatible_ninos" class="form-control">
+            <option value="">No evaluado</option>
+            <option value="true">Sí, convive bien con niños</option>
+            <option value="false">Preferible hogar sin niños</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="comp-animales">Compatibilidad con Otros Animales</label>
+          <select id="comp-animales" name="compatible_otros_animales" class="form-control">
+            <option value="">No evaluado</option>
+            <option value="true">Sí, sociable con otros peluditos</option>
+            <option value="false">Debe ser hijo único</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" for="pet-desc">Historia de Rescate y Personalidad *</label>
+        <textarea
+          id="pet-desc"
+          name="description"
+          rows="4"
+          class="form-control"
+          placeholder="Cuéntanos cómo fue rescatado, su temperamento, hábitos y el hogar ideal que busca..."
+          required
+        ></textarea>
+      </div>
+
+      <!-- Section 4: PIN de Seguridad -->
+      <div class="pin-explainer-banner" style="margin-bottom: 24px;">
+        {{ icons.key_pin("", 24) }}
+        <div>
+          <strong>Gestión Descentralizada con PIN:</strong><br>
+          Al publicar, el sistema generará un <strong>código PIN de 4 dígitos</strong> que se enviará al correo del refugio/rescatista. Lo usarás para marcar el caso como "Adoptado" sin necesidad de cuentas ni contraseñas.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px;">
+        {{ icons.check("", 20) }} Publicar Animal Ahora
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

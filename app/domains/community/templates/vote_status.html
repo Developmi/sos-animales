@@ -1,1 +1,17 @@
 <!-- Fragmento: muestra cuántos votos lleva una actualización vs. el mínimo requerido -->
+{% if update.votes >= threshold %}
+  <button class="outline" disabled style="padding: 0.3rem 0.65rem; font-size: 0.8em; margin-bottom: 0; border-color: var(--pico-primary); color: var(--pico-primary); display: inline-flex; align-items: center; gap: 0.35rem;">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span>Confirmado por la comunidad ({{ threshold }}/{{ threshold }})</span>
+  </button>
+{% elif update.id in voted_ids %}
+  <button class="outline secondary" disabled style="padding: 0.3rem 0.65rem; font-size: 0.8em; margin-bottom: 0; display: inline-flex; align-items: center; gap: 0.35rem;">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    <span>Voto registrado ({{ update.votes }}/{{ threshold }})</span>
+  </button>
+{% else %}
+  <button class="outline" hx-post="/community/{{ update.id }}/vote" hx-swap="outerHTML" style="padding: 0.3rem 0.65rem; font-size: 0.8em; margin-bottom: 0; display: inline-flex; align-items: center; gap: 0.35rem;">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+    <span>Validar reporte ({{ update.votes }}/{{ threshold }})</span>
+  </button>
+{% endif %}

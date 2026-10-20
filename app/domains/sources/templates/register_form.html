@@ -1,1 +1,137 @@
-<!-- Formulario de auto-registro de fundación (estado pending) -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Registrar Fundación o Refugio | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container creation-view">
+  <div class="creation-card">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">RED NACIONAL VERIFICADA</span>
+      <h1 class="form-header-title">Registrar Fundación o Refugio</h1>
+      <p class="form-header-desc">
+        Únete a la red nacional soberana de bienestar animal. Tu solicitud será revisada por nuestro equipo voluntario para habilitar la publicación oficial.
+      </p>
+    </div>
+
+    <form hx-post="/sources/register" hx-swap="outerHTML">
+      <div class="form-section-title">
+        {{ icons.building("", 20) }} 1. Identidad de la Organización
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="source-name">Nombre de la Organización o Albergue *</label>
+        <input
+          id="source-name"
+          type="text"
+          name="name"
+          class="form-control"
+          required
+          placeholder="Ej: Fundación Huellitas con Amor"
+        />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="source-type">Tipo de Entidad *</label>
+        <select id="source-type" name="type" class="form-control" required>
+          <option value="" disabled selected>Selecciona un tipo...</option>
+          <option value="verified_shelter">Refugio / Fundación con sede</option>
+          <option value="official">Entidad Oficial (Alcaldía, Centro de Zoonosis)</option>
+          <option value="community">Red de Hogares de Paso / Rescatista Comunitario</option>
+        </select>
+      </div>
+
+      <div class="form-section-title">
+        {{ icons.pin_location("", 20) }} 2. Ubicación Geográfica
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="source-dept">Departamento *</label>
+          <input
+            id="source-dept"
+            type="text"
+            name="department"
+            class="form-control"
+            required
+            placeholder="Ej: Cundinamarca, Antioquia, Valle del Cauca..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="source-muni">Municipio o Ciudad *</label>
+          <input
+            id="source-muni"
+            type="text"
+            name="municipality"
+            class="form-control"
+            required
+            placeholder="Ej: Bogotá, Medellín, Cali, Soacha..."
+          />
+        </div>
+      </div>
+
+      <div class="form-section-title">
+        {{ icons.whatsapp("", 20) }} 3. Canales de Contacto Directo
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="source-email">Correo Electrónico de Contacto</label>
+          <input 
+            id="source-email"
+            type="email" 
+            name="contact_email" 
+            class="form-control" 
+            placeholder="adopciones@fundacion.org" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="source-whatsapp">WhatsApp Oficial (con indicativo)</label>
+          <input 
+            id="source-whatsapp"
+            type="text" 
+            name="contact_whatsapp" 
+            class="form-control" 
+            placeholder="+57 310 123 4567" 
+          />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" for="source-url">Sitio Web o Red Social (Instagram / Facebook)</label>
+        <input 
+          id="source-url"
+          type="url" 
+          name="contact_url" 
+          class="form-control" 
+          placeholder="https://instagram.com/tu_fundacion" 
+        />
+      </div>
+
+      <div class="pin-explainer-banner" style="margin-bottom: 24px;">
+        {{ icons.shield_check("", 24) }}
+        <div>
+          <strong>Compromiso ético con la fauna:</strong>
+          Todas las organizaciones registradas operan bajo los principios de adopción responsable, esterilización obligatoria y respeto irrestricto de la Ley 1774 de 2016.
+        </div>
+      </div>
+
+      <!-- Mandatory Legal Checkbox -->
+      <div style="margin-bottom: 24px;">
+        <label class="form-checkbox-row" style="align-items: flex-start; gap: 10px;">
+          <input type="checkbox" name="accept_terms" value="true" required style="margin-top: 3px;" />
+          <span style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.5;">
+            * Acepto el tratamiento de datos personales de acuerdo con la Ley 1581 de 2012 y certifico que la información suministrada es veraz y representa a una entidad sin ánimo de lucro o rescatista legítimo.
+          </span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px;">
+        {{ icons.check("", 20) }} Enviar Solicitud de Registro
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

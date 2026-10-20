@@ -1,1 +1,134 @@
-<!-- Página completa de búsqueda (extiende base) -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Jornadas y Brigadas de Esterilización | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="container sterilization-view">
+  <div class="section-title-group" style="margin-bottom: 24px;">
+    <h1 class="section-title">Jornadas y Brigadas de Esterilización Gratuitas</h1>
+    <p class="section-desc">Esterilizar salva vidas y previene el abandono. Explora brigadas veterinarias públicas y solidarias en Colombia.</p>
+  </div>
+
+  <!-- Floating Search & Filter Bar con HTMX -->
+  <form id="search-form" class="search-bar-floating" role="search" aria-label="Buscador de jornadas" onsubmit="return false;" style="margin-bottom: 24px;">
+    <div class="search-segment">
+      {{ icons.pin_location("", 20) }}
+      <input 
+        id="muni-search-input"
+        type="text" 
+        name="municipality"
+        class="search-input" 
+        placeholder="Municipio (ej: Bogotá, Medellín, Cali...)" 
+        aria-label="Municipio para esterilización"
+        hx-get="/sterilization/campaigns"
+        hx-target="#results-container"
+        hx-trigger="keyup changed delay:350ms"
+        hx-include="#search-form"
+      />
+    </div>
+
+    <div class="search-divider"></div>
+
+    <div class="search-segment">
+      {{ icons.dog("", 20) }}
+      <select 
+        name="species" 
+        id="species-select"
+        class="search-select" 
+        aria-label="Especie"
+        hx-get="/sterilization/campaigns"
+        hx-target="#results-container"
+        hx-trigger="change"
+        hx-include="#search-form"
+      >
+        <option value="">Todas las especies</option>
+        <option value="canino">Caninos (Perros)</option>
+        <option value="felino">Felinos (Gatos)</option>
+      </select>
+    </div>
+
+    <button 
+      type="button" 
+      class="btn-teal" 
+      style="min-height: 40px; padding: 8px 20px;"
+      hx-get="/sterilization/campaigns"
+      hx-target="#results-container"
+      hx-include="#search-form"
+      aria-label="Buscar jornadas"
+    >
+      {{ icons.search("", 18) }}
+      <span>Buscar</span>
+    </button>
+  </form>
+
+  <!-- Quick Filter Pills -->
+  <div class="quick-pills-bar" aria-label="Filtros rápidos de ciudad" style="margin-bottom: 24px;">
+    <button 
+      type="button" 
+      class="search-pill" 
+      onclick="document.getElementById('muni-search-input').value = 'Bogotá'; htmx.trigger('#muni-search-input', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Bogotá
+    </button>
+    <button 
+      type="button" 
+      class="search-pill" 
+      onclick="document.getElementById('muni-search-input').value = 'Medellín'; htmx.trigger('#muni-search-input', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Medellín
+    </button>
+    <button 
+      type="button" 
+      class="search-pill" 
+      onclick="document.getElementById('muni-search-input').value = 'Cali'; htmx.trigger('#muni-search-input', 'keyup');"
+    >
+      {{ icons.pin_location("", 16) }} Cali
+    </button>
+    <button 
+      type="button" 
+      class="search-pill" 
+      onclick="document.getElementById('muni-search-input').value = ''; htmx.ajax('GET', '/sterilization/campaigns', '#results-container');"
+    >
+      {{ icons.close("", 16) }} Todas las ciudades
+    </button>
+    <a href="/sterilization/new" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px; text-decoration: none; margin-left: auto;">
+      {{ icons.plus("", 16) }} Publicar Jornada
+    </a>
+  </div>
+
+  <!-- Interactive Map Container -->
+  <div style="margin-bottom: 32px; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-card); background: #ffffff;">
+    <div style="background: var(--color-teal-soft); padding: 12px 20px; border-bottom: 1px solid var(--color-teal-border); display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--color-teal);">
+      <span style="display: inline-flex; align-items: center; gap: 6px;">
+        {{ icons.pin_location("", 16) }} Mapa Georreferenciado de Puntos Quirúrgicos Activos
+      </span>
+      <span style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted);">OpenStreetMap Live</span>
+    </div>
+    <div id="map" style="height: 360px; width: 100%; z-index: 1;"></div>
+  </div>
+
+  <script>
+    var map = L.map("map").setView([4.5709, -74.2973], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
+
+    var markersGroup = L.layerGroup().addTo(map);
+  </script>
+
+  <!-- Live Results Grid with HTMX -->
+  <section
+    id="results-container"
+    hx-get="/sterilization/campaigns"
+    hx-trigger="load"
+  >
+    <div style="text-align: center; padding: 3rem 0;">
+      <p style="color: var(--color-text-muted);">Consultando jornadas en tu zona...</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

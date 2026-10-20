@@ -1,1 +1,15 @@
 <!-- Fragmento: estado de una solicitud de verificación (pending/scheduled/done) -->
+<header style="background-color: {% if all_passed %}#388e3c{% else %}#d32f2f{% endif %}; color: white;">
+    Resultado de la Verificación
+</header>
+<div style="padding: 1rem; text-align: center;">
+    {% if all_passed %}
+        <h3 style="color: #2e7d32; margin-bottom: 0.5rem;">✅ ¡Verificación Exitosa!</h3>
+        <p>Todos los criterios fueron aprobados. La fundación ha obtenido su distintivo de fuente verificada.</p>
+    {% else %}
+        <h3 style="color: #c62828; margin-bottom: 0.5rem;">❌ Verificación Rechazada</h3>
+        <p>No se cumplieron todos los criterios. La solicitud ha sido rechazada. La fundación permanece en estado pendiente y se le notificará de las observaciones.</p>
+    {% endif %}
+    
+    <a href="/" role="button" class="outline" style="margin-top: 1rem;">Volver al inicio</a>
+</div>

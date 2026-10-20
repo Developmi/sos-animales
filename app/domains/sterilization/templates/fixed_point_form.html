@@ -1,0 +1,105 @@
+{% extends "base.html" %} {% block title %}Registrar Punto Fijo | SOS Animales{%
+endblock %} {% block content %}
+<article>
+  <header>
+    <h2>Registrar Punto Fijo de Esterilización</h2>
+    <p>El mapa se configurará automáticamente con tu dirección.</p>
+  </header>
+
+  <form hx-post="/sterilization/fixed-points/new" hx-swap="outerHTML">
+    <label
+      >¿Quién ofrece este punto fijo?
+      <select name="source_id" required>
+        <option value="" disabled selected>
+          Selecciona una fundación o rescatista...
+        </option>
+        {% for s in sources %}
+        <option value="{{ s.id }}">
+          {{ s.name }} {% if s.status == 'verified' %}✅{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+      <small
+        >Si eres independiente, primero debes
+        <a href="/sources/register">registrarte como rescatista aquí</a>.</small
+      >
+    </label>
+
+    <label
+      >Nombre del Punto Fijo
+      <input
+        type="text"
+        name="name"
+        placeholder="Ej: Clínica Veterinaria La Esperanza"
+        required
+    /></label>
+
+    <div class="grid">
+      <label
+        >Municipio
+        <select
+          name="municipality"
+          required
+          hx-get="/sterilization/municipality-options"
+          hx-trigger="load"
+          hx-target="this"
+          hx-swap="innerHTML"
+        >
+          <option value="">Cargando municipios...</option>
+        </select>
+      </label>
+      <label
+        >Dirección exacta
+        <input
+          type="text"
+          name="address"
+          placeholder="Ej: Carrera 10 # 20-30"
+          required
+      /></label>
+    </div>
+
+    <div class="grid">
+      <label
+        >Horario de atención
+        <input
+          type="text"
+          name="schedule_text"
+          placeholder="Ej: Lunes a Viernes 8am-5pm"
+          required
+      /></label>
+
+      <fieldset>
+        <legend>Especies que atienden</legend>
+        <label
+          ><input type="checkbox" name="species" value="canino" checked />
+          Caninos 🐶</label
+        >
+        <label
+          ><input type="checkbox" name="species" value="felino" checked />
+          Felinos 🐱</label
+        >
+      </fieldset>
+    </div>
+
+    <label>
+      <input type="checkbox" name="is_free" value="true" />
+      ¿Es totalmente gratuito? (Marca si NO tiene costo)
+    </label>
+
+    <label
+      >Requisitos (Ayuno, cobijas, etc)
+      <textarea name="requirements" rows="2"></textarea>
+    </label>
+
+    <label
+      >URL de la fuente original
+      <input type="url" name="source_url" placeholder="https://..." />
+    </label>
+    {% include "privacy_notice.html" %}
+
+    <button type="submit" style="margin-top: 1rem">
+      Registrar Punto Fijo y Generar Mapa
+    </button>
+  </form>
+</article>
+{% endblock %}

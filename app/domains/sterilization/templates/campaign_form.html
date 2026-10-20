@@ -1,0 +1,106 @@
+{% extends "base.html" %} {% block title %}Publicar Jornada | SOS Animales{%
+endblock %} {% block content %}
+<article>
+  <header>
+    <h2>Publicar Jornada de Esterilización</h2>
+    <p>El mapa se configurará automáticamente con tu dirección.</p>
+  </header>
+
+  <form hx-post="/sterilization/new" hx-swap="outerHTML">
+    <label
+      >¿Quién organiza esta jornada?
+      <select name="source_id" required>
+        <option value="" disabled selected>
+          Selecciona una fundación o rescatista...
+        </option>
+        {% for s in sources %}
+        <option value="{{ s.id }}">
+          {{ s.name }} {% if s.status == 'verified' %}✅{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+      <small
+        >Si eres independiente, primero debes
+        <a href="/sources/register">registrarte como rescatista aquí</a>.</small
+      >
+    </label>
+
+    <label
+      >Título de la Jornada
+      <input
+        type="text"
+        name="title"
+        placeholder="Ej: Gran Jornada Móvil Sur"
+        required
+    /></label>
+
+    <div class="grid">
+      <label
+        >Municipio
+        <select
+          name="municipality"
+          required
+          hx-get="/sterilization/municipality-options"
+          hx-trigger="load"
+          hx-target="this"
+          hx-swap="innerHTML"
+        >
+          <option value="">Cargando municipios...</option>
+        </select>
+      </label>
+      <label
+        >Dirección exacta
+        <input
+          type="text"
+          name="address"
+          placeholder="Ej: Carrera 10 # 20-30"
+          required
+      /></label>
+    </div>
+
+    <div class="grid">
+      <label
+        >Fecha y Hora de Inicio
+        <input type="datetime-local" name="starts_at" required
+      /></label>
+
+      <fieldset>
+        <legend>Especies que atienden</legend>
+        <label
+          ><input type="checkbox" name="species" value="canino" checked />
+          Caninos (Perros)</label
+        >
+        <label
+          ><input type="checkbox" name="species" value="felino" checked />
+          Felinos (Gatos)</label
+        >
+      </fieldset>
+    </div>
+
+    <label>
+      <input type="checkbox" name="is_free" value="true" />
+      ¿Es totalmente gratuita? (Marca si NO tiene costo)
+    </label>
+
+    <label
+      >Requisitos (Ayuno, cobijas, etc)
+      <textarea name="requirements" rows="2"></textarea>
+    </label>
+
+    <label
+      >Enlace de Agendamiento (Opcional)
+      <input type="url" name="booking_url" placeholder="https://forms.gle/..."
+    /></label>
+
+    <label
+      >URL de la fuente original
+      <input type="url" name="source_url" placeholder="https://..." />
+    </label>
+    {% include "privacy_notice.html" %}
+
+    <button type="submit" class="btn-warm" style="margin-top: 1.5rem">
+      Publicar Jornada y Generar Mapa
+    </button>
+  </form>
+</article>
+{% endblock %}

@@ -1,10 +1,85 @@
-"""Modelos SQLAlchemy del dominio verification (separado de sources).
+"""SQLAlchemy models for the verification domain.
 
-- VerificationRequest: solicitud de verificación para una source.
-  Estados: pending, scheduled (visita agendada), done, rejected.
-- ChecklistResult: resultado de la visita veterinaria (criterios evaluados).
-- Visit: registro de la visita — presencial (radio ≤ 2h Bogotá) o remota
-  (aliado local o reunión virtual, mismo checklist).
-
-Dominio separado para reutilización en post-MVP (ej: verificación de campañas).
+- VerificationRequest: verification request for a source/shelter entity.
+  States: pending, scheduled (visit scheduled), done, rejected.
+- ChecklistResult: individual criterion evaluated during veterinary inspection.
+- Visit: inspection visit record — on-site (within 2h radius of Bogota) or remote
+  (local veterinary partner or virtual session, executing the identical checklist).
 """
+
+from sqlalchemy import Integer, String, Boolean, DateTime, Text, ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
+
+from app.database import Base
+
+
+class VerificationRequest(Base):  # type: ignore[misc]
+    """Verification request for an animal shelter or rescue organization."""
+
+    __tablename__ = "verification_requests"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey("sources.id"), nullable=False, index=True
+    )
+
+    status: Mapped[str] = mapped_column(
+        String(20), default="pending", index=True
+    )  # pending, scheduled, done, rejected
+    submitted_evidence: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=func.now()
+    )
+
+    def __repr__(self) -> str:
+        return f"<VerificationRequest id={self.id} source_id={self.source_id} status='{self.status}'>"
+
+
+class Visit(Base):  # type: ignore[misc]
+    """Record of an in-person or remote veterinary inspection visit."""
+
+    __tablename__ = "visits"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    verification_request_id: Mapped[int] = mapped_column(
+        ForeignKey("verification_requests.id"), nullable=False, index=True
+    )
+
+    visit_type: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # presencial, remota
+    scheduled_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    visitor_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<Visit id={self.id} verification_request_id={self.verification_request_id} visit_type='{self.visit_type}'>"
+
+
+class ChecklistResult(Base):  # type: ignore[misc]
+    """Individual criterion result evaluated during a verification visit."""
+
+    __tablename__ = "checklist_results"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    visit_id: Mapped[int] = mapped_column(
+        ForeignKey("visits.id"), nullable=False, index=True
+    )
+
+    criterion: Mapped[str] = mapped_column(String(100), nullable=False)
+    passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<ChecklistResult id={self.id} visit_id={self.visit_id} criterion='{self.criterion}' passed={self.passed}>"

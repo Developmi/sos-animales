@@ -1,0 +1,36 @@
+{% if updates %}
+  <div style="margin-top: 1.25rem;">
+    <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Reportes de la Comunidad</h3>
+    {% for update in updates %}
+      <article style="padding: 1rem; margin-bottom: 0.75rem; background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color); border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <div>
+            <span class="badge {% if update.update_type == 'confirmed' %}badge-verified{% else %}badge-warm{% endif %}" style="margin-bottom: 0.35rem;">
+              {% if update.update_type == 'confirmed' %}
+                Información Confirmada
+              {% elif update.update_type == 'full' %}
+                Sin Cupos / Lleno
+              {% elif update.update_type == 'cancelled' %}
+                Jornada Cancelada
+              {% elif update.update_type == 'adopted' %}
+                Reportado Adoptado
+              {% elif update.update_type == 'in_treatment' %}
+                En Tratamiento
+              {% else %}
+                Datos Erróneos
+              {% endif %}
+            </span>
+            {% if update.note %}
+              <p style="margin-bottom: 0; font-size: 0.9em; color: var(--pico-color);">"{{ update.note }}"</p>
+            {% endif %}
+          </div>
+          <div>
+            {% include "vote_status.html" %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="margin-top: 1rem;"><small style="color: var(--pico-muted-color);">Aún no hay reportes comunitarios sobre este registro. Si conoces alguna novedad, compártela arriba.</small></p>
+{% endif %}

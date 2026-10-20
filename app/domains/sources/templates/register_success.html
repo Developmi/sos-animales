@@ -1,1 +1,21 @@
-<!-- Fragmento HTMX: confirmación tras enviar el formulario -->
+{% import "macros/icons.html" as icons %}
+<!-- Fragmento HTMX: confirmación tras enviar el formulario de fundación -->
+<div class="creation-card" style="text-align: center; padding: 48px 32px;">
+  <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--color-teal-soft); color: var(--color-teal); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 2px solid var(--color-teal-border);">
+    {{ icons.check("", 32) }}
+  </div>
+  <h2 style="font-size: 24px; font-weight: 800; color: var(--color-text-main); margin-bottom: 12px;">¡Solicitud enviada con éxito!</h2>
+  <p style="font-size: 15px; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 16px auto; line-height: 1.6;">
+    Gracias por registrar a <strong>{{ name }}</strong> en la Red SOS Animales Colombia.
+  </p>
+  <div class="pin-explainer-banner" style="max-width: 500px; margin: 0 auto 24px auto; text-align: left;">
+    {{ icons.clock("", 24) }}
+    <div>
+      <strong>Estado: En Proceso de Verificación</strong><br>
+      Un voluntario de la red validará la información y te contactará para formalizar la vinculación en el directorio nacional.
+    </div>
+  </div>
+  <a href="/" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+    {{ icons.home("", 18) }} Volver a la Página de Inicio
+  </a>
+</div>

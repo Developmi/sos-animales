@@ -1,1 +1,109 @@
-<!-- Fragmento: listado/directorio de fuentes por municipio -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Directorio de Refugios y Fundaciones | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container shelter-directory-view">
+  <div class="section-header" style="margin-bottom: 24px;">
+    <div class="section-title-group">
+      <h1 class="section-title">Directorio de Refugios y Fundaciones Aliadas</h1>
+      <p class="section-desc">Entidades con personería jurídica, albergues y rescatistas verificados en territorio colombiano.</p>
+    </div>
+    <a href="/sources/register" class="btn-primary" style="text-decoration: none;">
+      {{ icons.plus("", 18) }} Registrar Fundación o Refugio
+    </a>
+  </div>
+
+  <!-- Search Filter Header -->
+  <form method="GET" class="search-bar-floating" style="margin-bottom: 28px;" role="search">
+    <div class="search-segment" style="flex: 1;">
+      {{ icons.search("", 20) }}
+      <input 
+        type="text" 
+        name="municipality"
+        value="{{ municipality or '' }}"
+        class="search-input" 
+        placeholder="Buscar refugio por nombre, municipio o departamento..." 
+        aria-label="Buscar refugio"
+      />
+    </div>
+    <button type="submit" class="btn-primary" style="min-height: 40px; padding: 8px 20px;">
+      {{ icons.search("", 18) }}
+      <span>Buscar</span>
+    </button>
+  </form>
+
+  <!-- Directory Grid -->
+  {% if sources %}
+    {% set type_labels = {
+      "official": "Entidad Oficial",
+      "verified_shelter": "Refugio / Albergue",
+      "community": "Rescatista Comunitario"
+    } %}
+    <div class="shelter-grid">
+      {% for s in sources %}
+        <article class="shelter-card" onclick="window.location.href='/sources/{{ s.id }}'" role="button" tabindex="0">
+          <div class="shelter-top-row">
+            <div class="shelter-avatar" style="background: var(--color-primary-soft); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; border-radius: var(--radius-md); width: 56px; height: 56px; flex-shrink: 0; border: 1px solid var(--color-primary-border);">
+              {{ s.name[:2] | upper }}
+            </div>
+            <div class="shelter-info">
+              <h3 class="shelter-title-h3">{{ s.name }}</h3>
+              <span class="shelter-muni-tag">{{ s.municipality | capitalize }}{% if s.department %}, {{ s.department | capitalize }}{% endif %}</span>
+            </div>
+          </div>
+
+          <div class="shelter-stat-badge">
+            {{ icons.paw_heart("", 16) }} Refugio Activo en la Red SOS
+          </div>
+
+          <p class="shelter-bio">
+            Organización dedicada a la protección y rescate de animales en {{ s.municipality | capitalize }}. Canales de adopción abiertos para la comunidad.
+          </p>
+
+          <div style="font-size: 12px; color: var(--color-teal); font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 12px;">
+            {% if s.status == 'verified' %}
+              {{ icons.shield_check("", 16) }} Organización Verificada
+            {% else %}
+              {{ icons.clock("", 16) }} Registro en Verificación
+            {% endif %}
+            &bull; {{ type_labels.get(s.type, s.type) }}
+          </div>
+
+          <div class="shelter-actions-row" onclick="event.stopPropagation()">
+            <a 
+              href="/sources/{{ s.id }}"
+              class="btn-primary" 
+              style="flex: 1; padding: 8px 12px; font-size: 13px; text-decoration: none; justify-content: center;">
+              Ver Perfil y Jornadas
+            </a>
+            {% if s.contact_whatsapp %}
+              <a 
+                href="https://wa.me/57{{ s.contact_whatsapp | replace('+', '') | replace(' ', '') }}?text=Hola,%20los%20contacto%20a%20trav%C3%A9s%20del%20directorio%20de%20SOS%20Animales%20Colombia" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="btn-secondary" 
+                style="padding: 8px 12px; font-size: 13px; text-decoration: none;"
+                aria-label="WhatsApp">
+                {{ icons.whatsapp("", 18) }}
+              </a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon-box">{{ icons.building("", 32) }}</div>
+      <h3 class="empty-title">No encontramos refugios con ese criterio</h3>
+      <p class="empty-desc">
+        Prueba buscando con otro término o registra tu albergue para formar parte de la red nacional.
+      </p>
+      <a href="/sources/register" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        {{ icons.plus("", 18) }} Registrar una Fundación o Refugio
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

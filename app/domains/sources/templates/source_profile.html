@@ -1,1 +1,166 @@
-<!-- Perfil público de una fuente (verificada o pendiente, con badge distinto) -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}{{ source.name }} | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container shelter-single-view">
+  <a href="/sources/" class="breadcrumb-back">
+    {{ icons.arrow_left("", 18) }} Volver al directorio de refugios
+  </a>
+
+  <!-- Shelter Hero Card -->
+  <article class="shelter-hero-card">
+    <div class="shelter-hero-logo" style="background: var(--color-primary-soft); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 32px; border-radius: var(--radius-lg); width: 88px; height: 88px; flex-shrink: 0; border: 2px solid var(--color-primary-border);">
+      {{ source.name[:2] | upper }}
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span class="shelter-badge-verified">
+          {% if source.status == 'verified' %}
+            {{ icons.shield_check("", 16) }} Organización Verificada
+          {% else %}
+            {{ icons.clock("", 16) }} Registro en Verificación
+          {% endif %}
+        </span>
+        <span class="pet-chip chip-slate">
+          {% if source.type == 'official' %}Entidad Oficial{% elif source.type == 'verified_shelter' %}Refugio / Albergue{% else %}Rescatista Comunitario{% endif %}
+        </span>
+      </div>
+
+      <h1 style="font-size: 28px; font-weight: 800; color: var(--color-text-main); line-height: 1.2;">
+        {{ source.name }}
+      </h1>
+
+      <div style="font-size: 15px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
+        {{ icons.pin_location("", 18) }}
+        <span>{{ source.municipality | capitalize }}{% if source.department %}, {{ source.department | capitalize }}{% endif %}</span>
+      </div>
+
+      <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.55; margin-top: 4px;">
+        Entidad protectora de animales que articula adopciones responsables y campañas públicas de esterilización preventiva en Colombia.
+      </p>
+
+      <!-- Canales de Contacto Directo -->
+      <div style="margin-top: 12px;">
+        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px;">
+          Canales de Contacto Directo:
+        </div>
+        <div class="contact-channels-grid">
+          {% if source.contact_whatsapp %}
+            {% set whatsapp_num = source.contact_whatsapp | replace('+', '') | replace(' ', '') | replace('-', '') %}
+            {% if not whatsapp_num.startswith('57') and whatsapp_num | length == 10 %}
+              {% set whatsapp_num = '57' + whatsapp_num %}
+            {% endif %}
+            <a 
+              href="https://wa.me/{{ whatsapp_num }}?text={{ ('Hola ' + source.name + ', los contacto a través de SOS Animales Colombia') | urlencode }}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="channel-btn">
+              {{ icons.whatsapp("", 18) }}
+              <span>WhatsApp: {{ source.contact_whatsapp }}</span>
+            </a>
+          {% endif %}
+          {% if source.contact_email %}
+            <a href="mailto:{{ source.contact_email }}" class="channel-btn">
+              {{ icons.mail("", 18) }}
+              <span>Correo: {{ source.contact_email }}</span>
+            </a>
+          {% endif %}
+          {% if source.contact_url %}
+            <a href="{{ source.contact_url }}" target="_blank" rel="noopener noreferrer" class="channel-btn">
+              {{ icons.share("", 18) }}
+              <span>Sitio Web / Redes</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Section: Jornadas de Esterilización -->
+  <section style="margin-bottom: 40px; margin-top: 32px;" aria-labelledby="shelter-campaigns-title">
+    <div class="section-title-group" style="margin-bottom: 16px;">
+      <h2 id="shelter-campaigns-title" class="section-title" style="font-size: 22px;">
+        Jornadas de Esterilización Organizadas
+      </h2>
+      <p class="section-desc">Brigadas médicas comunitarias coordinadas por esta organización</p>
+    </div>
+
+    {% if campaigns %}
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        {% for c in campaigns %}
+          <div class="campaign-subcard" style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--color-teal); display: flex; align-items: center; gap: 6px;">
+                {{ icons.calendar("", 14) }} Fecha: {{ c.starts_at.strftime('%d/%m/%Y') }} • {{ c.municipality | capitalize }}
+              </div>
+              <h3 style="font-size: 17px; font-weight: 800; color: var(--color-text-main); margin-top: 2px; margin-bottom: 4px;">
+                {{ c.title }}
+              </h3>
+              <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 0;">
+                {{ c.address or 'Punto barrial' }} • {% if c.capacity %}{{ c.capacity }} cupos{% else %}Cupos libres{% endif %}
+              </p>
+            </div>
+            <a href="/sterilization/campaigns/{{ c.id }}" class="btn-teal" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
+              Ver Detalles
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="padding: 24px; background: #FFFFFF; border: 1px dashed var(--color-border); border-radius: var(--radius-md); text-align: center; color: var(--color-text-muted); font-size: 14px;">
+        Esta organización no tiene jornadas de esterilización activas programadas en este momento.
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- Section: Peluditos en Adopción -->
+  <section style="margin-bottom: 48px;" aria-labelledby="shelter-pets-title">
+    <div class="section-title-group" style="margin-bottom: 16px;">
+      <h2 id="shelter-pets-title" class="section-title" style="font-size: 22px;">
+        Peluditos en Adopción de {{ source.name }}
+      </h2>
+      <p class="section-desc">Animales rescatados bajo el cuidado y tutela de este refugio</p>
+    </div>
+
+    {% if animals %}
+      <div class="pet-grid">
+        {% for animal in animals %}
+          <article class="pet-card" onclick="window.location.href='/animals/{{ animal.id }}'" tabindex="0" role="button">
+            <div class="pet-media">
+              <img src="{{ animal.foto_url }}" alt="Foto de {{ animal.name }}" loading="lazy" />
+              <div class="pet-media-chips">
+                {% if animal.is_sterilized %}
+                  <span class="pet-chip chip-teal">{{ icons.check("", 14) }} Esterilizado</span>
+                {% endif %}
+                {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}
+                  <span class="pet-chip chip-slate">¡Adoptado!</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="pet-content">
+              <div class="pet-name-row">
+                <h3 class="pet-name">{{ animal.name }}</h3>
+                <span class="pet-gender-badge">{{ (animal.sexo or animal.species) | capitalize }}</span>
+              </div>
+              <div class="pet-meta-line">
+                <span>{{ animal.breed or 'Criollo' }}</span> • <span>{% if animal.age_years %}{{ animal.age_years }} años{% else %}Edad no especificada{% endif %}</span>
+              </div>
+              <div class="pet-location-row">
+                {{ icons.pin_location("", 16) }}
+                <span>{{ animal.municipality | capitalize }}</span>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="padding: 24px; background: #FFFFFF; border: 1px dashed var(--color-border); border-radius: var(--radius-md); text-align: center; color: var(--color-text-muted); font-size: 14px;">
+        No hay animales publicados actualmente por esta organización.
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

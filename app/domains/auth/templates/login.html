@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Acceso Administrativo — SOS Animales{% endblock %}
+{% block content %}
+<article style="max-width: 480px; margin: 4rem auto;">
+  <header><hgroup><h1>Acceso Administrativo</h1></hgroup></header>
+  {% if error %}
+    <p style="color: var(--pico-color-red);">{{ error }}</p>
+  {% endif %}
+  <form method="post" action="/auth/login">
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" name="password" required autofocus />
+    <button type="submit">Ingresar</button>
+  </form>
+</article>
+{% endblock %}

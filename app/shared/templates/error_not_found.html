@@ -1,0 +1,10 @@
+<!-- Error fragment for HTMX target swaps (e.g., verification router 404).
+     For full-page 404 errors, see error_404.html (registered as global handler).
+     Keep both visually consistent (Pico CSS colors, same tone). -->
+<article>
+    <header style="background-color: #d32f2f; color: white;">
+        <h2 style="color: white;">Error</h2>
+    </header>
+    <p>{{ message }}</p>
+    <a href="#" onclick="history.back()" role="button" class="outline">Volver</a>
+</article>

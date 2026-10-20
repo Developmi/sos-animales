@@ -1,1 +1,66 @@
-<!-- Fragmento HTMX: listado filtrado de animales por municipio/especie/estado -->
+{% import "macros/icons.html" as icons %}
+<!-- Fragmento HTMX: Cuadrícula de peluditos estilo Laika + Petfinder -->
+{% if animals %}
+  <div class="pet-grid">
+    {% for animal in animals %}
+      <article class="pet-card" onclick="window.location.href='/animals/{{ animal.id }}'" tabindex="0" role="button" aria-label="Ver detalles de {{ animal.name }}">
+        <div class="pet-media">
+          <img
+            src="{{ animal.foto_url }}"
+            alt="Foto de {{ animal.name }}, {{ animal.breed or 'Criollo' }}"
+            loading="lazy"
+          />
+          <div class="pet-media-chips">
+            {% if animal.is_sterilized %}
+              <span class="pet-chip chip-teal">{{ icons.check("", 14) }} Esterilizado</span>
+            {% endif %}
+            {% if animal.age_years is not none and animal.age_years < 1 %}
+              <span class="pet-chip chip-amber">Cachorro</span>
+            {% endif %}
+            {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}
+              <span class="pet-chip chip-slate">¡Adoptado!</span>
+            {% endif %}
+          </div>
+          <button 
+            type="button"
+            class="pet-favorite-btn" 
+            onclick="event.stopPropagation(); this.classList.toggle('favorited');" 
+            aria-label="Guardar a favoritos">
+            {{ icons.heart("", 18) }}
+          </button>
+        </div>
+
+        <div class="pet-content">
+          <div class="pet-name-row">
+            <h3 class="pet-name">{{ animal.name }}</h3>
+            <span class="pet-gender-badge">{{ (animal.sexo or animal.species) | capitalize }}</span>
+          </div>
+          <div class="pet-meta-line">
+            <span>{{ animal.breed or 'Criollo / Mestizo' }}</span> • <span>{% if animal.age_years is not none %}{{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}{% else %}Edad no especificada{% endif %}</span>
+          </div>
+          <div class="pet-location-row">
+            {{ icons.pin_location("", 16) }}
+            <span>{{ animal.municipality | capitalize }}</span>
+          </div>
+          {% if animal.source and animal.source.name %}
+          <div class="pet-shelter-row">
+            {{ icons.shield_check("", 16) }}
+            <span>{{ animal.source.name }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon-box">{{ icons.search("", 32) }}</div>
+    <h3 class="empty-title">No encontramos peluditos con esos filtros</h3>
+    <p class="empty-desc">
+      Prueba cambiando la ciudad o limpiando los filtros para ver todos los animales disponibles.
+    </p>
+    <a href="/animals/new" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+      {{ icons.plus("", 18) }} Publicar un Peludito en Adopción
+    </a>
+  </div>
+{% endif %}

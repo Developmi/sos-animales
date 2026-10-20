@@ -1,1 +1,20 @@
-<!-- Banner de consentimiento de cookies visible hasta aceptación -->
+<!-- Banner de consentimiento de cookies — se oculta al aceptar vía localStorage -->
+<div id="cookie-consent"
+     style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--pico-card-background-color);
+            border-top: 1px solid var(--pico-muted-border-color); padding: 1rem;
+            z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.1);">
+    <div class="container" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: space-between;">
+        <p style="margin: 0; flex: 1; min-width: 200px;">
+            <small>Utilizamos cookies propias para mejorar tu experiencia de navegación. Al continuar, aceptas nuestra <a href="/legal/cookies">política de cookies</a>.</small>
+        </p>
+        <button onclick="const banner=document.getElementById('cookie-consent'); if(banner) banner.remove(); localStorage.setItem('cookie-consent','accepted');"
+                style="white-space: nowrap;">Aceptar</button>
+    </div>
+</div>
+<script>
+// ponytail: inline JS — no dependency. Remove banner if already accepted.
+if (localStorage.getItem('cookie-consent')) {
+    const banner = document.getElementById('cookie-consent');
+    if (banner) banner.remove();
+}
+</script>

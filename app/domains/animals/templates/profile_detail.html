@@ -1,1 +1,218 @@
-<!-- Vista completa de un perfil de animal -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Conoce a {{ animal.name }} | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<div class="container profile-view">
+  <a href="/animals/" class="breadcrumb-back">
+    {{ icons.arrow_left("", 18) }} Volver a peluditos en adopción
+  </a>
+
+  <div class="profile-layout">
+    <!-- Left Column: Gallery & Share -->
+    <div class="gallery-wrapper">
+      <div class="gallery-main">
+        <img id="main-profile-img" src="{{ animal.foto_url }}" alt="Foto de {{ animal.name }}" />
+        <div class="pet-media-chips">
+          {% if animal.is_sterilized %}
+            <span class="pet-chip chip-teal">{{ icons.check("", 14) }} Esterilizado</span>
+          {% endif %}
+          <span class="pet-chip {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}chip-slate{% else %}chip-coral{% endif %}">
+            {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}Caso Adoptado{% else %}Disponible para Adopción{% endif %}
+          </span>
+        </div>
+      </div>
+
+      {% if animal.foto_urls and animal.foto_urls | length > 1 %}
+        <div class="gallery-thumbs" aria-label="Galería de fotos adicionales">
+          {% for url in animal.foto_urls %}
+            <div 
+              class="gallery-thumb {% if loop.first %}active{% endif %}" 
+              onclick="document.getElementById('main-profile-img').src='{{ url }}'; document.querySelectorAll('.gallery-thumb').forEach(el => el.classList.remove('active')); this.classList.add('active');"
+              role="button"
+              tabindex="0"
+              aria-label="Ver foto {{ loop.index }}">
+              <img src="{{ url }}" alt="Miniatura {{ loop.index }} de {{ animal.name }}" />
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+        <button type="button" class="btn-secondary" style="flex: 1; min-height: 42px;" onclick="navigator.clipboard.writeText(window.location.href); alert('¡Enlace copiado al portapapeles!');">
+          {{ icons.share("", 18) }} Compartir Enlace
+        </button>
+        <a 
+          href="https://api.whatsapp.com/send?text={{ ('¡Hola! Mira a ' + animal.name + ' en adopción en SOS Animales Colombia: ') | urlencode }}{{ ('http://localhost:8000/animals/' + animal.id | string) | urlencode }}" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="btn-secondary" 
+          style="flex: 1; min-height: 42px; text-decoration: none;">
+          {{ icons.whatsapp("", 18) }} Enviar por WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: Details & Shelter Card -->
+    <div class="details-wrapper">
+      <div class="profile-header-group">
+        <div class="status-badge {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}status-adoptado{% endif %}">
+          <span class="status-badge-dot"></span>
+          <span>{% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}Adoptado felizmente{% else %}Disponible para Adopción Inmediata{% endif %}</span>
+        </div>
+        <h1 class="profile-title">{{ animal.name }}</h1>
+        <div class="profile-muni">
+          {{ icons.pin_location("", 18) }}
+          <span>{{ animal.municipality | capitalize }}{% if source and source.department %}, {{ source.department | capitalize }}{% endif %}</span>
+        </div>
+      </div>
+
+      <!-- Attribute Chips Grid -->
+      <div class="attribute-grid" aria-label="Ficha técnica del animal">
+        <div class="attr-item">
+          <span class="attr-label">Especie</span>
+          <span class="attr-value">{% if animal.species == 'canino' or animal.species == 'perro' %}Canino / Perro{% else %}Felino / Gato{% endif %}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Raza</span>
+          <span class="attr-value">{{ animal.breed or 'Criollo / Mestizo' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Edad Estimada</span>
+          <span class="attr-value">{% if animal.age_years is not none %}{{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}{% else %}No especificada{% endif %}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Sexo</span>
+          <span class="attr-value">{{ (animal.sexo or 'No especificado') | capitalize }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Tamaño</span>
+          <span class="attr-value">{{ (animal.size or 'Mediano') | capitalize }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Esterilización</span>
+          <span class="attr-value" style="color: var(--color-teal); display: inline-flex; align-items: center; gap: 4px;">
+            {% if animal.is_sterilized %}Esterilizado/a {{ icons.check("", 14) }}{% else %}Pendiente{% endif %}
+          </span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Etapa de Vida</span>
+          <span class="attr-value">{{ (animal.etapa_madurez or 'Adulto') | capitalize }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Fuente / Registro</span>
+          <span class="attr-value">{{ source.name if source else 'Rescatista Independiente' }}</span>
+        </div>
+      </div>
+
+      <!-- Description Quote -->
+      {% if animal.description %}
+        <blockquote class="profile-quote">
+          "{{ animal.description }}"
+        </blockquote>
+      {% endif %}
+
+      <!-- Shelter Contact Card -->
+      <div class="shelter-contact-card">
+        <div class="shelter-row-top">
+          <div class="shelter-name-box">
+            <span style="font-size: 11px; text-transform: uppercase; color: var(--color-text-muted); font-weight: 700;">Organización Responsable</span>
+            <div class="shelter-title">{{ source.name if source else 'Rescatista SOS' }}</div>
+          </div>
+          {% if source and source.status == 'verified' %}
+            <span class="shelter-badge-verified">
+              {{ icons.shield_check("", 16) }} Refugio Verificado
+            </span>
+          {% endif %}
+        </div>
+
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">
+          Escribe directamente para agendar visita, conocer los requisitos o llenar el formulario de adopción responsable.
+        </p>
+
+        <div class="shelter-contact-actions">
+          {% if source and (source.contact_whatsapp or source.contact_phone) %}
+            {% set whatsapp_num = (source.contact_whatsapp or source.contact_phone) | replace('+', '') | replace(' ', '') | replace('-', '') %}
+            {% if not whatsapp_num.startswith('57') and whatsapp_num | length == 10 %}
+              {% set whatsapp_num = '57' + whatsapp_num %}
+            {% endif %}
+            <a 
+              href="https://wa.me/{{ whatsapp_num }}?text={{ ('Hola, vi a ' + animal.name + ' en SOS Animales Colombia y deseo iniciar el proceso de adopción') | urlencode }}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="btn-primary" 
+              style="background: #25D366; border-color: #25D366; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35); text-decoration: none;">
+              {{ icons.whatsapp("", 18) }} Contactar por WhatsApp
+            </a>
+          {% endif %}
+          {% if source %}
+            <a href="/sources/{{ source.id }}" class="btn-secondary" style="text-decoration: none;">
+              {{ icons.building("", 18) }} Ver Ficha del Refugio
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Updates & PIN Management Section -->
+  <section class="community-section" aria-labelledby="community-title" style="margin-top: 40px;">
+    <h2 id="community-title" style="font-size: 20px; font-weight: 800; color: var(--color-text-main); margin-bottom: 6px;">
+      Actualizaciones y Trazabilidad Comunitaria
+    </h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 16px;">
+      Registro público de verificación y seguimiento veterinario de este caso en Colombia.
+    </p>
+
+    <!-- Community Updates Feed with HTMX -->
+    <div id="updates-list-container" hx-get="/community/list?animal_id={{ animal.id }}" hx-trigger="load, newCommunityUpdate from:body">
+      <p style="color: var(--color-text-muted);"><small>Cargando reportes comunitarios...</small></p>
+    </div>
+
+    <!-- Collapsible Update Form -->
+    <details style="margin-top: 16px;">
+      <summary class="btn-secondary" style="cursor: pointer; display: inline-flex; font-size: 0.9rem; padding: 6px 14px;">
+        {{ icons.plus("", 16) }} <span>Reportar actualización sobre {{ animal.name }}</span>
+      </summary>
+      <div
+        hx-get="/community/update?animal_id={{ animal.id }}"
+        hx-trigger="revealed"
+        style="margin-top: 12px; padding: 18px; border: 1px solid var(--color-border); border-radius: 12px; background: #ffffff;"
+      >
+        <p style="color: var(--color-text-muted);">Cargando formulario...</p>
+      </div>
+    </details>
+
+    <!-- PIN Management Accordion -->
+    {% if animal.status == 'available' %}
+      <details class="pin-accordion" style="margin-top: 24px;">
+        <summary class="pin-accordion-summary">
+          <span>¿Eres el rescatista o fundación que subió a {{ animal.name }}? Marcar como adoptado con tu PIN</span>
+          {{ icons.chevron_down("", 18) }}
+        </summary>
+        <div class="pin-accordion-body">
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">
+            Ingresa el código PIN de 4 dígitos que se te envió al correo para marcar este caso como Adoptado y retirar la disponibilidad:
+          </p>
+          <form hx-post="/animals/{{ animal.id }}/adopt" hx-target="#adopt-result" hx-swap="innerHTML" class="pin-input-group">
+            <input 
+              type="password" 
+              name="pin"
+              class="pin-input" 
+              placeholder="••••" 
+              maxlength="4" 
+              required
+              aria-label="Código PIN de 4 dígitos"
+            />
+            <button type="submit" class="btn-primary">
+              {{ icons.key_pin("", 18) }} Marcar como Adoptado
+            </button>
+          </form>
+          <div id="adopt-result" style="margin-top: 12px;"></div>
+        </div>
+      </details>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

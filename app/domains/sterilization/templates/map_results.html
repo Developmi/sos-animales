@@ -1,1 +1,87 @@
-<!-- Fragmento HTMX: lista/pines de jornadas según filtro -->
+{% import "macros/icons.html" as icons %}
+<!-- Fragmento HTMX: Cuadrícula de campañas estilo Laika + Petfinder -->
+{% if campaigns %}
+  <div class="campaign-grid">
+    {% for camp in campaigns %}
+      <article class="campaign-card" onclick="window.location.href='/sterilization/campaigns/{{ camp.id }}'" role="button" tabindex="0">
+        <div class="campaign-header-row">
+          <div class="campaign-date-chip">
+            <span class="campaign-day">{{ camp.starts_at.strftime('%d') }}</span>
+            <span class="campaign-month">{{ camp.starts_at.strftime('%b') | upper }}</span>
+          </div>
+          <div style="flex: 1;">
+            <span class="pet-chip {% if camp.is_free %}chip-teal{% else %}chip-amber{% endif %}" style="margin-bottom: 6px;">
+              {% if camp.is_free %}{{ icons.check("", 12) }} Jornada Gratuita{% else %}Aporte Solidario{% endif %}
+            </span>
+            <h3 class="campaign-title">{{ camp.title }}</h3>
+          </div>
+        </div>
+
+        <div class="campaign-meta">
+          <div class="campaign-meta-item">
+            {{ icons.pin_location("", 16) }}
+            <span><strong>{{ camp.municipality | capitalize }}:</strong> {{ camp.address or 'Punto barrial' }}</span>
+          </div>
+          <div class="campaign-meta-item">
+            {{ icons.clock("", 16) }}
+            <span>{{ camp.starts_at.strftime('%I:%M %p') }}{% if camp.ends_at %} a {{ camp.ends_at.strftime('%I:%M %p') }}{% endif %}</span>
+          </div>
+          <div class="campaign-meta-item">
+            {{ icons.shield_check("", 16) }}
+            <span>Especies: {{ camp.species | join(', ') | title }}</span>
+          </div>
+          <div class="campaign-meta-item">
+            {{ icons.check("", 16) }}
+            <span><strong>{% if camp.capacity %}{{ camp.capacity }} cupos disponibles{% else %}Por orden de llegada{% endif %}</strong></span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 12px;">
+          <a href="/sterilization/campaigns/{{ camp.id }}" class="btn-teal" style="flex: 1; text-decoration: none; justify-content: center;">
+            Ver Ficha Completa
+          </a>
+          {% if camp.booking_url %}
+            <a href="{{ camp.booking_url }}" target="_blank" rel="noopener" class="btn-secondary" style="padding: 8px 12px; text-decoration: none;" aria-label="Inscripción directa">
+              {{ icons.arrow_right("", 16) }}
+            </a>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon-box">{{ icons.syringe("", 32) }}</div>
+    <h3 class="empty-title">No hay jornadas programadas con estos filtros</h3>
+    <p class="empty-desc">
+      Prueba buscando con otro municipio o consulta periódicamente las brigadas oficiales que se van agendando.
+    </p>
+    <a href="/sterilization/new" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+      {{ icons.plus("", 18) }} Registrar una Jornada Gratuita
+    </a>
+  </div>
+{% endif %}
+
+<script>
+  if (typeof markersGroup !== 'undefined') {
+    markersGroup.clearLayers();
+
+    {% if campaigns %}
+      var bounds = [];
+      {% for camp in campaigns %}
+        {% if camp.lat and camp.lng %}
+          var m = L.marker([{{ camp.lat }}, {{ camp.lng }}])
+            .bindPopup("<div style='font-family: inherit;'><strong>{{ camp.title }}</strong><br><small>{{ camp.municipality | capitalize }} • {{ camp.starts_at.strftime('%d/%m/%Y') }}</small><br><a href='/sterilization/campaigns/{{ camp.id }}' style='color: #0D9488; font-weight: 700;'>Ver detalles &rarr;</a></div>")
+            .addTo(markersGroup);
+          bounds.push([{{ camp.lat }}, {{ camp.lng }}]);
+        {% endif %}
+      {% endfor %}
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, {padding: [50, 50], maxZoom: 13});
+      }
+    {% else %}
+      map.setView([4.5709, -74.2973], 6);
+    {% endif %}
+  }
+</script>

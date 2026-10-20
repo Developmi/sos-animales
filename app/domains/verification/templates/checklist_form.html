@@ -1,1 +1,39 @@
 <!-- Formulario interno (solo tú/voluntarios vet) para registrar resultado de visita -->
+{% extends "base.html" %}
+
+{% block title %}Checklist de Visita | SOS Animales{% endblock %}
+
+{% block content %}
+<article>
+    <header>
+        <h2>📋 Formulario de Evaluación Veterinaria</h2>
+        <p>Visita ID: #{{ visit_id }}</p>
+    </header>
+    
+    <form hx-post="/verification/visits/{{ visit_id }}/checklist" hx-swap="innerHTML" hx-target="closest article">
+        <fieldset>
+            <legend>Criterios de Verificación (Marcar los que CUMPLE):</legend>
+            
+            <label>
+                <input type="checkbox" name="crit_1" value="true">
+                1. Instalaciones adecuadas, ventiladas y limpias.
+            </label>
+            <label>
+                <input type="checkbox" name="crit_2" value="true">
+                2. Registros veterinarios (vacunas/desparasitación) al día.
+            </label>
+            <label>
+                <input type="checkbox" name="crit_3" value="true">
+                3. Espacios seguros sin riesgo de fuga.
+            </label>
+        </fieldset>
+
+        <label>
+            Observaciones o motivos de rechazo:
+            <textarea name="global_notes" rows="3" placeholder="Si algún criterio no se cumple, detalla la razón aquí..."></textarea>
+        </label>
+        
+        <button type="submit" style="margin-top: 1rem;">Registrar Resultado de la Visita</button>
+    </form>
+</article>
+{% endblock %}

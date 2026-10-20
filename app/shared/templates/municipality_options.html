@@ -1,0 +1,8 @@
+<!-- Fragmento HTMX: opciones de municipio agrupadas por departamento -->
+{% for department, municipalities in grouped.items() %}
+<optgroup label="{{ department }}">
+  {% for m in municipalities %}
+  <option value="{{ m.name | lower }}">{{ m.name }}</option>
+  {% endfor %}
+</optgroup>
+{% endfor %}

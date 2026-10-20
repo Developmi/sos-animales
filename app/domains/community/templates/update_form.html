@@ -1,1 +1,37 @@
-<!-- Fragmento: formulario para reportar actualización (con PIN) sobre una jornada -->
+<!-- Fragmento: formulario para reportar actualización sobre una jornada o animal -->
+<form hx-post="/community/update" hx-swap="outerHTML">
+  {% if campaign_id %}<input type="hidden" name="campaign_id" value="{{ campaign_id }}">{% endif %}
+  {% if animal_id %}<input type="hidden" name="animal_id" value="{{ animal_id }}">{% endif %}
+
+  <label for="update-type-select">
+    <strong>¿Qué deseas reportar?</strong>
+    <select id="update-type-select" name="update_type" required>
+      <option value="" disabled selected>Selecciona una opción...</option>
+      {% if animal_id %}
+        <option value="confirmed">Confirmo que la información sigue vigente</option>
+        <option value="adopted">Este animal ya fue adoptado</option>
+        <option value="in_treatment">Está actualmente en tratamiento veterinario</option>
+        <option value="wrong_info">La información de contacto o perfil es errónea</option>
+      {% elif campaign_id %}
+        <option value="confirmed">Confirmo que la jornada se realizará según lo anunciado</option>
+        <option value="full">Ya no hay cupos disponibles (Agotado)</option>
+        <option value="cancelled">La jornada fue cancelada o aplazada</option>
+        <option value="wrong_info">La dirección o fecha es incorrecta</option>
+      {% endif %}
+    </select>
+    {% if not animal_id and not campaign_id %}
+      <p style="color: var(--pico-muted-color); margin-top: 0.5rem;"><small>Selecciona una jornada o un animal para reportar.</small></p>
+    {% endif %}
+  </label>
+
+  <label for="update-note">
+    <strong>Detalles adicionales (opcional)</strong>
+    {% if animal_id %}
+      <textarea id="update-note" name="note" rows="2" placeholder="Ej: Fue adoptado por una familia local, está en la clínica X..."></textarea>
+    {% else %}
+      <textarea id="update-note" name="note" rows="2" placeholder="Ej: Asistí al punto y confirmaron que la atención empieza a las 7am..."></textarea>
+    {% endif %}
+  </label>
+
+  <button type="submit" class="btn-warm" style="margin-top: 0.5rem;">Enviar Reporte Comunitario</button>
+</form>

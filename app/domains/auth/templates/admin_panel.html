@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Panel de Administración — SOS Animales{% endblock %}
+{% block content %}
+<h1>Panel de Administración</h1>
+<div class="grid">
+  <article>
+    <header>Campañas</header>
+    <p style="font-size: 2rem; font-weight: bold;">{{ campaign_count }}</p>
+  </article>
+  <article>
+    <header>Animales</header>
+    <p style="font-size: 2rem; font-weight: bold;">{{ animal_count }}</p>
+  </article>
+  <article>
+    <header>Fuentes</header>
+    <p style="font-size: 2rem; font-weight: bold;">{{ source_count }}</p>
+  </article>
+  <article>
+    <header>Puntos Fijos</header>
+    <p style="font-size: 2rem; font-weight: bold;">{{ fixed_point_count }}</p>
+  </article>
+</div>
+<section>
+  <h2>Acciones Rápidas</h2>
+  <div class="grid">
+    <a href="/sterilization/new" role="button">Crear Jornada</a>
+    <a href="/sterilization/fixed-points/new" role="button">Registrar Punto Fijo</a>
+    <a href="/animals/new" role="button">Publicar Animal</a>
+    <a href="/sources/register" role="button">Registrar Fundación</a>
+  </div>
+</section>
+<form method="post" action="/auth/logout">
+  <button type="submit" class="secondary">Cerrar Sesión</button>
+</form>
+{% endblock %}

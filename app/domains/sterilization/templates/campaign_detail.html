@@ -1,1 +1,146 @@
-<!-- Vista completa de una jornada específica -->
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}{{ campaign.title }} | SOS Animales Colombia{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="container sterilization-single-view">
+  <a href="/sterilization/search" class="breadcrumb-back">
+    {{ icons.arrow_left("", 18) }} Volver a todas las jornadas de esterilización
+  </a>
+
+  <!-- Main Campaign Hero Card -->
+  <article class="campaign-hero-card">
+    <div class="campaign-badge-row">
+      <span class="badge-tag-free">
+        {{ icons.check("", 14) }} {% if campaign.is_free %}Jornada Gratuita{% else %}Aporte Solidario{% endif %}
+      </span>
+      <span class="badge-tag-reported">
+        {{ icons.shield_check("", 14) }} Publicado por {{ source.name if source else 'Alcaldía / Fundación' }}
+      </span>
+      {% set data_origin = campaign.data_origin %}
+      {% include "data_origin_badge.html" %}
+    </div>
+
+    <div>
+      <h1 class="campaign-single-title">{{ campaign.title }}</h1>
+      <div class="campaign-single-muni">
+        {{ icons.pin_location("", 18) }}
+        <span>{{ campaign.municipality | capitalize }}</span> • <span style="font-weight: 400; color: var(--color-text-muted);">{{ campaign.address or 'Dirección detallada en punto' }}</span>
+      </div>
+    </div>
+
+    <!-- 4 Key Info Blocks -->
+    <div class="campaign-info-grid">
+      <div class="info-chip-box">
+        <span class="info-chip-label">Fecha y Hora</span>
+        <div class="info-chip-value">{{ campaign.starts_at.strftime('%d/%m/%Y') }}</div>
+        <small style="color: var(--color-text-muted); font-size: 12px;">{{ campaign.starts_at.strftime('%I:%M %p') }}{% if campaign.ends_at %} a {{ campaign.ends_at.strftime('%I:%M %p') }}{% endif %}</small>
+      </div>
+
+      <div class="info-chip-box">
+        <span class="info-chip-label">Especies Atendidas</span>
+        <div class="info-chip-value">{{ campaign.species | join(', ') | title }}</div>
+        <small style="color: var(--color-text-muted); font-size: 12px;">Caninos y felinos mestizos o de raza</small>
+      </div>
+
+      <div class="info-chip-box">
+        <span class="info-chip-label">Capacidad / Cupos</span>
+        <div class="info-chip-value" style="color: var(--color-teal);">{% if campaign.capacity %}{{ campaign.capacity }} cupos asignados{% else %}Por orden de llegada{% endif %}</div>
+        <small style="color: var(--color-text-muted); font-size: 12px;">Se recomienda llegar con anticipación</small>
+      </div>
+
+      <div class="info-chip-box">
+        <span class="info-chip-label">Organizador Responsable</span>
+        <div class="info-chip-value">{{ source.name if source else 'Entidad Pública / Red SOS' }}</div>
+        <small style="color: var(--color-text-muted); font-size: 12px;">{{ source.municipality | capitalize if source else 'Colombia' }}</small>
+        {% if source %}
+          <div style="margin-top: 6px;">
+            <a 
+              href="/sources/{{ source.id }}" 
+              class="btn-secondary" 
+              style="padding: 4px 10px; font-size: 11px; min-height: 28px; text-decoration: none; display: inline-flex;">
+              Ver Organización {{ icons.arrow_right("", 12) }}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Leaflet Georeferenced Map -->
+    {% if campaign.lat and campaign.lng %}
+      <div style="position: relative; height: 320px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); margin-top: 12px;">
+        <div id="detail-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+      </div>
+      <script>
+        var dMap = L.map('detail-map').setView([{{ campaign.lat }}, {{ campaign.lng }}], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(dMap);
+        L.marker([{{ campaign.lat }}, {{ campaign.lng }}])
+          .bindPopup("<b>{{ campaign.title }}</b><br>{{ campaign.address or campaign.municipality }}")
+          .addTo(dMap);
+      </script>
+    {% endif %}
+
+    <!-- Requirements & Preparation -->
+    {% if campaign.requirements %}
+      <div style="background: var(--color-bg-page); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--color-border);">
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--color-text-main); margin-bottom: 10px;">
+          Requisitos y Preparación Quirúrgica:
+        </h3>
+        <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 0;">
+          {{ campaign.requirements }}
+        </p>
+      </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      {% if campaign.booking_url %}
+        <a href="{{ campaign.booking_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-decoration: none;">
+          {{ icons.check("", 18) }} Agendar Turno / Inscripción Oficial
+        </a>
+      {% endif %}
+      <button type="button" class="btn-secondary" onclick="navigator.clipboard.writeText(window.location.href); alert('¡Enlace copiado al portapapeles!');">
+        {{ icons.share("", 18) }} Compartir Jornada
+      </button>
+    </div>
+  </article>
+
+  <!-- Community Reports Section -->
+  <section class="community-reports-box" aria-labelledby="reports-title" style="margin-top: 32px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+      <div>
+        <h2 id="reports-title" style="font-size: 20px; font-weight: 800; color: var(--color-text-main);">
+          Reportes Comunitarios sobre este Registro
+        </h2>
+        <p style="font-size: 13px; color: var(--color-text-muted);">
+          Información colaborativa en tiempo real reportada por la ciudadanía asistente al punto.
+        </p>
+      </div>
+    </div>
+
+    <!-- Community Reporting Widget with HTMX -->
+    <div id="updates-list-container" hx-get="/community/list?campaign_id={{ campaign.id }}" hx-trigger="load, newCommunityUpdate from:body">
+      <p style="color: var(--color-text-muted);"><small>Cargando reportes de la comunidad...</small></p>
+    </div>
+
+    <!-- Collapsible Update Form -->
+    <details style="margin-top: 16px;">
+      <summary class="btn-secondary" style="cursor: pointer; display: inline-flex; font-size: 0.9rem; padding: 6px 14px;">
+        {{ icons.plus("", 16) }} <span>Reportar novedad sobre esta jornada</span>
+      </summary>
+      <div
+        hx-get="/community/update?campaign_id={{ campaign.id }}"
+        hx-trigger="revealed"
+        style="margin-top: 12px; padding: 18px; border: 1px solid var(--color-border); border-radius: 12px; background: #ffffff;"
+      >
+        <p style="color: var(--color-text-muted);">Cargando formulario...</p>
+      </div>
+    </details>
+  </section>
+</div>
+{% endblock %}

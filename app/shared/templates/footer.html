@@ -1,1 +1,59 @@
-<!-- Footer con disclaimer legal + link a privacidad -->
+{% import "macros/icons.html" as icons %}
+<!-- Footer Estilo Laika -->
+<footer class="laika-footer" role="contentinfo">
+  <div class="container footer-top">
+    <div class="footer-brand">
+      <a href="/" class="brand-logo" style="text-decoration: none;">
+        <div class="brand-icon-box">{{ icons.paw_heart() }}</div>
+        <div class="brand-text-group">
+          <div class="brand-name">SOS Animales <span>CO</span></div>
+          <div class="brand-tagline">Red Nacional Unida por los Peluditos</div>
+        </div>
+      </a>
+      <p class="footer-desc">
+        Iniciativa ciudadana comunitaria de código abierto para la articulación de rescates, adopciones y jornadas masivas de esterilización en Colombia. Cero lucro, 100% amor por los animales.
+      </p>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Adopción Responsable</div>
+      <ul class="footer-links">
+        <li><a href="/animals/?species=Perro" class="footer-link">Ver Perros en Adopción</a></li>
+        <li><a href="/animals/?species=Gato" class="footer-link">Ver Gatos en Adopción</a></li>
+        <li><a href="/animals/" class="footer-link">Todos los Peluditos</a></li>
+        <li><a href="/animals/new" class="footer-link">Publicar un Rescate</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Salud y Prevención</div>
+      <ul class="footer-links">
+        <li><a href="/sterilization/search" class="footer-link">Brigadas Gratuitas</a></li>
+        <li><a href="/sterilization/search" class="footer-link">Mapa de Puntos Quirúrgicos</a></li>
+        <li><a href="/sterilization/new" class="footer-link">Publicar Jornada</a></li>
+        <li><a href="/sources/" class="footer-link">Refugios Verificados</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Legal y Urgencias</div>
+      <ul class="footer-links">
+        <li><span class="footer-link" style="color: #E11D48; font-weight: 700;">Línea 123 Colombia (Maltrato Animal)</span></li>
+        <li><a href="/legal/privacy" class="footer-link">Política de Privacidad</a></li>
+        <li><a href="/legal/terms" class="footer-link">Términos del Servicio</a></li>
+        <li><a href="/legal/cookies" class="footer-link">Uso de Cookies</a></li>
+        <li><a href="/legal/data-processing" class="footer-link">Tratamiento de Datos</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <div>
+      © 2026 SOS Animales Colombia • Desarrollado para la protección de la fauna doméstica.
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <a href="/admin/login" class="footer-link" style="font-size: 0.85rem;">Gestor</a>
+      <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700;">🇨🇴 Proyecto Soberano</span>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}SOS Animales Colombia | Red Colaborativa de Bienestar Animal{% endblock %}
+
+{% block content %}
+<!-- Hero Banner Area (Estilo Laika) -->
+<section class="banner-hero-container">
+  <div class="container">
+    <div class="banner-hero">
+      <img 
+        class="banner-hero-img" 
+        src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1400&q=80" 
+        alt="Persona abrazando cariñosamente a perro rescatado en Colombia" 
+      />
+      <div class="banner-hero-overlay"></div>
+      <div class="banner-hero-content">
+        <span class="banner-hero-pill">{{ icons.paw_heart("", 18) }} Red Nacional de Bienestar Animal</span>
+        <h1 class="banner-hero-title">Cada huella merece un hogar: Adopta y esteriliza en Colombia</h1>
+        <p class="banner-hero-subtitle">
+          Conectamos rescatistas independientes y fundaciones verificadas con familias responsables. 100% gratuito, transparente y con contacto directo por WhatsApp.
+        </p>
+        <div class="banner-hero-actions">
+          <a href="/animals/" class="btn-primary" style="text-decoration: none;">
+            {{ icons.dog("", 18) }} Explorar Peluditos
+          </a>
+          <a href="/sterilization/search" class="btn-secondary" style="text-decoration: none;">
+            {{ icons.syringe("", 18) }} Ver Brigadas Gratuitas
+          </a>
+        </div>
+      </div>
+      <div class="banner-dots" aria-hidden="true">
+        <span class="banner-dot active"></span>
+        <span class="banner-dot"></span>
+        <span class="banner-dot"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Circular / Pill Category Bar (Laika Style) -->
+<section class="category-section" aria-label="Categorías destacadas">
+  <div class="container">
+    <div class="category-bar">
+      <a href="/animals/?species=canino" class="category-card" role="button" tabindex="0">
+        <div class="category-icon-wrapper">{{ icons.dog("", 24) }}</div>
+        <div class="category-label">Perros en Adopción</div>
+        <div class="category-sublabel">Cachorros y adultos</div>
+      </a>
+
+      <a href="/animals/?species=felino" class="category-card" role="button" tabindex="0">
+        <div class="category-icon-wrapper">{{ icons.cat("", 24) }}</div>
+        <div class="category-label">Gatos en Adopción</div>
+        <div class="category-sublabel">Ronroneadores</div>
+      </a>
+
+      <a href="/sterilization/search" class="category-card teal-theme" role="button" tabindex="0">
+        <div class="category-icon-wrapper">{{ icons.syringe("", 24) }}</div>
+        <div class="category-label">Jornadas Esterilización</div>
+        <div class="category-sublabel">100% Gratuitas</div>
+      </a>
+
+      <a href="/sources/" class="category-card" role="button" tabindex="0">
+        <div class="category-icon-wrapper">{{ icons.shield_check("", 24) }}</div>
+        <div class="category-label">Refugios Verificados</div>
+        <div class="category-sublabel">Red nacional</div>
+      </a>
+
+      <a href="/animals/new" class="category-card" role="button" tabindex="0">
+        <div class="category-icon-wrapper">{{ icons.key_pin("", 24) }}</div>
+        <div class="category-label">Publicar con PIN</div>
+        <div class="category-sublabel">Gestión segura 4 dígitos</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Adoption Showcase Grid -->
+<section class="container" style="padding-top: 32px; padding-bottom: 32px;" aria-labelledby="featured-title">
+  <div class="section-header">
+    <div class="section-title-group">
+      <h2 id="featured-title" class="section-title">Peluditos que buscan familia hoy</h2>
+      <p class="section-desc">Historias de rescate y amor esperando una segunda oportunidad</p>
+    </div>
+    <a href="/animals/" class="section-link">
+      Ver todos {{ icons.arrow_right("", 16) }}
+    </a>
+  </div>
+
+  <div id="home-animals-preview" hx-get="/animals/list" hx-trigger="load">
+    <p style="text-align: center; color: var(--color-text-muted); padding: 3rem 0;">Cargando peluditos disponibles...</p>
+  </div>
+</section>
+
+<!-- Sterilization Brigades Highlight Banner -->
+<section class="container" style="margin-bottom: 40px;">
+  <div class="promo-banner">
+    <div class="promo-left">
+      <div class="promo-calendar-chip" aria-hidden="true">
+        <span class="promo-cal-day">22</span>
+        <span class="promo-cal-month">OCT</span>
+      </div>
+      <div>
+        <h2 class="promo-info-title">Próximas brigadas públicas y gratuitas de esterilización</h2>
+        <p class="promo-info-desc">
+          Jornadas oficiales en Bogotá, Medellín, Cali y municipios de Colombia. Control ético y amoroso de la sobrepoblación animal con veterinarios certificados.
+        </p>
+      </div>
+    </div>
+    <div class="promo-action">
+      <a href="/sterilization/search" class="btn-teal" style="text-decoration: none;">
+        {{ icons.pin_location("", 18) }} Consultar Mapa y Fechas
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Trust & Security Strip -->
+<section class="container" style="margin-bottom: 48px;">
+  <div class="trust-strip">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon-box">{{ icons.shield_check("", 24) }}</div>
+        <div>
+          <h3 class="trust-title">100% Gratuito y de Código Abierto</h3>
+          <p class="trust-text">Sin comisiones, cobros ocultos ni barreras. Desarrollado por la comunidad proteccionista colombiana.</p>
+        </div>
+      </div>
+
+      <div class="trust-item rose-theme">
+        <div class="trust-icon-box">{{ icons.whatsapp("", 24) }}</div>
+        <div>
+          <h3 class="trust-title">Contacto Directo con Refugios</h3>
+          <p class="trust-text">Comunícate por WhatsApp con el rescatista o fundación responsable. Cero desvíos ni intermediarios.</p>
+        </div>
+      </div>
+
+      <div class="trust-item blue-theme">
+        <div class="trust-icon-box">{{ icons.key_pin("", 24) }}</div>
+        <div>
+          <h3 class="trust-title">Gestión Descentralizada con PIN</h3>
+          <p class="trust-text">Los rescatistas gestionan y cierran sus casos con un código de seguridad único de 4 dígitos, sin contraseñas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
