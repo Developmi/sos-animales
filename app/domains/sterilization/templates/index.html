@@ -17,18 +17,18 @@
   <form id="search-form" class="search-bar-floating" role="search" aria-label="Buscador de jornadas" onsubmit="return false;" style="margin-bottom: 24px;">
     <div class="search-segment">
       {{ icons.pin_location("", 20) }}
-      <input 
+      <select 
         id="muni-search-input"
-        type="text" 
         name="municipality"
-        class="search-input" 
-        placeholder="Municipio (ej: Bogotá, Medellín, Cali...)" 
+        class="search-select" 
         aria-label="Municipio para esterilización"
-        hx-get="/sterilization/campaigns"
-        hx-target="#results-container"
-        hx-trigger="keyup changed delay:350ms"
-        hx-include="#search-form"
-      />
+        hx-get="/sterilization/active-municipality-options?domain=sterilization"
+        hx-trigger="load"
+        hx-target="#muni-search-input"
+        onchange="htmx.trigger('#search-form button', 'click')"
+      >
+        <option value="">Todas las ciudades con jornadas</option>
+      </select>
     </div>
 
     <div class="search-divider"></div>

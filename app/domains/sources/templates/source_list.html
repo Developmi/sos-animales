@@ -18,15 +18,19 @@
   <!-- Search Filter Header -->
   <form method="GET" class="search-bar-floating" style="margin-bottom: 28px;" role="search">
     <div class="search-segment" style="flex: 1;">
-      {{ icons.search("", 20) }}
-      <input 
-        type="text" 
+      {{ icons.pin_location("", 20) }}
+      <select 
+        id="source-muni-filter"
         name="municipality"
-        value="{{ municipality or '' }}"
-        class="search-input" 
-        placeholder="Buscar refugio por nombre, municipio o departamento..." 
-        aria-label="Buscar refugio"
-      />
+        class="search-select" 
+        aria-label="Filtrar por ciudad"
+        hx-get="/sterilization/active-municipality-options?domain=sources&selected={{ municipality or '' }}"
+        hx-trigger="load"
+        hx-target="#source-muni-filter"
+        onchange="this.form.submit()"
+      >
+        <option value="">Todas las ciudades con refugios</option>
+      </select>
     </div>
     <button type="submit" class="btn-primary" style="min-height: 40px; padding: 8px 20px;">
       {{ icons.search("", 18) }}

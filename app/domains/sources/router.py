@@ -19,6 +19,8 @@ from app.domains.animals.models import AnimalProfile
 from sqlalchemy import select as sql_select
 from fastapi import HTTPException
 
+from app.shared.geo import get_grouped_municipalities
+
 router = APIRouter(prefix="/sources", tags=["sources"])
 
 # Lookup templates in sources/templates and shared/templates
@@ -28,10 +30,18 @@ templates = Jinja2Templates(
 
 
 @router.get("/register", response_class=HTMLResponse)
-async def get_register_form(request: Request) -> HTMLResponse:
+async def get_register_form(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> HTMLResponse:
     """Render self-registration form."""
+    try:
+        grouped = await get_grouped_municipalities(db)
+    except Exception:
+        grouped = {}
     return templates.TemplateResponse(
-        request=request, name="register_form.html", context={}
+        request=request,
+        name="register_form.html",
+        context={"grouped_municipalities": grouped},
     )
 
 

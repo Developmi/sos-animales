@@ -1,105 +1,165 @@
-{% extends "base.html" %} {% block title %}Registrar Punto Fijo | SOS Animales{%
-endblock %} {% block content %}
-<article>
-  <header>
-    <h2>Registrar Punto Fijo de Esterilización</h2>
-    <p>El mapa se configurará automáticamente con tu dirección.</p>
-  </header>
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-  <form hx-post="/sterilization/fixed-points/new" hx-swap="outerHTML">
-    <label
-      >¿Quién ofrece este punto fijo?
-      <select name="source_id" required>
-        <option value="" disabled selected>
-          Selecciona una fundación o rescatista...
-        </option>
-        {% for s in sources %}
-        <option value="{{ s.id }}">
-          {{ s.name }} {% if s.status == 'verified' %}✅{% endif %}
-        </option>
-        {% endfor %}
-      </select>
-      <small
-        >Si eres independiente, primero debes
-        <a href="/sources/register">registrarte como rescatista aquí</a>.</small
-      >
-    </label>
+{% block title %}Registrar Punto Fijo de Esterilización | SOS Animales Colombia{% endblock %}
 
-    <label
-      >Nombre del Punto Fijo
-      <input
-        type="text"
-        name="name"
-        placeholder="Ej: Clínica Veterinaria La Esperanza"
-        required
-    /></label>
+{% block content %}
+<div class="container creation-view">
+  <div class="creation-card">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">CENTROS Y CLÍNICAS PERMANENTES</span>
+      <h1 class="form-header-title">Registrar Punto Fijo de Esterilización</h1>
+      <p class="form-header-desc">
+        Publica una sede veterinaria o clínica permanente donde la comunidad pueda esterilizar de forma constante o a bajo costo.
+      </p>
+    </div>
 
-    <div class="grid">
-      <label
-        >Municipio
-        <select
-          name="municipality"
-          required
-          hx-get="/sterilization/municipality-options"
-          hx-trigger="load"
-          hx-target="this"
-          hx-swap="innerHTML"
-        >
-          <option value="">Cargando municipios...</option>
+    <form hx-post="/sterilization/fixed-points/new" hx-swap="outerHTML">
+      <!-- Section 1: Organización Responsable -->
+      <div class="form-section-title">
+        {{ icons.building("", 20) }} 1. Organización o Entidad Responsable
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="point-source">¿Quién ofrece este punto fijo? *</label>
+        <select id="point-source" name="source_id" class="form-control" required>
+          <option value="" disabled selected>Selecciona una fundación, clínica o rescatista...</option>
+          {% for s in sources %}
+            <option value="{{ s.id }}">
+              {{ s.name }} {% if s.status == 'verified' %}✓ [Oficial Verificada]{% endif %} ({{ s.municipality | capitalize }})
+            </option>
+          {% endfor %}
         </select>
-      </label>
-      <label
-        >Dirección exacta
+        <small style="color: var(--color-text-muted); font-size: 12px; display: block; margin-top: 4px;">
+          ¿Tu entidad aún no aparece? <a href="/sources/register" style="color: var(--color-teal); font-weight: 700;">Regístrala gratis aquí</a>.
+        </small>
+      </div>
+
+      <!-- Section 2: Datos del Punto Fijo -->
+      <div class="form-section-title">
+        {{ icons.syringe("", 20) }} 2. Información del Punto Fijo
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="point-name">Nombre del Establecimiento / Clínica *</label>
         <input
           type="text"
-          name="address"
-          placeholder="Ej: Carrera 10 # 20-30"
+          id="point-name"
+          name="name"
+          class="form-control"
+          placeholder="Ej: Centro Veterinario Municipal La Esperanza"
           required
-      /></label>
-    </div>
+        />
+      </div>
 
-    <div class="grid">
-      <label
-        >Horario de atención
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="point-muni">Municipio o Ciudad Oficial *</label>
+          <select id="point-muni" name="municipality" class="form-control" required>
+            <option value="" disabled selected>Selecciona municipio o ciudad oficial...</option>
+            {% if grouped_municipalities %}
+              {% for department, municipalities in grouped_municipalities.items() %}
+                <optgroup label="{{ department }}">
+                  {% for m in municipalities %}
+                    <option value="{{ m }}">{{ m }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="point-address">Dirección Física Exacta *</label>
+          <input
+            type="text"
+            id="point-address"
+            name="address"
+            class="form-control"
+            placeholder="Ej: Carrera 15 # 45-20, Barrio Chapinero"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="point-schedule">Horario de Atención Habitual *</label>
+          <input
+            type="text"
+            id="point-schedule"
+            name="schedule_text"
+            class="form-control"
+            placeholder="Ej: Lunes a Viernes 8:00 AM - 4:00 PM"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Especies Atendidas *</label>
+          <div style="display: flex; gap: 20px; align-items: center; min-height: 44px; padding: 6px 12px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; margin: 0;">
+              <input type="checkbox" name="species" value="canino" checked style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+              Caninos (Perros)
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; margin: 0;">
+              <input type="checkbox" name="species" value="felino" checked style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+              Felinos (Gatos)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label class="form-checkbox-row" style="background: var(--color-bg-subtle); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <input type="checkbox" name="is_free" value="true" checked style="width: 18px; height: 18px; accent-color: var(--color-teal);" />
+          <span style="font-weight: 700; color: var(--color-text-main);">
+            Servicio totalmente gratuito para la comunidad (marca si no tiene ningún costo)
+          </span>
+        </label>
+      </div>
+
+      <!-- Section 3: Requisitos y Enlaces -->
+      <div class="form-section-title">
+        {{ icons.calendar("", 20) }} 3. Requisitos y Enlaces
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="point-reqs">Requisitos para Acceder al Servicio</label>
+        <textarea
+          id="point-reqs"
+          name="requirements"
+          rows="3"
+          class="form-control"
+          placeholder="Ej: Sisbén A o B, copia de factura de servicios públicos, animales en ayuno..."
+        ></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="point-source-url">Sitio Web o Publicación Oficial (Opcional)</label>
         <input
-          type="text"
-          name="schedule_text"
-          placeholder="Ej: Lunes a Viernes 8am-5pm"
-          required
-      /></label>
+          type="url"
+          id="point-source-url"
+          name="source_url"
+          class="form-control"
+          placeholder="https://..."
+        />
+      </div>
 
-      <fieldset>
-        <legend>Especies que atienden</legend>
-        <label
-          ><input type="checkbox" name="species" value="canino" checked />
-          Caninos 🐶</label
-        >
-        <label
-          ><input type="checkbox" name="species" value="felino" checked />
-          Felinos 🐱</label
-        >
-      </fieldset>
-    </div>
+      <!-- Section 4: Consentimiento Legal -->
+      <div style="margin: 24px 0 20px 0; padding: 14px 18px; background: var(--color-bg-subtle); border-radius: var(--radius-md); border: 1px solid var(--color-border); font-size: 13px;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0; color: var(--color-text-secondary); line-height: 1.5;">
+          <input type="checkbox" name="accept_terms" required style="margin-top: 2px; width: 18px; height: 18px; accent-color: var(--color-primary);" />
+          <span>
+            * Acepto el <a href="/legal/privacy" target="_blank" style="color: var(--color-teal); font-weight: 700;">tratamiento de datos personales</a> según la Ley 1581 de 2012 y declaro bajo gravedad de juramento que la información es verídica.
+          </span>
+        </label>
+      </div>
 
-    <label>
-      <input type="checkbox" name="is_free" value="true" />
-      ¿Es totalmente gratuito? (Marca si NO tiene costo)
-    </label>
-
-    <label
-      >Requisitos (Ayuno, cobijas, etc)
-      <textarea name="requirements" rows="2"></textarea>
-    </label>
-
-    <label
-      >URL de la fuente original
-      <input type="url" name="source_url" placeholder="https://..." />
-    </label>
-    {% include "privacy_notice.html" %}
-
-    <button type="submit" style="margin-top: 1rem">
-      Registrar Punto Fijo y Generar Mapa
-    </button>
-  </form>
-</article>
+      <button type="submit" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px;">
+        {{ icons.check("", 20) }} Registrar Punto Fijo y Publicar en Mapa
+      </button>
+    </form>
+  </div>
+</div>
 {% endblock %}

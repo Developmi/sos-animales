@@ -9,6 +9,7 @@ import logging
 import httpx
 import json
 from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -113,3 +114,69 @@ async def geocode_address(
     except Exception as e:
         logger.error(f"❌ Error communicating with Nominatim Geocoding API: {e}")
         return None, None
+
+
+async def get_grouped_municipalities(db: AsyncSession) -> dict[str, list[str]]:
+    """Return dict of {department_name: [municipality_names]} sorted alphabetically."""
+    from sqlalchemy import select
+    from app.shared.models.location import Department, Municipality
+
+    stmt = (
+        select(Department.name, Municipality.name)
+        .join(Municipality, Department.id == Municipality.department_id)
+        .order_by(Department.name, Municipality.name)
+    )
+    result = await db.execute(stmt)
+    grouped: dict[str, list[str]] = {}
+    for dept_name, muni_name in result.all():
+        if dept_name not in grouped:
+            grouped[dept_name] = []
+        grouped[dept_name].append(muni_name)
+    return grouped
+
+
+async def get_active_municipalities(db: AsyncSession, domain: str = "all") -> list[str]:
+    """Return sorted list of municipalities that currently have active records.
+
+    Avoids rendering 1,123 empty municipalities in public search dropdowns.
+    domain options: 'animals', 'sterilization', 'sources', 'all'
+    """
+    from sqlalchemy import select
+    from app.domains.animals.models import AnimalProfile
+    from app.domains.sterilization.models import Campaign, FixedPoint
+    from app.domains.sources.models import Source
+
+    munis: set[str] = set()
+
+    if domain in ("animals", "all"):
+        q = (
+            select(AnimalProfile.municipality)
+            .distinct()
+            .where(AnimalProfile.status.in_(["available", "disponible"]))
+        )
+        res = await db.execute(q)
+        for m in res.scalars():
+            if m and m.strip():
+                munis.add(m.strip().title())
+
+    if domain in ("sterilization", "all"):
+        q1 = select(Campaign.municipality).distinct()
+        res1 = await db.execute(q1)
+        for m in res1.scalars():
+            if m and m.strip():
+                munis.add(m.strip().title())
+
+        q2 = select(FixedPoint.municipality).distinct()
+        res2 = await db.execute(q2)
+        for m in res2.scalars():
+            if m and m.strip():
+                munis.add(m.strip().title())
+
+    if domain in ("sources", "all"):
+        q = select(Source.municipality).distinct().where(Source.is_active.is_(True))
+        res = await db.execute(q)
+        for m in res.scalars():
+            if m and m.strip():
+                munis.add(m.strip().title())
+
+    return sorted(munis)

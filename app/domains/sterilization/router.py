@@ -34,6 +34,7 @@ from app.domains.sterilization.tools import get_campaign_detail, get_freshness_s
 from app.domains.sterilization.tools import confirm_entity_freshness
 from app.domains.sources.models import Source
 from app.domains.sterilization.schemas import CampaignCreate, FixedPointCreate
+from app.shared.geo import get_active_municipalities, get_grouped_municipalities
 from app.shared.models.location import Department, Municipality
 
 router = APIRouter(prefix="/sterilization", tags=["sterilization"])
@@ -49,14 +50,18 @@ async def new_campaign_form(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Render creation form for publishing a sterilization campaign."""
-    # Query all active sources
-    result = await db.execute(select(Source).where(Source.is_active))
-    sources = result.scalars().all()
+    try:
+        result = await db.execute(select(Source).where(Source.is_active))
+        sources = result.scalars().all()
+        grouped = await get_grouped_municipalities(db)
+    except Exception:
+        sources = []
+        grouped = {}
 
     return templates.TemplateResponse(
         request=request,
         name="campaign_form.html",
-        context={"sources": sources},
+        context={"sources": sources, "grouped_municipalities": grouped},
     )
 
 
@@ -148,8 +153,11 @@ async def new_fixed_point_form(
     request: Request, db: AsyncSession = Depends(get_db)
 ) -> HTMLResponse:
     result = await db.execute(select(Source).where(Source.is_active))
+    grouped = await get_grouped_municipalities(db)
     return templates.TemplateResponse(
-        request, "fixed_point_form.html", {"sources": result.scalars().all()}
+        request,
+        "fixed_point_form.html",
+        {"sources": result.scalars().all(), "grouped_municipalities": grouped},
     )
 
 
@@ -270,3 +278,20 @@ async def get_department_options(
         f'<option value="{d.name.lower()}">{d.name}</option>' for d in departments
     )
     return HTMLResponse(options_html)
+
+
+@router.get("/active-municipality-options", response_class=HTMLResponse)
+async def get_active_municipality_options(
+    request: Request,
+    domain: str = Query("all"),
+    selected: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    """HTMX: return <option> elements of ONLY active municipalities that have records."""
+    munis = await get_active_municipalities(db, domain=domain)
+    options = ['<option value="">Todas las ciudades</option>']
+    for m in munis:
+        val = m.lower()
+        is_sel = " selected" if selected and selected.lower() == val else ""
+        options.append(f'<option value="{val}"{is_sel}>{m}</option>')
+    return HTMLResponse("".join(options))

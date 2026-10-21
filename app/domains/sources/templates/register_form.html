@@ -48,28 +48,45 @@
       <div class="form-row two-cols">
         <div class="form-group">
           <label class="form-label" for="source-dept">Departamento *</label>
-          <input
-            id="source-dept"
-            type="text"
-            name="department"
-            class="form-control"
-            required
-            placeholder="Ej: Cundinamarca, Antioquia, Valle del Cauca..."
-          />
+          <select id="source-dept" name="department" class="form-control" required>
+            <option value="" disabled selected>Selecciona departamento...</option>
+            {% if grouped_municipalities %}
+              {% for dept in grouped_municipalities.keys() %}
+                <option value="{{ dept }}">{{ dept }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="source-muni">Municipio o Ciudad *</label>
-          <input
-            id="source-muni"
-            type="text"
-            name="municipality"
-            class="form-control"
-            required
-            placeholder="Ej: Bogotá, Medellín, Cali, Soacha..."
-          />
+          <select id="source-muni" name="municipality" class="form-control" required>
+            <option value="" disabled selected>Primero selecciona un departamento...</option>
+          </select>
         </div>
       </div>
+
+      <script>
+        (function() {
+          const muniData = {{ (grouped_municipalities or {}) | tojson }};
+          const deptSelect = document.getElementById('source-dept');
+          const muniSelect = document.getElementById('source-muni');
+          if (deptSelect && muniSelect) {
+            deptSelect.addEventListener('change', function() {
+              const selectedDept = this.value;
+              muniSelect.innerHTML = '<option value="" disabled selected>Selecciona tu municipio...</option>';
+              if (muniData[selectedDept]) {
+                muniData[selectedDept].forEach(function(muni) {
+                  const opt = document.createElement('option');
+                  opt.value = muni;
+                  opt.textContent = muni;
+                  muniSelect.appendChild(opt);
+                });
+              }
+            });
+          }
+        })();
+      </script>
 
       <div class="form-section-title">
         {{ icons.whatsapp("", 20) }} 3. Canales de Contacto Directo

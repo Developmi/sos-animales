@@ -1,106 +1,177 @@
-{% extends "base.html" %} {% block title %}Publicar Jornada | SOS Animales{%
-endblock %} {% block content %}
-<article>
-  <header>
-    <h2>Publicar Jornada de Esterilización</h2>
-    <p>El mapa se configurará automáticamente con tu dirección.</p>
-  </header>
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-  <form hx-post="/sterilization/new" hx-swap="outerHTML">
-    <label
-      >¿Quién organiza esta jornada?
-      <select name="source_id" required>
-        <option value="" disabled selected>
-          Selecciona una fundación o rescatista...
-        </option>
-        {% for s in sources %}
-        <option value="{{ s.id }}">
-          {{ s.name }} {% if s.status == 'verified' %}✅{% endif %}
-        </option>
-        {% endfor %}
-      </select>
-      <small
-        >Si eres independiente, primero debes
-        <a href="/sources/register">registrarte como rescatista aquí</a>.</small
-      >
-    </label>
+{% block title %}Publicar Jornada de Esterilización | SOS Animales Colombia{% endblock %}
 
-    <label
-      >Título de la Jornada
-      <input
-        type="text"
-        name="title"
-        placeholder="Ej: Gran Jornada Móvil Sur"
-        required
-    /></label>
+{% block content %}
+<div class="container creation-view">
+  <div class="creation-card">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">100% GRATIS Y ABIERTO A LA COMUNIDAD</span>
+      <h1 class="form-header-title">Publicar Jornada de Esterilización</h1>
+      <p class="form-header-desc">
+        Registra una brigada o campaña masiva. El mapa interactivo geolocalizará el punto automáticamente para orientar a la comunidad.
+      </p>
+    </div>
 
-    <div class="grid">
-      <label
-        >Municipio
-        <select
-          name="municipality"
-          required
-          hx-get="/sterilization/municipality-options"
-          hx-trigger="load"
-          hx-target="this"
-          hx-swap="innerHTML"
-        >
-          <option value="">Cargando municipios...</option>
+    <form hx-post="/sterilization/new" hx-swap="outerHTML">
+      <!-- Section 1: Organización Responsable -->
+      <div class="form-section-title">
+        {{ icons.building("", 20) }} 1. Organización o Rescatista Responsable
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="campaign-source">¿Quién organiza o respalda esta jornada? *</label>
+        <select id="campaign-source" name="source_id" class="form-control" required>
+          <option value="" disabled selected>Selecciona una fundación, albergue o rescatista...</option>
+          {% for s in sources %}
+            <option value="{{ s.id }}">
+              {{ s.name }} {% if s.status == 'verified' %}✓ [Oficial Verificada]{% endif %} ({{ s.municipality | capitalize }})
+            </option>
+          {% endfor %}
         </select>
-      </label>
-      <label
-        >Dirección exacta
+        <small style="color: var(--color-text-muted); font-size: 12px; display: block; margin-top: 4px;">
+          ¿Tu organización aún no aparece? <a href="/sources/register" style="color: var(--color-teal); font-weight: 700;">Regístrala gratis en 1 minuto aquí</a>.
+        </small>
+      </div>
+
+      <!-- Section 2: Datos de la Jornada -->
+      <div class="form-section-title">
+        {{ icons.calendar("", 20) }} 2. Información del Evento
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="campaign-title">Título o Nombre de la Jornada *</label>
         <input
           type="text"
-          name="address"
-          placeholder="Ej: Carrera 10 # 20-30"
+          id="campaign-title"
+          name="title"
+          class="form-control"
+          placeholder="Ej: Gran Jornada de Esterilización Gratuita Comuna 13"
           required
-      /></label>
-    </div>
+        />
+      </div>
 
-    <div class="grid">
-      <label
-        >Fecha y Hora de Inicio
-        <input type="datetime-local" name="starts_at" required
-      /></label>
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="campaign-muni">Municipio o Ciudad Oficial *</label>
+          <select id="campaign-muni" name="municipality" class="form-control" required>
+            <option value="" disabled selected>Selecciona municipio o ciudad oficial...</option>
+            {% if grouped_municipalities %}
+              {% for department, municipalities in grouped_municipalities.items() %}
+                <optgroup label="{{ department }}">
+                  {% for m in municipalities %}
+                    <option value="{{ m }}">{{ m }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
 
-      <fieldset>
-        <legend>Especies que atienden</legend>
-        <label
-          ><input type="checkbox" name="species" value="canino" checked />
-          Caninos (Perros)</label
-        >
-        <label
-          ><input type="checkbox" name="species" value="felino" checked />
-          Felinos (Gatos)</label
-        >
-      </fieldset>
-    </div>
+        <div class="form-group">
+          <label class="form-label" for="campaign-address">Dirección o Punto de Encuentro *</label>
+          <input
+            type="text"
+            id="campaign-address"
+            name="address"
+            class="form-control"
+            placeholder="Ej: Salón Comunal Barrio Kennedy, Calle 45 # 12-30"
+            required
+          />
+        </div>
+      </div>
 
-    <label>
-      <input type="checkbox" name="is_free" value="true" />
-      ¿Es totalmente gratuita? (Marca si NO tiene costo)
-    </label>
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="campaign-starts">Fecha y Hora de Inicio *</label>
+          <input
+            type="datetime-local"
+            id="campaign-starts"
+            name="starts_at"
+            class="form-control"
+            required
+          />
+        </div>
 
-    <label
-      >Requisitos (Ayuno, cobijas, etc)
-      <textarea name="requirements" rows="2"></textarea>
-    </label>
+        <div class="form-group">
+          <label class="form-label">Especies que Atienden *</label>
+          <div style="display: flex; gap: 20px; align-items: center; min-height: 44px; padding: 6px 12px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; margin: 0;">
+              <input type="checkbox" name="species" value="canino" checked style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+              Caninos (Perros)
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; margin: 0;">
+              <input type="checkbox" name="species" value="felino" checked style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+              Felinos (Gatos)
+            </label>
+          </div>
+        </div>
+      </div>
 
-    <label
-      >Enlace de Agendamiento (Opcional)
-      <input type="url" name="booking_url" placeholder="https://forms.gle/..."
-    /></label>
+      <div style="margin-bottom: 20px;">
+        <label class="form-checkbox-row" style="background: var(--color-bg-subtle); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <input type="checkbox" name="is_free" value="true" checked style="width: 18px; height: 18px; accent-color: var(--color-teal);" />
+          <span style="font-weight: 700; color: var(--color-text-main);">
+            Jornada 100% gratuita para la comunidad (marca si no tiene ningún cobro)
+          </span>
+        </label>
+      </div>
 
-    <label
-      >URL de la fuente original
-      <input type="url" name="source_url" placeholder="https://..." />
-    </label>
-    {% include "privacy_notice.html" %}
+      <!-- Section 3: Requisitos y Enlaces -->
+      <div class="form-section-title">
+        {{ icons.syringe("", 20) }} 3. Requisitos de Atención y Enlaces
+      </div>
 
-    <button type="submit" class="btn-warm" style="margin-top: 1.5rem">
-      Publicar Jornada y Generar Mapa
-    </button>
-  </form>
-</article>
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="campaign-reqs">Requisitos para las Mascotas</label>
+        <textarea
+          id="campaign-reqs"
+          name="requirements"
+          rows="3"
+          class="form-control"
+          placeholder="Ej: Ayuno de 8 horas para sólidos y 4 horas para líquidos, traer cobija térmica, collar/guacal..."
+        ></textarea>
+      </div>
+
+      <div class="form-row two-cols">
+        <div class="form-group">
+          <label class="form-label" for="campaign-booking">Enlace de Agendamiento o Turno Previo (Opcional)</label>
+          <input
+            type="url"
+            id="campaign-booking"
+            name="booking_url"
+            class="form-control"
+            placeholder="https://forms.gle/... o https://wa.me/..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="campaign-source-url">Enlace o Publicación Oficial (Opcional)</label>
+          <input
+            type="url"
+            id="campaign-source-url"
+            name="source_url"
+            class="form-control"
+            placeholder="https://instagram.com/p/... o sitio web"
+          />
+        </div>
+      </div>
+
+      <!-- Section 4: Consentimiento Legal -->
+      <div style="margin: 24px 0 20px 0; padding: 14px 18px; background: var(--color-bg-subtle); border-radius: var(--radius-md); border: 1px solid var(--color-border); font-size: 13px;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0; color: var(--color-text-secondary); line-height: 1.5;">
+          <input type="checkbox" name="accept_terms" required style="margin-top: 2px; width: 18px; height: 18px; accent-color: var(--color-primary);" />
+          <span>
+            * Acepto el <a href="/legal/privacy" target="_blank" style="color: var(--color-teal); font-weight: 700;">tratamiento de mis datos personales</a> según la Ley 1581 de 2012 y declaro bajo gravedad de juramento que la información proporcionada es verídica y verificable.
+          </span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px;">
+        {{ icons.check("", 20) }} Publicar Jornada y Geolocalizar en Mapa
+      </button>
+    </form>
+  </div>
+</div>
 {% endblock %}
