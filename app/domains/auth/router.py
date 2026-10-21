@@ -22,6 +22,7 @@ router = APIRouter(tags=["auth"])
 templates = Jinja2Templates(
     directory=["app/domains/auth/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.get("/auth/login", response_class=HTMLResponse)

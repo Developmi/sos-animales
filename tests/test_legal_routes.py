@@ -49,6 +49,29 @@ async def test_home_includes_footer(client: AsyncClient) -> None:
     response = await client.get("/")
     assert response.status_code == 200
     assert "/legal/privacy" in response.text
+    # Verify cookie consent banner is included with links to policies and Plausible blocker script
+    assert "cookie-consent" in response.text
+    assert "/legal/cookies" in response.text
+    assert "/legal/data-processing" in response.text
+    assert "plausible-tracker-script" in response.text
+
+
+@pytest.mark.asyncio
+async def test_plausible_meta_rendered_when_configured(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "PLAUSIBLE_DOMAIN", "sos-animales.test")
+    monkeypatch.setattr(settings, "PLAUSIBLE_URL", "https://plausible.test/script.js")
+
+    response = await client.get("/")
+    assert response.status_code == 200
+    assert '<meta name="plausible-domain" content="sos-animales.test"' in response.text
+    assert (
+        '<meta name="plausible-url" content="https://plausible.test/script.js"'
+        in response.text
+    )
 
 
 @pytest.mark.asyncio

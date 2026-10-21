@@ -22,6 +22,7 @@ router = APIRouter(prefix="/community", tags=["community"])
 templates = Jinja2Templates(
     directory=["app/domains/community/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.get("/update", response_class=HTMLResponse)

@@ -19,6 +19,7 @@ from app.domains.animals.models import AnimalProfile
 from sqlalchemy import select as sql_select
 from fastapi import HTTPException
 
+from app.config import settings
 from app.shared.geo import get_grouped_municipalities
 
 router = APIRouter(prefix="/sources", tags=["sources"])
@@ -27,6 +28,7 @@ router = APIRouter(prefix="/sources", tags=["sources"])
 templates = Jinja2Templates(
     directory=["app/domains/sources/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.get("/register", response_class=HTMLResponse)

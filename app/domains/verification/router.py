@@ -18,6 +18,7 @@ from app.domains.verification.tools import (
     create_verification_request,
 )
 from app.domains.sources.tools import get_source
+from app.config import settings
 from app.domains.verification.schemas import VerificationRequestCreate
 from app.domains.verification.models import Visit
 
@@ -26,6 +27,7 @@ router = APIRouter(prefix="/verification", tags=["verification"])
 templates = Jinja2Templates(
     directory=["app/domains/verification/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.post("/request", response_class=HTMLResponse)

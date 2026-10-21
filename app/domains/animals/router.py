@@ -37,6 +37,7 @@ from app.domains.animals.tools import (
     get_animal_detail,
     mark_as_adopted,
 )
+from app.config import settings
 from app.domains.animals.schemas import AnimalCreate, AdoptAction
 
 router = APIRouter(prefix="/animals", tags=["animals"])
@@ -44,6 +45,7 @@ router = APIRouter(prefix="/animals", tags=["animals"])
 templates = Jinja2Templates(
     directory=["app/domains/animals/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.get("/", response_class=HTMLResponse)

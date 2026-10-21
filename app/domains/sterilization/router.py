@@ -32,6 +32,7 @@ from app.domains.sterilization.tools import (
 )
 from app.domains.sterilization.tools import get_campaign_detail, get_freshness_status
 from app.domains.sterilization.tools import confirm_entity_freshness
+from app.config import settings
 from app.domains.sources.models import Source
 from app.domains.sterilization.schemas import CampaignCreate, FixedPointCreate
 from app.shared.geo import get_active_municipalities, get_grouped_municipalities
@@ -42,6 +43,7 @@ router = APIRouter(prefix="/sterilization", tags=["sterilization"])
 templates = Jinja2Templates(
     directory=["app/domains/sterilization/templates", "app/shared/templates"]
 )
+templates.env.globals["settings"] = settings
 
 
 @router.get("/new", response_class=HTMLResponse)

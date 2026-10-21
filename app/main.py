@@ -87,6 +87,7 @@ app.include_router(auth_router)
 
 # Template engine configuration
 templates = Jinja2Templates(directory="app/shared/templates")
+templates.env.globals["settings"] = settings
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

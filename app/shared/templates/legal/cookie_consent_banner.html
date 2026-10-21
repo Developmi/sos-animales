@@ -1,20 +1,120 @@
-<!-- Banner de consentimiento de cookies — se oculta al aceptar vía localStorage -->
+<!-- Banner de consentimiento de cookies y analítica con bloqueo estricto de Plausible -->
 <div id="cookie-consent"
-     style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--pico-card-background-color);
-            border-top: 1px solid var(--pico-muted-border-color); padding: 1rem;
-            z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.1);">
-    <div class="container" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: space-between;">
-        <p style="margin: 0; flex: 1; min-width: 200px;">
-            <small>Utilizamos cookies propias para mejorar tu experiencia de navegación. Al continuar, aceptas nuestra <a href="/legal/cookies">política de cookies</a>.</small>
-        </p>
-        <button onclick="const banner=document.getElementById('cookie-consent'); if(banner) banner.remove(); localStorage.setItem('cookie-consent','accepted');"
-                style="white-space: nowrap;">Aceptar</button>
+     style="display: none; position: fixed; bottom: 24px; right: 24px; z-index: 9999; max-width: 440px; width: calc(100% - 48px); background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08); padding: 22px; font-family: inherit;">
+  
+  <div style="display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px;">
+    <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary-soft, #FFF1F2); color: var(--color-primary, #E11D48); display: flex; align-items: center; justify-content: center;">
+      <!-- Icono Escudo / Privacidad -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
     </div>
+    
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <span class="brand-badge" style="background: rgba(13, 148, 136, 0.1); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em;">
+          PRIVACIDAD Y TRANSPARENCIA
+        </span>
+      </div>
+      <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--color-text-main); line-height: 1.2;">
+        Tu privacidad nos importa
+      </h3>
+    </div>
+  </div>
+
+  <p style="margin: 0 0 14px 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary);">
+    Utilizamos cookies técnicas necesarias y métricas anónimas para mejorar la adopción y esterilización animal. 
+    <strong>Cero rastreo comercial y cero venta de datos.</strong>
+  </p>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 18px; font-size: 12px; border-top: 1px dashed var(--color-border); border-bottom: 1px dashed var(--color-border); padding: 8px 0;">
+    <a href="/legal/cookies" style="color: var(--color-primary); font-weight: 600; text-decoration: none;">Política de Cookies</a>
+    <span style="color: var(--color-border);">•</span>
+    <a href="/legal/privacy" style="color: var(--color-text-secondary); font-weight: 500; text-decoration: none;">Privacidad</a>
+    <span style="color: var(--color-border);">•</span>
+    <a href="/legal/data-processing" style="color: var(--color-text-secondary); font-weight: 500; text-decoration: none;">Tratamiento de Datos</a>
+  </div>
+
+  <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
+    <button type="button" 
+            onclick="setCookieConsent('rejected')" 
+            class="btn-secondary" 
+            style="font-size: 13px; padding: 8px 14px; border-radius: var(--radius-md); cursor: pointer; white-space: nowrap;">
+      Solo necesarias
+    </button>
+    <button type="button" 
+            onclick="setCookieConsent('accepted')" 
+            class="btn-primary" 
+            style="font-size: 13px; padding: 8px 18px; border-radius: var(--radius-md); cursor: pointer; white-space: nowrap; box-shadow: var(--shadow-sm);">
+      Aceptar y Continuar
+    </button>
+  </div>
 </div>
-<script>
-// ponytail: inline JS — no dependency. Remove banner if already accepted.
-if (localStorage.getItem('cookie-consent')) {
-    const banner = document.getElementById('cookie-consent');
-    if (banner) banner.remove();
+
+<style>
+@media (max-width: 640px) {
+  #cookie-consent {
+    bottom: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+  }
 }
+</style>
+
+<script>
+// --- Gestor de Consentimiento y Bloqueo de Plausible ---
+(function() {
+  function loadPlausible() {
+    if (document.getElementById('plausible-tracker-script')) return;
+    
+    var domainMeta = document.querySelector('meta[name="plausible-domain"]');
+    var urlMeta = document.querySelector('meta[name="plausible-url"]');
+    
+    var domain = domainMeta ? domainMeta.getAttribute('content') : null;
+    var scriptUrl = urlMeta ? urlMeta.getAttribute('content') : null;
+    
+    if (!domain || !scriptUrl) return;
+
+    var script = document.createElement('script');
+    script.id = 'plausible-tracker-script';
+    script.defer = true;
+    script.setAttribute('data-domain', domain);
+    script.src = scriptUrl;
+    document.head.appendChild(script);
+  }
+
+  window.setCookieConsent = function(status) {
+    localStorage.setItem('cookie-consent', status);
+    var banner = document.getElementById('cookie-consent');
+    if (banner) {
+      banner.style.opacity = '0';
+      banner.style.transition = 'opacity 0.25s ease-out, transform 0.25s ease-out';
+      banner.style.transform = 'translateY(10px)';
+      setTimeout(function() {
+        banner.remove();
+      }, 250);
+    }
+    
+    if (status === 'accepted') {
+      loadPlausible();
+    }
+  };
+
+  // Inicialización: solo si el consentimiento fue otorgado previamente se carga Plausible
+  var consent = localStorage.getItem('cookie-consent');
+  if (consent === 'accepted') {
+    loadPlausible();
+  } else if (!consent) {
+    // Si aún no decide, mostrar el banner (permanece oculto en el HTML para evitar FOUC)
+    var banner = document.getElementById('cookie-consent');
+    if (banner) {
+      banner.style.display = 'block';
+    }
+  }
+  // Si consent === 'rejected', Plausible se mantiene 100% bloqueado
+})();
 </script>

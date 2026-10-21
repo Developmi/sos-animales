@@ -1,32 +1,86 @@
 <!-- Política de cookies — tipos de cookies utilizadas y configuración -->
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-{% block title %}Política de Cookies | SOS Animales{% endblock %}
+{% block title %}Política de Cookies | SOS Animales Colombia{% endblock %}
 
 {% block content %}
-<article>
-    <header><h2>Política de Cookies</h2></header>
+<div class="container creation-view">
+  <div class="creation-card" style="max-width: 820px; margin: 40px auto;">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">TRANSPARENCIA DIGITAL</span>
+      <h1 class="form-header-title">Política de Cookies</h1>
+      <p class="form-header-desc">
+        Uso responsable, mínimo y transparente de tecnologías de almacenamiento local en SOS Animales Colombia.
+      </p>
+    </div>
 
-    <p>SOS Animales utiliza cookies propias y de terceros para mejorar la experiencia de navegación, analizar el tráfico del sitio y recordar tus preferencias.</p>
+    <div style="color: var(--color-text-main); font-size: 15px; line-height: 1.7;">
+      <p style="margin-bottom: 24px; color: var(--color-text-secondary);">
+        En <strong>SOS Animales Colombia</strong> respetamos tu privacidad. No vendemos datos personales, no realizamos perfilamiento comercial y no utilizamos cookies de rastreo publicitario invasivo.
+      </p>
 
-    <h3>¿Qué son las cookies?</h3>
-    <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas un sitio web. Permiten que el sitio recuerde tus acciones y preferencias durante un período de tiempo.</p>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.info("", 20) }} 1. ¿Qué son las cookies y tecnologías similares?
+      </div>
+      <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+        Son pequeños identificadores o fragmentos de datos almacenados en tu navegador (mediante cookies HTTP o <code>localStorage</code>) que permiten recordar tus preferencias y garantizar la seguridad técnica de la plataforma.
+      </p>
 
-    <h3>Tipos de cookies que utilizamos</h3>
-    <ul>
-        <li><strong>Cookies técnicas (esenciales):</strong> necesarias para el funcionamiento básico del sitio, como mantener tu sesión activa o recordar tu aceptación de cookies.</li>
-        <li><strong>Cookies de preferencias:</strong> permiten recordar configuraciones como el idioma o la región desde la que navegas.</li>
-        <li><strong>Cookies de análisis:</strong> nos ayudan a entender cómo los usuarios interactúan con el sitio (páginas visitadas, tiempo de navegación). Utilizamos herramientas propias, sin compartir datos con terceros.</li>
-    </ul>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.shield_check("", 20) }} 2. Cookies y Almacenamiento que Utilizamos
+      </div>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 12px;">
+          <strong>Técnicas y Esenciales (Obligatorias):</strong>
+          <br>
+          <span style="font-size: 14px;">
+            • <code>access_token</code>: Cookie HTTP-Only y SameSite para mantener la sesión segura en el área administrativa.<br>
+            • <code>cookie-consent</code>: Registro en <code>localStorage</code> para recordar si aceptaste o rechazaste la analítica.
+          </span>
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>Métricas y Analítica Privada (Opcional - Solo con consentimiento):</strong>
+          <br>
+          <span style="font-size: 14px;">
+            • <strong>Plausible Analytics:</strong> Herramienta de analítica respetuosa con la privacidad, de código abierto, sin cookies de rastreo entre sitios, sin almacenamiento de dirección IP y sin fines publicitarios. <strong>Permanece 100% bloqueada hasta que des tu autorización explícita</strong>.
+          </span>
+        </li>
+      </ul>
 
-    <h3>¿Cómo gestionar las cookies?</h3>
-    <p>Puedes configurar tu navegador para bloquear o eliminar las cookies en cualquier momento. Sin embargo, algunas funcionalidades del sitio podrían verse afectadas si desactivas las cookies esenciales.</p>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.check("", 20) }} 3. Control y Configuración de Preferencias
+      </div>
+      <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
+        Tienes el control absoluto. Puedes reiniciar tus preferencias de consentimiento en cualquier momento haciendo clic en el siguiente botón:
+      </p>
+      
+      <div style="margin-bottom: 28px;">
+        <button type="button" 
+                onclick="localStorage.removeItem('cookie-consent'); window.location.href='/';" 
+                class="btn-secondary" 
+                style="cursor: pointer; font-size: 14px; padding: 10px 18px; border-radius: var(--radius-md);">
+          Restablecer preferencias de cookies
+        </button>
+      </div>
 
-    <h3>Consentimiento</h3>
-    <p>Al continuar navegando en nuestro sitio, aceptas el uso de cookies según lo descrito en esta política. Si no estás de acuerdo, puedes desactivarlas desde la configuración de tu navegador o abandonar el sitio.</p>
+      <div style="background-color: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">
+          <strong>Vigencia:</strong> Actualizado conforme al régimen de protección de datos de Colombia y buenas prácticas de privacidad digital. 2026.
+        </p>
+      </div>
 
-    <p><strong>Última actualización:</strong> julio de 2026.</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 32px; flex-wrap: wrap; gap: 16px;">
+        <a href="/" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          {{ icons.arrow_left("", 18) }} Volver al Inicio
+        </a>
+        <div style="display: flex; gap: 12px;">
+          <a href="/legal/privacy" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 600;">Política de Privacidad</a>
+          <a href="/legal/data-processing" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 600;">Tratamiento de Datos</a>
+        </div>
+      </div>
 
-    <a href="/" role="button" class="outline">← Volver al inicio</a>
-</article>
+    </div>
+  </div>
+</div>
 {% endblock %}
