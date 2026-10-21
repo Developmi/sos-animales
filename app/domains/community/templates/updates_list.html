@@ -1,36 +1,54 @@
+{% import "macros/icons.html" as icons %}
+
 {% if updates %}
-  <div style="margin-top: 1.25rem;">
-    <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Reportes de la Comunidad</h3>
+  <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 12px;">
+    <h3 style="font-size: 16px; font-weight: 800; color: var(--color-text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+      {{ icons.shield_check("", 18) }} <span>Reportes Recientes de la Comunidad</span>
+    </h3>
     {% for update in updates %}
-      <article style="padding: 1rem; margin-bottom: 0.75rem; background-color: var(--pico-card-background-color); border: 1px solid var(--pico-card-border-color); border-radius: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+      <article class="report-item-card">
+        <div class="report-item-header">
           <div>
-            <span class="badge {% if update.update_type == 'confirmed' %}badge-verified{% else %}badge-warm{% endif %}" style="margin-bottom: 0.35rem;">
-              {% if update.update_type == 'confirmed' %}
-                Información Confirmada
-              {% elif update.update_type == 'full' %}
-                Sin Cupos / Lleno
-              {% elif update.update_type == 'cancelled' %}
-                Jornada Cancelada
-              {% elif update.update_type == 'adopted' %}
-                Reportado Adoptado
-              {% elif update.update_type == 'in_treatment' %}
-                En Tratamiento
-              {% else %}
-                Datos Erróneos
-              {% endif %}
-            </span>
-            {% if update.note %}
-              <p style="margin-bottom: 0; font-size: 0.9em; color: var(--pico-color);">"{{ update.note }}"</p>
+            {% if update.update_type == 'confirmed' %}
+              <span class="report-badge-confirmed">
+                {{ icons.check("", 13) }} Información Confirmada
+              </span>
+            {% elif update.update_type == 'full' %}
+              <span class="report-badge-caution">
+                {{ icons.info("", 13) }} Sin Cupos / Lleno
+              </span>
+            {% elif update.update_type == 'cancelled' %}
+              <span class="report-badge-alert">
+                {{ icons.close("", 13) }} Jornada Cancelada
+              </span>
+            {% elif update.update_type == 'adopted' %}
+              <span class="report-badge-confirmed" style="background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE;">
+                {{ icons.home("", 13) }} Reportado Adoptado
+              </span>
+            {% elif update.update_type == 'in_treatment' %}
+              <span class="report-badge-caution">
+                {{ icons.medical_cross("", 13) }} En Tratamiento
+              </span>
+            {% else %}
+              <span class="report-badge-alert">
+                {{ icons.info("", 13) }} Datos Erróneos
+              </span>
             {% endif %}
           </div>
           <div>
             {% include "vote_status.html" %}
           </div>
         </div>
+        {% if update.note %}
+          <p class="report-note-text">"{{ update.note }}"</p>
+        {% endif %}
       </article>
     {% endfor %}
   </div>
 {% else %}
-  <p style="margin-top: 1rem;"><small style="color: var(--pico-muted-color);">Aún no hay reportes comunitarios sobre este registro. Si conoces alguna novedad, compártela arriba.</small></p>
+  <div style="margin-top: 1rem; padding: 14px 18px; background: var(--color-bg-subtle, #F8FAFC); border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+    <p style="margin: 0; font-size: 13px; color: var(--color-text-muted); display: flex; align-items: center; gap: 8px;">
+      {{ icons.info("", 16) }} <span>Aún no hay reportes comunitarios sobre este registro. Si conoces alguna novedad, compártela en el formulario arriba.</span>
+    </p>
+  </div>
 {% endif %}

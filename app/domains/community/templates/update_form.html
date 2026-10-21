@@ -1,37 +1,48 @@
 <!-- Fragmento: formulario para reportar actualización sobre una jornada o animal -->
-<form hx-post="/community/update" hx-swap="outerHTML">
+{% import "macros/icons.html" as icons %}
+
+<form hx-post="/community/update" hx-swap="outerHTML" style="display: flex; flex-direction: column; gap: 16px;">
   {% if campaign_id %}<input type="hidden" name="campaign_id" value="{{ campaign_id }}">{% endif %}
   {% if animal_id %}<input type="hidden" name="animal_id" value="{{ animal_id }}">{% endif %}
 
-  <label for="update-type-select">
-    <strong>¿Qué deseas reportar?</strong>
-    <select id="update-type-select" name="update_type" required>
-      <option value="" disabled selected>Selecciona una opción...</option>
+  <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+    <label for="update-type-select" class="form-label" style="display: flex; align-items: center; gap: 6px;">
+      {{ icons.shield_check("", 16) }} <span>¿Qué deseas reportar? <span style="color: var(--color-primary);">*</span></span>
+    </label>
+    <select id="update-type-select" name="update_type" class="form-control" required style="cursor: pointer;">
+      <option value="" disabled selected>Selecciona una opción comunitaria...</option>
       {% if animal_id %}
-        <option value="confirmed">Confirmo que la información sigue vigente</option>
-        <option value="adopted">Este animal ya fue adoptado</option>
-        <option value="in_treatment">Está actualmente en tratamiento veterinario</option>
-        <option value="wrong_info">La información de contacto o perfil es errónea</option>
+        <option value="confirmed">✓ Confirmo que la información sigue vigente</option>
+        <option value="adopted">🏠 Este animal ya fue adoptado</option>
+        <option value="in_treatment">🩺 Está actualmente en tratamiento veterinario</option>
+        <option value="wrong_info">⚠️ La información de contacto o perfil es errónea</option>
       {% elif campaign_id %}
-        <option value="confirmed">Confirmo que la jornada se realizará según lo anunciado</option>
-        <option value="full">Ya no hay cupos disponibles (Agotado)</option>
-        <option value="cancelled">La jornada fue cancelada o aplazada</option>
-        <option value="wrong_info">La dirección o fecha es incorrecta</option>
+        <option value="confirmed">✓ Confirmo que la jornada se realizará según lo anunciado</option>
+        <option value="full">🚫 Ya no hay cupos disponibles (Agotado)</option>
+        <option value="cancelled">❌ La jornada fue cancelada o aplazada</option>
+        <option value="wrong_info">⚠️ La dirección o fecha es incorrecta</option>
       {% endif %}
     </select>
     {% if not animal_id and not campaign_id %}
-      <p style="color: var(--pico-muted-color); margin-top: 0.5rem;"><small>Selecciona una jornada o un animal para reportar.</small></p>
+      <span style="color: var(--color-text-muted); font-size: 12px;">Selecciona una jornada o un animal para reportar.</span>
     {% endif %}
-  </label>
+  </div>
 
-  <label for="update-note">
-    <strong>Detalles adicionales (opcional)</strong>
+  <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+    <label for="update-note" class="form-label" style="display: flex; align-items: center; gap: 6px;">
+      {{ icons.info("", 16) }} <span>Detalles adicionales (opcional)</span>
+    </label>
     {% if animal_id %}
-      <textarea id="update-note" name="note" rows="2" placeholder="Ej: Fue adoptado por una familia local, está en la clínica X..."></textarea>
+      <textarea id="update-note" name="note" class="form-control" rows="3" placeholder="Ej: Fue adoptado por una familia del sector, o hablé con el rescatista y confirmó que..."></textarea>
     {% else %}
-      <textarea id="update-note" name="note" rows="2" placeholder="Ej: Asistí al punto y confirmaron que la atención empieza a las 7am..."></textarea>
+      <textarea id="update-note" name="note" class="form-control" rows="3" placeholder="Ej: Asistí al punto y me confirmaron que las fichas se entregan desde las 6:30am..."></textarea>
     {% endif %}
-  </label>
+    <span style="color: var(--color-text-muted); font-size: 12px;">Tu reporte ayuda a que toda la comunidad tenga información real y oportuna.</span>
+  </div>
 
-  <button type="submit" class="btn-warm" style="margin-top: 0.5rem;">Enviar Reporte Comunitario</button>
+  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px;">
+    <button type="submit" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+      {{ icons.paw_heart("", 16) }} <span>Enviar Reporte Comunitario</span>
+    </button>
+  </div>
 </form>

@@ -62,7 +62,7 @@ async def post_update(
         )
     except Exception as e:
         return HTMLResponse(
-            content=f"<article><header>Error de Validación</header><p>{str(e)}</p></article>",
+            content=f"<div style='background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 8px; padding: 14px; color: #E11D48; font-size: 13px;'><strong>Error de validación:</strong> {str(e)}</div>",
             status_code=400,
         )
 
@@ -118,15 +118,15 @@ async def vote_for_update_htmx(
     if not await check_rate_limit(client_ip, update_id, window_seconds=900):
         # HTMX temporarily replaces vote button with cooldown indicator
         return HTMLResponse(
-            "<button class='outline secondary' disabled style='padding: 0.2rem 0.5rem; font-size: 0.8em; margin-bottom: 0;'>"
-            "⏳ Ya votaste. Espera 15 min.</button>"
+            "<span class='vote-btn-cooldown' title='Debes esperar antes de volver a validar'>"
+            "⏳ Ya votaste. Espera 15 min.</span>"
         )
 
     # 3. If within rate limits, persist the vote
     update_obj = await cast_vote(db, update_id)
     if not update_obj:
         return HTMLResponse(
-            content="<article><header>Error</header><p>Reporte no encontrado</p></article>",
+            content="<span class='vote-btn-cooldown'>Reporte no encontrado</span>",
             status_code=404,
         )
 

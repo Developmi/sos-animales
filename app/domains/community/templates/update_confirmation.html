@@ -1,7 +1,16 @@
 <!-- Fragmento: confirmación tras enviar reporte comunitario -->
-<article style="background-color: #e8f5e9; border-color: #c8e6c9; box-shadow: none; margin-bottom: 0;">
-    <p style="color: #2e7d32; margin-bottom: 0;">
-        <strong>¡Gracias por tu reporte!</strong> 🐾<br>
-        Tu actualización ha sido registrada. Entre todos mantenemos esta información confiable.
+{% import "macros/icons.html" as icons %}
+
+<div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: var(--radius-lg); padding: 18px 22px; display: flex; align-items: flex-start; gap: 14px;">
+  <div style="width: 36px; height: 36px; border-radius: 50%; background: #D1FAE5; color: #065F46; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    {{ icons.paw_heart("", 20) }}
+  </div>
+  <div>
+    <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #065F46;">
+      ¡Muchas gracias por tu reporte comunitario!
+    </h4>
+    <p style="margin: 0; font-size: 13px; color: #047857; line-height: 1.5;">
+      Tu actualización ha quedado registrada y visible para todos los ciudadanos. Gracias a tu colaboración mantenemos esta información veraz y al día.
     </p>
-</article>
+  </div>
+</div>
