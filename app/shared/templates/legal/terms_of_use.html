@@ -1,36 +1,66 @@
 <!-- Términos de uso — condiciones generales de uso del aplicativo -->
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-{% block title %}Términos de Uso | SOS Animales{% endblock %}
+{% block title %}Términos y Condiciones de Uso | SOS Animales Colombia{% endblock %}
 
 {% block content %}
-<article>
-    <header><h2>Términos y Condiciones de Uso</h2></header>
+<div class="container creation-view">
+  <div class="creation-card" style="max-width: 820px; margin: 40px auto;">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">CONDICIONES DE LA PLATAFORMA</span>
+      <h1 class="form-header-title">Términos y Condiciones de Uso</h1>
+      <p class="form-header-desc">
+        Principios de uso responsable, veracidad informativa y convivencia en la red cívica.
+      </p>
+    </div>
 
-    <p>Al utilizar la plataforma SOS Animales, aceptas los siguientes términos y condiciones. Si no estás de acuerdo, te pedimos que no utilices nuestros servicios.</p>
+    <div style="color: var(--color-text-main); font-size: 15px; line-height: 1.7;">
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.heart("", 20) }} 1. Naturaleza del Servicio
+      </div>
+      <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+        SOS Animales es una plataforma colaborativa sin ánimo de lucro diseñada para articular la oferta pública y comunitaria de esterilizaciones, perfiles de adopción responsable y la auditoría cívica de albergues en Colombia. No procesamos pagos, donaciones en dinero ni intermediamos transacciones comerciales.
+      </p>
 
-    <h3>1. Naturaleza del servicio</h3>
-    <p>SOS Animales es una plataforma colaborativa sin fines de lucro que facilita la publicación de jornadas de esterilización, perfiles de animales en adopción y la verificación de fundaciones y rescatistas independientes en Colombia.</p>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.shield_check("", 20) }} 2. Responsabilidad de la Información
+      </div>
+      <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+        Las organizaciones, veterinarios y rescatistas que publican jornadas y perfiles son responsables directos de la exactitud de los datos suministrados. SOS Animales realiza validaciones técnicas y verificaciones en terreno, pero invita siempre a la ciudadanía a verificar los protocolos de bienestar en cada evento.
+      </p>
 
-    <h3>2. Responsabilidad del contenido</h3>
-    <p>Los usuarios que publican contenido (jornadas, perfiles de animales, información de fundaciones) son los únicos responsables de la veracidad y legalidad de la información proporcionada. SOS Animales no se hace responsable por la exactitud de los datos publicados por terceros.</p>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.check("", 20) }} 3. Conducta Aceptable y Prohibiciones
+      </div>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 8px;"><strong>Cero venta de animales:</strong> Está terminantemente prohibido publicar animales con fines de venta, lucro o explotación.</li>
+        <li style="margin-bottom: 8px;"><strong>Veracidad:</strong> No se tolerarán registros falsos de jornadas, albergues inexistentes o usurpación de identidad.</li>
+        <li style="margin-bottom: 8px;"><strong>Protección animal:</strong> Cualquier indicio de maltrato o negligencia resultará en la baja inmediata y remisión a las autoridades competentes.</li>
+      </ul>
 
-    <h3>3. Uso aceptable</h3>
-    <ul>
-        <li>No publicar contenido falso, engañoso o fraudulento.</li>
-        <li>No utilizar la plataforma para actividades comerciales no autorizadas.</li>
-        <li>No publicar contenido que promueva el maltrato animal.</li>
-        <li>No intentar acceder a áreas restringidas del sistema sin autorización.</li>
-    </ul>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.building("", 20) }} 4. Jurisdicción Aplicable
+      </div>
+      <p style="margin-bottom: 24px; color: var(--color-text-secondary);">
+        Estos términos se rigen conforme al ordenamiento jurídico de la República de Colombia y la legislación de protección animal (Ley 84 de 1989 y Ley 1774 de 2016).
+      </p>
 
-    <h3>4. Modificaciones</h3>
-    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán publicados en esta página y entrarán en vigor inmediatamente.</p>
+      <div style="background-color: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">
+          <strong>Última revisión:</strong> Actualizado para la comunidad en julio de 2026.
+        </p>
+      </div>
 
-    <h3>5. Ley aplicable</h3>
-    <p>Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa será resuelta ante los tribunales competentes de Colombia.</p>
-
-    <p><strong>Última actualización:</strong> julio de 2026.</p>
-
-    <a href="/" role="button" class="outline">← Volver al inicio</a>
-</article>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 32px; flex-wrap: wrap; gap: 16px;">
+        <a href="/" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          {{ icons.arrow_left("", 18) }} Volver al Inicio
+        </a>
+        <a href="/legal/privacy" class="btn-teal" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          Ver Política de Privacidad {{ icons.arrow_right("", 18) }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

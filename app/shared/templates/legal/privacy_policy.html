@@ -1,15 +1,73 @@
 <!-- Política de privacidad — tratamiento de datos personales según Ley 1581 -->
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-{% block title %}Política de Privacidad | SOS Animales{% endblock %}
+{% block title %}Política de Privacidad | SOS Animales Colombia{% endblock %}
 
 {% block content %}
-<article>
-    <header><h2>Política de Tratamiento de Datos (Ley 1581 de 2012)</h2></header>
-    <p><strong>1. Responsable:</strong> SOS Animales Colombia.</p>
-    <p><strong>2. Finalidad:</strong> Los datos recolectados (correo, teléfono) se usan EXCLUSIVAMENTE para enviar PINs de administración, notificar sobre el estado de verificación de la fundación y mostrar información pública de contacto voluntaria.</p>
-    <p><strong>3. Derechos:</strong> Puedes solicitar la rectificación o eliminación de tu fundación/jornada en cualquier momento contactando a nuestro soporte.</p>
-    <p><strong>4. No comercialización:</strong> Nunca venderemos ni cederemos tus datos a terceros.</p>
-    <a href="/" role="button" class="outline">← Volver al inicio</a>
-</article>
+<div class="container creation-view">
+  <div class="creation-card" style="max-width: 820px; margin: 40px auto;">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">MARCO LEGAL Y PRIVACIDAD</span>
+      <h1 class="form-header-title">Política de Tratamiento de Datos</h1>
+      <p class="form-header-desc">
+        Cumplimiento estricto del régimen de protección de datos personales de Colombia (Ley 1581 de 2012).
+      </p>
+    </div>
+
+    <div style="color: var(--color-text-main); font-size: 15px; line-height: 1.7;">
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.building("", 20) }} 1. Responsable del Tratamiento
+      </div>
+      <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+        <strong>SOS Animales Colombia</strong> es una plataforma cívica colaborativa y sin ánimo de lucro dedicada a visibilizar jornadas de esterilización, perfiles de animales en adopción y refugios verificados.
+      </p>
+
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.shield_check("", 20) }} 2. Finalidad Exclusiva de los Datos
+      </div>
+      <p style="margin-bottom: 12px; color: var(--color-text-secondary);">
+        Los datos de contacto recolectados (correo electrónico institucional y número telefónico de contacto voluntario) se utilizan <strong>exclusivamente</strong> para:
+      </p>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 8px;">Enviar el PIN criptográfico de administración para gestionar o cancelar jornadas y perfiles.</li>
+        <li style="margin-bottom: 8px;">Notificar sobre el estado de verificación y visitas técnicas de las fundaciones.</li>
+        <li style="margin-bottom: 8px;">Permitir que la ciudadanía contacte directamente a los albergues para procesos de adopción responsable.</li>
+      </ul>
+
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.check("", 20) }} 3. Derechos de los Titulares (Habeas Data)
+      </div>
+      <p style="margin-bottom: 12px; color: var(--color-text-secondary);">
+        Como titular de los datos, tienes derecho en cualquier momento a:
+      </p>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 8px;">Conocer, actualizar y rectificar la información de tu organización o publicación.</li>
+        <li style="margin-bottom: 8px;">Solicitar la supresión inmediata de tu perfil, jornada o refugio de la plataforma pública.</li>
+        <li style="margin-bottom: 8px;">Revocar la autorización otorgada sin costo ni dilaciones.</li>
+      </ul>
+
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.heart("", 20) }} 4. Compromiso de No Comercialización
+      </div>
+      <div style="background-color: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0; font-weight: 600; color: var(--color-text-main);">
+          🔒 Cero monetización de datos personales
+        </p>
+        <p style="margin: 6px 0 0; font-size: 14px; color: var(--color-text-secondary);">
+          SOS Animales jamás venderá, alquilará ni cederá bases de datos ni información de rescatistas o adoptantes a terceros, aseguradoras o empresas comerciales.
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 32px; flex-wrap: wrap; gap: 16px;">
+        <a href="/" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          {{ icons.arrow_left("", 18) }} Volver al Inicio
+        </a>
+        <a href="/legal/data-processing" class="btn-teal" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          Ver Consentimiento de Datos {{ icons.arrow_right("", 18) }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

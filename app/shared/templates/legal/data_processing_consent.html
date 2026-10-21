@@ -1,49 +1,69 @@
 <!-- Consentimiento expreso para tratamiento de datos personales — Ley 1581 de 2012 -->
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
 
-{% block title %}Tratamiento de Datos | SOS Animales{% endblock %}
+{% block title %}Consentimiento de Datos | SOS Animales Colombia{% endblock %}
 
 {% block content %}
-<article>
-    <header><h2>Consentimiento para el Tratamiento de Datos Personales</h2></header>
+<div class="container creation-view">
+  <div class="creation-card" style="max-width: 820px; margin: 40px auto;">
+    <div class="form-header-box">
+      <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">LEY 1581 DE 2012</span>
+      <h1 class="form-header-title">Consentimiento de Tratamiento de Datos</h1>
+      <p class="form-header-desc">
+        Autorización expresa previa e informada para el registro y gestión cívica en la plataforma.
+      </p>
+    </div>
 
-    <p>En cumplimiento de la <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>, solicitamos tu autorización expresa para el tratamiento de tus datos personales.</p>
+    <div style="color: var(--color-text-main); font-size: 15px; line-height: 1.7;">
+      <p style="margin-bottom: 24px; color: var(--color-text-secondary);">
+        En cumplimiento de la <strong>Ley Estatutaria 1581 de 2012</strong> y del <strong>Decreto 1377 de 2013</strong>, SOS Animales Colombia informa que los datos recolectados se gestionan bajo estándares de seguridad, necesidad y finalidad cívica.
+      </p>
 
-    <h3>¿Qué datos recolectamos?</h3>
-    <ul>
-        <li>Nombre o razón social de la fundación, rescatista o usuario.</li>
-        <li>Correo electrónico de contacto.</li>
-        <li>Número de teléfono (opcional, solo si decides compartirlo públicamente).</li>
-        <li>Dirección y municipio de la jornada o punto fijo.</li>
-    </ul>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.pin_location("", 20) }} 1. ¿Qué datos recolectamos?
+      </div>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 8px;"><strong>Organizaciones y rescatistas:</strong> Nombre o razón social, correo de contacto, municipio y dirección de la jornada o albergue.</li>
+        <li style="margin-bottom: 8px;"><strong>Publicación de animales:</strong> Datos del animal (especie, edad, condición médica, fotos y municipio).</li>
+        <li style="margin-bottom: 8px;"><strong>Contacto opcional:</strong> Teléfono o WhatsApp de contacto público que tú voluntariamente decidas visibilizar.</li>
+      </ul>
 
-    <h3>Finalidad del tratamiento</h3>
-    <p>Tus datos serán utilizados EXCLUSIVAMENTE para:</p>
-    <ul>
-        <li>Enviar el PIN de administración de tu jornada o perfil.</li>
-        <li>Notificarte sobre el estado de verificación de tu fundación.</li>
-        <li>Mostrar información de contacto que tú decidas hacer pública en el mapa.</li>
-        <li>Contactarte en caso de reportes o incidencias relacionadas con tu publicación.</li>
-    </ul>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.shield_check("", 20) }} 2. Finalidad del Tratamiento
+      </div>
+      <p style="margin-bottom: 12px; color: var(--color-text-secondary);">
+        Tus datos serán tratados <strong>exclusivamente</strong> para:
+      </p>
+      <ul style="margin-bottom: 20px; padding-left: 20px; color: var(--color-text-secondary);">
+        <li style="margin-bottom: 8px;">Despachar el PIN de administración de tu jornada o perfil para que mantengas control total.</li>
+        <li style="margin-bottom: 8px;">Notificar sobre el avance del proceso de verificación técnica veterinaria.</li>
+        <li style="margin-bottom: 8px;">Geolocalizar las jornadas en el mapa cívico nacional para que la comunidad pueda asistir.</li>
+        <li style="margin-bottom: 8px;">Atender solicitudes de actualización o retiro inmediato de información.</li>
+      </ul>
 
-    <h3>Tus derechos como titular</h3>
-    <p>De acuerdo con la Ley 1581 de 2012, tienes derecho a:</p>
-    <ul>
-        <li>Conocer, actualizar y rectificar tus datos personales.</li>
-        <li>Solicitar prueba de la autorización otorgada.</li>
-        <li>Ser informado sobre el uso que se ha dado a tus datos.</li>
-        <li>Revocar la autorización y solicitar la eliminación de tus datos.</li>
-        <li>Acceder de forma gratuita a tus datos personales.</li>
-    </ul>
+      <div class="form-section-title" style="margin-top: 24px; margin-bottom: 12px;">
+        {{ icons.check("", 20) }} 3. Canales de Ejercicio de Derechos
+      </div>
+      <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
+        Puedes revocar tu autorización o solicitar la eliminación de datos en cualquier momento enviando una solicitud mediante nuestros canales oficiales de soporte o directamente eliminando la publicación con tu PIN.
+      </p>
 
-    <h3>No comercialización</h3>
-    <p><strong>SOS Animales no vende, cede ni comparte tus datos personales con terceros</strong> bajo ninguna circunstancia. La información recolectada se utiliza únicamente para los fines descritos en esta política.</p>
+      <div style="background-color: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0; font-size: 13px; color: var(--color-text-muted);">
+          <strong>Vigencia y Actualización:</strong> Política adoptada para la operación cívica soberana de SOS Animales Colombia. Actualizado a 2026.
+        </p>
+      </div>
 
-    <h3>Contacto para ejercer tus derechos</h3>
-    <p>Para consultas, rectificaciones o solicitudes de eliminación, contáctanos a través de los canales disponibles en la plataforma.</p>
-
-    <p><strong>Última actualización:</strong> julio de 2026.</p>
-
-    <a href="/" role="button" class="outline">← Volver al inicio</a>
-</article>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 32px; flex-wrap: wrap; gap: 16px;">
+        <a href="/" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          {{ icons.arrow_left("", 18) }} Volver al Inicio
+        </a>
+        <a href="/legal/terms" class="btn-teal" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          Ver Términos de Uso {{ icons.arrow_right("", 18) }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
