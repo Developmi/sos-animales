@@ -1,15 +1,106 @@
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
 {% block title %}Acceso Administrativo — SOS Animales{% endblock %}
+
 {% block content %}
-<article style="max-width: 480px; margin: 4rem auto;">
-  <header><hgroup><h1>Acceso Administrativo</h1></hgroup></header>
-  {% if error %}
-    <p style="color: var(--pico-color-red);">{{ error }}</p>
-  {% endif %}
-  <form method="post" action="/auth/login">
-    <label for="password">Contraseña</label>
-    <input type="password" id="password" name="password" required autofocus />
-    <button type="submit">Ingresar</button>
-  </form>
-</article>
+<div class="container creation-view" style="display: flex; justify-content: center; align-items: center; min-height: calc(80vh - 120px);">
+  <div class="creation-card" style="max-width: 440px; width: 100%; padding: 40px 32px; box-shadow: var(--shadow-hover);">
+    
+    <!-- Header con Icono de Seguridad -->
+    <div class="form-header-box" style="margin-bottom: 24px; text-align: center;">
+      <div style="width: 56px; height: 56px; margin: 0 auto 16px; background: rgba(13, 148, 136, 0.12); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        {{ icons.shield_check("", 28) }}
+      </div>
+      <div style="margin-bottom: 8px;">
+        <span class="brand-badge" style="background: rgba(13, 148, 136, 0.1); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 4px 12px; font-weight: 700; font-size: 11px; letter-spacing: 0.05em;">
+          ZONA RESTRINGIDA
+        </span>
+      </div>
+      <h1 class="form-header-title" style="font-size: 24px; margin-bottom: 6px;">Acceso Administrativo</h1>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
+        Panel de control y verificación de entidades de la red nacional SOS Animales.
+      </p>
+    </div>
+
+    <!-- Alerta de Error -->
+    {% if error %}
+    <div style="display: flex; align-items: center; gap: 10px; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 20px; color: #BE123C; font-size: 13px; font-weight: 600;">
+      <span style="flex-shrink: 0; display: flex;">{{ icons.info("", 18) }}</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post" action="/auth/login" style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+        <label for="password" class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Contraseña de Acceso</span>
+          <span style="font-size: 11px; font-weight: 500; color: var(--color-text-tertiary);">Requerido</span>
+        </label>
+        
+        <div style="position: relative; display: flex; align-items: center;">
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-control" 
+            placeholder="Introduce la clave maestra..."
+            required 
+            autofocus 
+            autocomplete="current-password"
+            style="padding-right: 44px;"
+          />
+          <button 
+            type="button" 
+            id="togglePassword" 
+            onclick="togglePasswordVisibility()" 
+            aria-label="Mostrar u ocultar contraseña"
+            style="position: absolute; right: 8px; background: transparent; border: none; padding: 6px 8px; cursor: pointer; color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px;"
+          >
+            <!-- SVG Ojo -->
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 15px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer;">
+        Ingresar al Panel
+      </button>
+    </form>
+
+    <!-- Pie de Seguridad & Enlace de Regreso -->
+    <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--color-border); text-align: center; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--color-text-tertiary);">
+        {{ icons.shield_check("", 14) }}
+        <span>Sesión cifrada y protegida por autenticación de red</span>
+      </div>
+      <div>
+        <a href="/" style="font-size: 13px; font-weight: 600; color: var(--color-text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: var(--transition-fast);">
+          {{ icons.arrow_left("", 14) }} Volver a SOS Animales
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function togglePasswordVisibility() {
+  const pwdInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eyeIcon');
+  if (!pwdInput || !eyeIcon) return;
+
+  if (pwdInput.type === 'password') {
+    pwdInput.type = 'text';
+    eyeIcon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" x2="22" y1="2" y2="22"></line>';
+  } else {
+    pwdInput.type = 'password';
+    eyeIcon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>';
+  }
+}
+</script>
 {% endblock %}
