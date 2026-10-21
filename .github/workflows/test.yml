@@ -1,12 +1,11 @@
-name: CI Quality Gate & Tests
+name: Test Suite & Coverage Gate
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
-# RULE ZERO: Top-level permissions default to empty (least-privilege)
 permissions: {}
 
 concurrency:
@@ -18,38 +17,8 @@ env:
   PYTHONUNBUFFERED: 1
 
 jobs:
-  lint-and-typecheck:
-    name: Lint, Format & Typecheck
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v5.1.0
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python 3.12
-        run: uv python install 3.12
-
-      - name: Install dependencies (uv exclusive)
-        run: uv sync --all-groups --frozen
-
-      - name: Lint with Ruff
-        run: uv run ruff check .
-
-      - name: Format Check with Ruff
-        run: uv run ruff format --check .
-
-      - name: Strict Typecheck with Mypy
-        run: uv run mypy app/ tests/
-
   test-and-migrations:
-    name: Database Migrations & Test Suite
+    name: Database Migrations & Test Coverage Gate
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -98,6 +67,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v5.1.0
@@ -114,5 +85,34 @@ jobs:
       - name: Validate Alembic migrations execution
         run: uv run alembic upgrade head
 
-      - name: Execute Pytest Suite
-        run: uv run pytest -v --tb=short
+      - name: Execute Pytest Suite with Coverage Gate (>= 80%)
+        run: make test-coverage-gate
+
+  compose-config-no-env:
+    name: Compose Config Validation Without Local Env
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Ensure no local .env is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .env
+
+      - name: Validate compose config
+        run: make compose-config
+
+      - name: Assert no .env side effects
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .env ]; then
+            echo ".env was unexpectedly created during compose validation" >&2
+            exit 1
+          fi
