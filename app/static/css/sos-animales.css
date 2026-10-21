@@ -1513,6 +1513,8 @@ input, select, textarea {
   color: var(--color-text-secondary);
   line-height: 1.6;
   font-style: italic;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .shelter-contact-card {
@@ -2407,6 +2409,15 @@ input[type="file"].form-control::file-selector-button:hover {
   pointer-events: none;
 }
 
+.campaign-requirements-box {
+  background: var(--color-bg-page);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .community-reports-box {
   background: #FFFFFF;
   border: 1px solid var(--color-border);
@@ -2416,23 +2427,165 @@ input[type="file"].form-control::file-selector-button:hover {
   margin-top: 28px;
 }
 
-.report-item-card {
-  background: var(--color-bg-page);
+.community-details {
+  margin-top: 18px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  overflow: hidden;
+  transition: var(--transition-fast);
+}
+
+.community-details[open] {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-border);
+}
+
+.community-details-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 14px 18px;
+  background: var(--color-bg-subtle, #F8FAFC);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-main);
+  user-select: none;
+  list-style: none;
+  transition: var(--transition-fast);
+}
+
+.community-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.community-details-summary:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.community-form-body {
+  padding: 22px;
+  border-top: 1px solid var(--color-border);
+  background: #FFFFFF;
+}
+
+.report-item-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .report-item-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 13px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.report-badge-confirmed {
+  background: var(--color-teal-soft);
+  color: var(--color-teal-dark);
+  border: 1px solid var(--color-teal-border);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.report-badge-caution {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.report-badge-alert {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.report-note-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.vote-btn-active {
+  background: var(--color-bg-subtle, #F8FAFC);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.vote-btn-active:hover {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.vote-btn-done {
+  background: var(--color-teal-soft);
+  border: 1px solid var(--color-teal-border);
+  color: var(--color-teal-dark);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.vote-btn-cooldown {
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: not-allowed;
 }
 
 /* Single de Refugio / Fundación */

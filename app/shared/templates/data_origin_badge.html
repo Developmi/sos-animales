@@ -1,13 +1,13 @@
 {% if data_origin == "official_authorized" %}
-    <span style="background-color: #e8f5e9; color: #2e7d32; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85em; font-weight: 600;">
-        ✅ Oficial — Verificado
-    </span>
+  <span class="badge-tag-free" style="background: #ECFDF5; color: #065F46; border-color: #A7F3D0;">
+    {{ icons.shield_check("", 13) if icons else "✓" }} Oficial Verificado
+  </span>
 {% elif data_origin == "official_factual" %}
-    <span style="background-color: #fff3e0; color: #e65100; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85em; font-weight: 600;">
-        📋 Dato público — Verificar
-    </span>
+  <span class="badge-tag-free" style="background: #FFFBEB; color: #92400E; border-color: #FDE68A;">
+    {{ icons.document("", 13) if icons else "ℹ" }} Dato Público
+  </span>
 {% else %}
-    <span style="background-color: #f3f4f6; color: #666; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85em; font-weight: 600;">
-        Reportado por la fundación
-    </span>
+  <span class="badge-tag-free" style="background: var(--color-bg-subtle, #F8FAFC); color: var(--color-text-secondary); border-color: var(--color-border);">
+    {{ icons.heart("", 13) if icons else "♥" }} Reportado por Fundación
+  </span>
 {% endif %}
