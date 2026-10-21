@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: sos-animales:local
     container_name: sos_animales_web
     restart: unless-stopped
     security_opt:
