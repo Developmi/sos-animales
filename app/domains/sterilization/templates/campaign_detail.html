@@ -88,7 +88,7 @@
 
     <!-- Requirements & Preparation -->
     {% if campaign.requirements %}
-      <div style="background: var(--color-bg-page); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--color-border);">
+      <div class="campaign-requirements-box">
         <h3 style="font-size: 16px; font-weight: 800; color: var(--color-text-main); margin-bottom: 10px;">
           Requisitos y Preparación Quirúrgica:
         </h3>
@@ -104,9 +104,21 @@
           {{ icons.check("", 18) }} Agendar Turno / Inscripción Oficial
         </a>
       {% endif %}
-      <button type="button" class="btn-secondary" onclick="navigator.clipboard.writeText(window.location.href); alert('¡Enlace copiado al portapapeles!');">
+      <button 
+        type="button" 
+        id="btn-share-campaign"
+        class="btn-secondary" 
+        onclick="navigator.clipboard.writeText(window.location.href).then(() => { const b = document.getElementById('btn-share-campaign'); const orig = b.innerHTML; b.innerHTML = '¡Copiado! ✓'; setTimeout(() => b.innerHTML = orig, 2000); });">
         {{ icons.share("", 18) }} Compartir Jornada
       </button>
+      <a 
+        href="https://api.whatsapp.com/send?text={{ ('¡Hola! Mira esta jornada de esterilización: ' + campaign.title + ' en ' + (campaign.municipality | capitalize) + ': ') | urlencode }}{{ (request.url | string) | urlencode }}" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="btn-secondary" 
+        style="text-decoration: none;">
+        {{ icons.whatsapp("", 18) }} Difundir por WhatsApp
+      </a>
     </div>
   </article>
 
@@ -129,16 +141,19 @@
     </div>
 
     <!-- Collapsible Update Form -->
-    <details style="margin-top: 16px;">
-      <summary class="btn-secondary" style="cursor: pointer; display: inline-flex; font-size: 0.9rem; padding: 6px 14px;">
-        {{ icons.plus("", 16) }} <span>Reportar novedad sobre esta jornada</span>
+    <details class="community-details">
+      <summary class="community-details-summary">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+          {{ icons.plus("", 16) }} <span>Reportar novedad sobre esta jornada</span>
+        </span>
+        <span style="font-size: 12px; color: var(--color-primary); font-weight: 600;">Desplegar formulario ↓</span>
       </summary>
       <div
+        class="community-form-body"
         hx-get="/community/update?campaign_id={{ campaign.id }}"
         hx-trigger="revealed"
-        style="margin-top: 12px; padding: 18px; border: 1px solid var(--color-border); border-radius: 12px; background: #ffffff;"
       >
-        <p style="color: var(--color-text-muted);">Cargando formulario...</p>
+        <p style="color: var(--color-text-muted); margin: 0;"><small>Cargando formulario de reporte...</small></p>
       </div>
     </details>
   </section>
