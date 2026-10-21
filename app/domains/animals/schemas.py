@@ -20,6 +20,7 @@ class AnimalCreate(BaseModel):
     species: str = Field(...)
     municipality: str = Field(..., min_length=3, max_length=100)
     breed: Optional[str] = None
+    age_months: Optional[int] = Field(None, ge=1, le=360)
     age_years: Optional[int] = Field(None, ge=0, le=50)
     size: Optional[str] = Field(None, pattern=r"^(pequeno|mediano|grande)$")
     is_sterilized: bool = False

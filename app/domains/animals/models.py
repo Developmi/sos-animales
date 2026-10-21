@@ -38,6 +38,7 @@ class AnimalProfile(Base):  # type: ignore[misc]
         String(20), nullable=False
     )  # 'canino' o 'felino'
     breed: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    age_months: Mapped[int | None] = mapped_column(Integer, nullable=True)
     age_years: Mapped[int | None] = mapped_column(Integer, nullable=True)
     size: Mapped[str | None] = mapped_column(
         String(20), nullable=True

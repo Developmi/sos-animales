@@ -13,19 +13,19 @@
   <!-- Floating Search & Filter Bar con HTMX -->
   <form id="filters-form" class="search-bar-floating" role="search" aria-label="Filtro de peluditos" onsubmit="return false;">
     <div class="search-segment">
-      {{ icons.search("", 20) }}
-      <input 
+      {{ icons.pin_location("", 20) }}
+      <select 
         id="filter-muni"
-        type="text" 
         name="municipality"
-        class="search-input" 
-        placeholder="¿Qué ciudad o municipio buscas? (Ej: Bogotá)" 
-        aria-label="Buscar por municipio"
-        hx-get="/animals/list"
-        hx-target="#animals-grid"
-        hx-trigger="keyup changed delay:300ms"
-        hx-include="#filters-form"
-      />
+        class="search-select" 
+        aria-label="Filtrar por municipio"
+        hx-get="/sterilization/active-municipality-options?domain=animals"
+        hx-trigger="load"
+        hx-target="#filter-muni"
+        onchange="htmx.trigger('#filters-form button', 'click')"
+      >
+        <option value="">Todas las ciudades con adopciones</option>
+      </select>
     </div>
 
     <div class="search-divider"></div>

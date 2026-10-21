@@ -26,10 +26,12 @@ from datetime import date
 from app.database import get_db
 from app.domains.sources.models import Source
 from app.shared.email import send_pin_email_sync
+from app.shared.geo import get_grouped_municipalities
 from app.shared.security import check_pin_rate_limit, record_failed_pin_attempt
 from app.domains.animals.tools import (
     upload_photo_to_r2,
     upload_multiple_photos,
+    validate_image_file,
     create_animal_profile,
     list_animals_by_filters,
     get_animal_detail,
@@ -71,10 +73,18 @@ async def get_animals_list_htmx(
 
 
 @router.get("/new", response_class=HTMLResponse)
-async def new_animal_form(request: Request) -> HTMLResponse:
+async def new_animal_form(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> HTMLResponse:
     """Render form to publish an animal for adoption."""
+    try:
+        grouped = await get_grouped_municipalities(db)
+    except Exception:
+        grouped = {}
     return templates.TemplateResponse(
-        request=request, name="profile_form.html", context={}
+        request=request,
+        name="profile_form.html",
+        context={"grouped_municipalities": grouped},
     )
 
 
@@ -86,6 +96,7 @@ async def post_new_animal(
     species: str = Form(...),
     municipality: str = Form(...),
     breed: str | None = Form(None),
+    age_months: int | None = Form(None),
     age_years: int | None = Form(None),
     size: str | None = Form(None),
     is_sterilized: bool = Form(False),
@@ -117,7 +128,20 @@ async def post_new_animal(
             status_code=400,
         )
 
-    # 1. Upload mandatory primary photo and optional gallery photos
+    # 1. Fast image validation: ensure every file is an image and <= 5MB BEFORE any upload
+    all_uploads = [
+        f for f in [foto, foto_2, foto_3, foto_4, foto_5] if f and f.filename
+    ]
+    for upload in all_uploads:
+        try:
+            validate_image_file(upload)
+        except ValueError as err:
+            return HTMLResponse(
+                content=f"<article><header>Archivo no permitido</header><p>{str(err)}</p></article>",
+                status_code=400,
+            )
+
+    # 2. Upload mandatory primary photo and optional gallery photos
     try:
         foto_url = await upload_photo_to_r2(foto)
     except Exception as e:
@@ -128,20 +152,25 @@ async def post_new_animal(
     extras = [f for f in [foto_2, foto_3, foto_4, foto_5] if f and f.filename]
     fotos_urls_list = await upload_multiple_photos(extras, max_files=4)
 
-    # 2. Explicit species validation before further processing
+    # 3. Explicit species validation before further processing
     if species not in ["canino", "felino"]:
         return HTMLResponse(
             content="<article><header>Error</header><p>Especie inválida. Debe ser canino o felino.</p></article>",
             status_code=400,
         )
 
-    # 2b. Validate with Pydantic schema before delegating to tools
+    # 4. Age calculation: derive age_years if age_months is provided
+    if age_months is not None and age_years is None:
+        age_years = age_months // 12 if age_months >= 12 else 0
+
+    # 5. Validate with Pydantic schema before delegating to tools
     try:
         animal_data = AnimalCreate(
             name=name,
             species=species,
             municipality=municipality,
             breed=breed,
+            age_months=age_months,
             age_years=age_years,
             size=size,
             is_sterilized=is_sterilized,

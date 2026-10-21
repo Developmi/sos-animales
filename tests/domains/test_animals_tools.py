@@ -294,3 +294,64 @@ async def test_upload_photo_to_r2_returns_url() -> None:
 
     assert url.startswith("https://via.placeholder.com/")
     assert ".jpg" in url or ".png" in url
+
+
+# ── TC-12: validate_image_file strict checks ─────────────────────────────────
+
+
+def test_validate_image_file_rejects_oversized_file() -> None:
+    """Files over 5MB must be strictly rejected before any network/cloud upload."""
+    from fastapi import UploadFile
+    from io import BytesIO
+    from starlette.datastructures import Headers
+    from app.domains.animals.tools import validate_image_file
+
+    oversized_data = b"0" * (5 * 1024 * 1024 + 10)
+    file = UploadFile(
+        filename="huge_photo.jpg",
+        file=BytesIO(oversized_data),
+        headers=Headers({"content-type": "image/jpeg"}),
+    )
+    with pytest.raises(ValueError, match="superando el límite máximo permitido de 5MB"):
+        validate_image_file(file)
+
+
+def test_validate_image_file_rejects_invalid_mime() -> None:
+    """Non-image files must be rejected."""
+    from fastapi import UploadFile
+    from io import BytesIO
+    from starlette.datastructures import Headers
+    from app.domains.animals.tools import validate_image_file
+
+    file = UploadFile(
+        filename="document.pdf",
+        file=BytesIO(b"fake-pdf"),
+        headers=Headers({"content-type": "application/pdf"}),
+    )
+    with pytest.raises(ValueError, match="no es una imagen válida"):
+        validate_image_file(file)
+
+
+@pytest.mark.asyncio
+async def test_create_animal_profile_with_age_months(
+    db_session: AsyncSession, sample_source: Source
+) -> None:
+    """Animal profile correctly stores age_months for puppies/kittens."""
+    data = {
+        "name": "Cachorrito Toby",
+        "species": "canino",
+        "breed": "Criollo",
+        "age_months": 3,
+        "age_years": 0,
+        "size": "pequeno",
+        "is_sterilized": False,
+        "description": "Cachorro juguetón de 3 meses rescatado.",
+        "municipality": "Medellín",
+    }
+    result = await create_animal_profile(
+        db_session, sample_source.id, data, "https://placeholder.com/toby.jpg"
+    )
+    animal = result["animal"]
+    assert animal.id is not None
+    assert animal.age_months == 3
+    assert animal.name == "Cachorrito Toby"

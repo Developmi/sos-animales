@@ -80,7 +80,21 @@
         </div>
         <div class="attr-item">
           <span class="attr-label">Edad Estimada</span>
-          <span class="attr-value">{% if animal.age_years is not none %}{{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}{% else %}No especificada{% endif %}</span>
+          <span class="attr-value">
+            {% if animal.age_months is not none %}
+              {% if animal.age_months < 12 %}
+                {{ animal.age_months }} {% if animal.age_months == 1 %}mes{% else %}meses{% endif %} (Cachorro/Joven)
+              {% elif animal.age_months % 12 == 0 %}
+                {{ animal.age_months // 12 }} {% if animal.age_months // 12 == 1 %}año{% else %}años{% endif %}
+              {% else %}
+                {{ animal.age_months // 12 }} {% if animal.age_months // 12 == 1 %}año{% else %}años{% endif %} y {{ animal.age_months % 12 }} {% if animal.age_months % 12 == 1 %}mes{% else %}meses{% endif %}
+              {% endif %}
+            {% elif animal.age_years is not none %}
+              {{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}
+            {% else %}
+              No especificada
+            {% endif %}
+          </span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Sexo</span>

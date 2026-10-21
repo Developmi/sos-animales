@@ -21,6 +21,35 @@ from app.domains.animals.models import AnimalProfile
 
 logger = logging.getLogger(__name__)
 
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+
+def validate_image_file(file: UploadFile) -> None:
+    """Validate that file exists, is an image, and does NOT exceed 5MB.
+
+    Fast rejection before any network or S3/R2 upload.
+    Raises ValueError with a user-friendly message if oversized or invalid.
+    """
+    if not file or not file.filename:
+        return
+
+    # Check MIME type
+    if file.content_type and not file.content_type.startswith("image/"):
+        raise ValueError(
+            f"El archivo '{file.filename}' no es una imagen válida (tipo detectado: {file.content_type})."
+        )
+
+    # Calculate file size
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+
+    if size > MAX_IMAGE_SIZE_BYTES:
+        size_mb = size / (1024 * 1024)
+        raise ValueError(
+            f"El archivo '{file.filename}' pesa {size_mb:.1f}MB, superando el límite máximo permitido de 5MB."
+        )
+
 
 async def upload_photo_to_r2(file: UploadFile) -> str:
     """Upload photo to Cloudflare R2 (or fallback placeholder when unconfigured).
@@ -28,6 +57,7 @@ async def upload_photo_to_r2(file: UploadFile) -> str:
     If R2_ENDPOINT is configured, uses boto3 S3-compatible API.
     Otherwise, returns via.placeholder.com URL for local development.
     """
+    validate_image_file(file)
     filename = file.filename or "unknown_image.jpg"
     file_extension = filename.rsplit(".", 1)[-1] if "." in filename else "jpg"
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
@@ -105,6 +135,7 @@ async def create_animal_profile(
         name=data["name"],
         species=data["species"],
         breed=data.get("breed"),
+        age_months=data.get("age_months"),
         age_years=data.get("age_years"),
         size=data.get("size"),
         foto_url=foto_url,

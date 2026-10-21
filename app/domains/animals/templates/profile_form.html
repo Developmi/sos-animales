@@ -36,7 +36,7 @@
           required 
           class="form-control"
           style="padding: 10px;"
-          onchange="const file = this.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('preview-main-img').src = e.target.result; document.getElementById('preview-main-box').style.display = 'block'; }; reader.readAsDataURL(file); }"
+          onchange="const file = this.files[0]; if (file) { if (file.size > 5 * 1024 * 1024) { alert('El archivo no puede superar los 5MB. Por favor selecciona una imagen más ligera.'); this.value = ''; document.getElementById('preview-main-box').style.display = 'none'; return; } const reader = new FileReader(); reader.onload = (e) => { document.getElementById('preview-main-img').src = e.target.result; document.getElementById('preview-main-box').style.display = 'block'; }; reader.readAsDataURL(file); }"
         />
         <div id="preview-main-box" style="display: none; margin-top: 12px;">
           <div style="width: 140px; height: 140px; border-radius: 12px; overflow: hidden; border: 2px solid var(--color-primary); box-shadow: var(--shadow-sm);">
@@ -44,7 +44,7 @@
           </div>
         </div>
         <small style="color: var(--color-text-muted); font-size: 12px; display: block; margin-top: 4px;">
-          Formatos admitidos: JPG, PNG, WebP. Tamaño recomendado: menos de 5MB.
+          Formatos admitidos: JPG, PNG, WebP. Límite estricto: máximo 5MB por foto.
         </small>
       </div>
 
@@ -55,19 +55,19 @@
         <div class="form-row two-cols" style="margin-top: 12px;">
           <div class="form-group">
             <label class="form-label" for="foto-2">Foto adicional 2</label>
-            <input id="foto-2" type="file" name="foto_2" accept="image/*" class="form-control" style="padding: 8px;" />
+            <input id="foto-2" type="file" name="foto_2" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-3">Foto adicional 3</label>
-            <input id="foto-3" type="file" name="foto_3" accept="image/*" class="form-control" style="padding: 8px;" />
+            <input id="foto-3" type="file" name="foto_3" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-4">Foto adicional 4</label>
-            <input id="foto-4" type="file" name="foto_4" accept="image/*" class="form-control" style="padding: 8px;" />
+            <input id="foto-4" type="file" name="foto_4" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-5">Foto adicional 5</label>
-            <input id="foto-5" type="file" name="foto_5" accept="image/*" class="form-control" style="padding: 8px;" />
+            <input id="foto-5" type="file" name="foto_5" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
           </div>
         </div>
       </details>
@@ -95,13 +95,37 @@
 
       <div class="form-row two-cols">
         <div class="form-group">
-          <label class="form-label" for="pet-muni">Municipio o Ciudad *</label>
-          <input type="text" id="pet-muni" name="municipality" class="form-control" placeholder="Ej: Bogotá, Medellín, Cali, Soacha..." required />
+          <label class="form-label" for="pet-muni">Municipio o Ciudad Oficial *</label>
+          <select id="pet-muni" name="municipality" class="form-control" required>
+            <option value="" disabled selected>Selecciona tu municipio o ciudad...</option>
+            {% if grouped_municipalities %}
+              {% for department, municipalities in grouped_municipalities.items() %}
+                <optgroup label="{{ department }}">
+                  {% for m in municipalities %}
+                    <option value="{{ m }}">{{ m }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            {% endif %}
+          </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="pet-age">Edad Estimada (en años)</label>
-          <input type="number" id="pet-age" name="age_years" min="0" max="25" step="1" class="form-control" placeholder="Ej: 2" />
+          <label class="form-label" for="pet-age-months">Edad Estimada (en meses) *</label>
+          <input 
+            type="number" 
+            id="pet-age-months" 
+            name="age_months" 
+            min="1" 
+            max="300" 
+            step="1" 
+            class="form-control" 
+            placeholder="Ej: 3 (cachorro), 12 (1 año), 24 (2 años)..." 
+            required 
+          />
+          <small style="color: var(--color-text-muted); font-size: 11px; display: block; margin-top: 4px;">
+            Para cachorros ingresa meses (ej: 2, 4 o 6). Si tiene 1 año ingresa 12; 2 años son 24 meses.
+          </small>
         </div>
       </div>
 
@@ -135,11 +159,20 @@
         {{ icons.syringe("", 20) }} 3. Salud y Convivencia
       </div>
 
-      <div style="margin-bottom: 16px;">
-        <label class="form-checkbox-row">
-          <input type="checkbox" name="is_sterilized" value="true" />
-          <span style="font-weight: 600; color: var(--color-text-main);">¿El animal ya se encuentra esterilizado/a? (Recomendado)</span>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" style="display: block; margin-bottom: 8px;">
+          ¿El animal ya se encuentra esterilizado/a? (Recomendado) *
         </label>
+        <div style="display: flex; gap: 24px; align-items: center; background: #FFFFFF; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-text-main); margin: 0;">
+            <input type="radio" name="is_sterilized" value="true" required style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+            <span>Sí, esterilizado/a</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-text-main); margin: 0;">
+            <input type="radio" name="is_sterilized" value="false" checked required style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+            <span>No esterilizado/a</span>
+          </label>
+        </div>
       </div>
 
       <div class="form-row two-cols" style="margin-bottom: 16px;">

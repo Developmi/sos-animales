@@ -14,7 +14,7 @@
             {% if animal.is_sterilized %}
               <span class="pet-chip chip-teal">{{ icons.check("", 14) }} Esterilizado</span>
             {% endif %}
-            {% if animal.age_years is not none and animal.age_years < 1 %}
+            {% if (animal.age_months is not none and animal.age_months < 12) or (animal.age_years is not none and animal.age_years < 1) %}
               <span class="pet-chip chip-amber">Cachorro</span>
             {% endif %}
             {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}
@@ -36,7 +36,7 @@
             <span class="pet-gender-badge">{{ (animal.sexo or animal.species) | capitalize }}</span>
           </div>
           <div class="pet-meta-line">
-            <span>{{ animal.breed or 'Criollo / Mestizo' }}</span> • <span>{% if animal.age_years is not none %}{{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}{% else %}Edad no especificada{% endif %}</span>
+            <span>{{ animal.breed or 'Criollo / Mestizo' }}</span> • <span>{% if animal.age_months is not none %}{% if animal.age_months < 12 %}{{ animal.age_months }} {% if animal.age_months == 1 %}mes{% else %}meses{% endif %}{% elif animal.age_months % 12 == 0 %}{{ animal.age_months // 12 }} {% if animal.age_months // 12 == 1 %}año{% else %}años{% endif %}{% else %}{{ animal.age_months // 12 }} a, {{ animal.age_months % 12 }} m{% endif %}{% elif animal.age_years is not none %}{{ animal.age_years }} {% if animal.age_years == 1 %}año{% else %}años{% endif %}{% else %}Edad no especificada{% endif %}</span>
           </div>
           <div class="pet-location-row">
             {{ icons.pin_location("", 16) }}
