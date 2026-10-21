@@ -8,11 +8,15 @@ wheels/
 
 # Virtual environments
 .venv
+tools/bin/
 
 # Ruff, mypy & pytest cache
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # Environment variables
 .env

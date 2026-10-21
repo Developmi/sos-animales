@@ -1,0 +1,25 @@
+# Pinned tool versions shared by the Makefile and tools/install.sh.
+# Keep in sync with the reference repos: do not float to latest.
+ACTIONLINT_VERSION := 1.7.12
+HADOLINT_VERSION   := 2.15.1
+TRIVY_VERSION      := 0.76.0
+
+# SHA256 of official release assets, named <TOOL>_SHA256_<OS>_<ARCH>.
+# sources (fetched from official release checksums assets):
+#   actionlint v1.7.12    actionlint_1.7.12_checksums.txt
+#   hadolint   v2.15.1    checksums.sha256
+#   trivy      v0.76.0    trivy_0.76.0_checksums.txt
+ACTIONLINT_SHA256_LINUX_AMD64  := 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+ACTIONLINT_SHA256_LINUX_ARM64  := 325e971b6ba9bfa504672e29be93c24981eeb1c07576d730e9f7c8805afff0c6
+ACTIONLINT_SHA256_DARWIN_AMD64 := 5b44c3bc2255115c9b69e30efc0fecdf498fdb63c5d58e17084fd5f16324c644
+ACTIONLINT_SHA256_DARWIN_ARM64 := aba9ced2dee8d27fecca3dc7feb1a7f9a52caefa1eb46f3271ea66b6e0e6953f
+
+HADOLINT_SHA256_LINUX_AMD64   := c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+HADOLINT_SHA256_LINUX_ARM64   := f6198ef8090f404dbb771abfee086eb8c48ac177f30da7fd3510aca35b344b5d
+HADOLINT_SHA256_DARWIN_AMD64  := ffe9bb18b23d5ed1eae50237aecdbb523d016e96da0bd4e7aa432040acfc3fde
+HADOLINT_SHA256_DARWIN_ARM64  := 5c09f3213f8e40406abe048233d985eebef336d4a6a20021be47fadb6cf480a2
+
+TRIVY_SHA256_LINUX_AMD64  := e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7
+TRIVY_SHA256_LINUX_ARM64  := aab21e677a7b7071fc79f1711480840754c18a1b9d9cefa7ccd06af63a0e8f4c
+TRIVY_SHA256_DARWIN_AMD64 := 89563d4d495cf4ef06a0d1950f8710b124e9f7bd2615ec6c47b03673f4ad45a2
+TRIVY_SHA256_DARWIN_ARM64 := e7ec0d21fe842553f59af99aba2efbcc822369fbaed27019c575408b6d135fce
