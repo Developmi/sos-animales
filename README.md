@@ -27,7 +27,7 @@ En esta Fase 1 (MVP), la plataforma no requiere registro previo de cuentas de us
 ```mermaid
 flowchart TD
     subgraph Client["Cliente / Navegador"]
-        UI["HTMX + Pure CSS Design System (Laika + Petfinder) + Leaflet JS"]
+        UI["HTMX + Pure CSS Design System + Leaflet JS"]
     end
 
     subgraph AppServer["FastAPI Application"]
@@ -65,7 +65,7 @@ flowchart TD
 |------|-----------|
 | Backend | FastAPI + SQLAlchemy async (`asyncpg`) |
 | Base de datos | PostgreSQL 17 (exclusivamente PostgreSQL con `asyncpg`) |
-| Frontend | HTMX + Pure CSS3 (`sos-animales.css` Laika Style) + Jinja2 (cero build step JS) |
+| Frontend | HTMX + Pure CSS3 (`sos-animales.css`) + Jinja2 (cero build step JS) |
 | Caché & Rate Limiting | Valkey 8 (compatible con Redis) |
 | Geocoding & Mapas | Leaflet JS + OpenStreetMap / Nominatim |
 | Almacenamiento OCI | Cloudflare R2 (`boto3`) |

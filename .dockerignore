@@ -23,7 +23,6 @@ tests
 # Documentation & temporary artifacts
 README.md
 ROADMAP.md
-E2E_CHECKLIST.md
 docs
 *.md
 *.txt

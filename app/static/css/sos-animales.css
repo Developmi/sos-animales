@@ -1,6 +1,6 @@
 /* ==========================================================================
    SOS ANIMALES COLOMBIA - MASTER STYLESHEET
-   Design System: Laika (Warmth & Commercial Polish) + Petfinder (Catalog Clarity)
+   Design System: SOS Animales (Warmth, Modern Polish & Catalog Clarity)
    Pure Vanilla CSS3 with CSS Custom Properties
    ========================================================================== */
 
@@ -140,7 +140,7 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   Header & Navigation (.laika-header)
+   Header & Navigation (.sos-header)
    ========================================================================== */
 .top-dev-bar {
   background: #0F172A;
@@ -208,7 +208,7 @@ input, select, textarea {
   color: #FFFFFF;
 }
 
-.laika-header {
+.sos-header {
   position: sticky;
   top: 0;
   z-index: 90;
@@ -564,7 +564,7 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   Category Bar (Laika Style)
+   Category Bar
    ========================================================================== */
 .category-section {
   padding-top: 8px;
@@ -1059,9 +1059,9 @@ input, select, textarea {
 }
 
 /* ==========================================================================
-   Footer (.laika-footer)
+   Footer (.sos-footer)
    ========================================================================== */
-.laika-footer {
+.sos-footer {
   background: #FFFFFF;
   border-top: 1px solid var(--color-border);
   margin-top: auto;
