@@ -243,29 +243,3 @@ async def adopt_animal(
             name="adopt_error.html",
             context={},
         )
-    client_ip = request.client.host if request.client else "127.0.0.1"
-    if not await check_pin_rate_limit(
-        client_ip, animal_id, max_attempts=5, window_seconds=3600
-    ):
-        return HTMLResponse(
-            content="<div class='alert-box' style='color: #E11D48; padding: 12px; background: #FFF1F2; border-radius: 8px;'>Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de intentar de nuevo.</div>",
-            status_code=429,
-        )
-
-    # Validate PIN with schema
-    AdoptAction(pin=pin)
-    success = await mark_as_adopted(db, animal_id, pin)
-
-    if success:
-        return templates.TemplateResponse(
-            request=request,
-            name="adopt_success.html",
-            context={"animal_id": animal_id},
-        )
-    else:
-        await record_failed_pin_attempt(client_ip, animal_id, window_seconds=3600)
-        return templates.TemplateResponse(
-            request=request,
-            name="adopt_error.html",
-            context={},
-        )

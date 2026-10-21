@@ -56,3 +56,26 @@ async def test_campaign_form_smoke(client: AsyncClient) -> None:
     # ponytail: smoke test — campaign_form requires DB, search page is DB-free.
     response = await client.get("/sterilization/search")
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_validation_error_handler_returns_422_html(client: AsyncClient) -> None:
+    response = await client.post(
+        "/animals/1/adopt",
+        data={"pin": "invalid-pin-too-long"},
+        headers={"accept": "text/html"},
+    )
+    assert response.status_code == 422
+    assert "Datos inválidos" in response.text
+
+
+@pytest.mark.asyncio
+async def test_validation_error_handler_returns_422_json(client: AsyncClient) -> None:
+    response = await client.post(
+        "/animals/1/adopt",
+        data={"pin": "invalid-pin-too-long"},
+        headers={"accept": "application/json"},
+    )
+    assert response.status_code == 422
+    data = response.json()
+    assert "detail" in data

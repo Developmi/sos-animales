@@ -270,10 +270,3 @@ async def get_department_options(
         f'<option value="{d.name.lower()}">{d.name}</option>' for d in departments
     )
     return HTMLResponse(options_html)
-    result = await db.execute(select(Department).order_by(Department.name))
-    departments = result.scalars().all()
-
-    options_html = "".join(
-        f'<option value="{d.name.lower()}">{d.name}</option>' for d in departments
-    )
-    return HTMLResponse(options_html)

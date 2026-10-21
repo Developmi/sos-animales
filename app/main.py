@@ -15,6 +15,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -217,11 +218,36 @@ async def http_exception_handler(
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(
+    request: Request, exc: ValidationError
+) -> Response:
+    logger.warning(
+        "Validation error on %s %s: %s", request.method, request.url.path, exc
+    )
+    if "text/html" in request.headers.get("accept", ""):
+        error_messages = [
+            f"{err.get('loc', [''])[-1]}: {err.get('msg')}" for err in exc.errors()
+        ]
+        summary = "Datos inválidos: " + ", ".join(error_messages)
+        return HTMLResponse(
+            content=f"<div class='alert-box' style='color: #E11D48; padding: 12px; background: #FFF1F2; border-radius: 8px;'>{summary}</div>",
+            status_code=422,
+        )
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
 @app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception) -> HTMLResponse:
+async def generic_exception_handler(request: Request, exc: Exception) -> Response:
     logger.exception(
         "Unhandled exception on %s %s: %s", request.method, request.url.path, exc
     )
+    if "application/json" in request.headers.get(
+        "accept", ""
+    ) and "text/html" not in request.headers.get("accept", ""):
+        return JSONResponse(
+            status_code=500, content={"detail": "Error interno del servidor"}
+        )
     return templates.TemplateResponse(
         request, "error_500.html", {"request": request}, status_code=500
     )

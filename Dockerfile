@@ -34,6 +34,7 @@ COPY --chown=appuser:appuser app /app/app
 COPY --chown=appuser:appuser migrations /app/migrations
 COPY --chown=appuser:appuser alembic.ini /app/alembic.ini
 COPY --chown=appuser:appuser data /app/data
+COPY --chown=appuser:appuser seed /app/seed
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
