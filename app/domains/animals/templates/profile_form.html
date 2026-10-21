@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container creation-view">
-  <div class="creation-card">
+  <div class="creation-card" id="form-card-container">
     <div class="form-header-box">
       <span class="brand-badge" style="margin-bottom: 8px; display: inline-block;">100% LIBRE Y SIN REGISTRO COMPLEJO</span>
       <h1 class="form-header-title">Publicar Caso o Peludito en Adopción</h1>
@@ -15,9 +15,16 @@
     </div>
 
     <form
+      id="animal-form"
+      action="/animals/"
+      method="post"
+      enctype="multipart/form-data"
       hx-post="/animals/"
       hx-encoding="multipart/form-data"
+      hx-target="#form-card-container"
       hx-swap="outerHTML"
+      novalidate
+      onsubmit="return handleAnimalFormSubmit(event);"
     >
       <input type="hidden" name="source_id" value="1" />
 
@@ -36,8 +43,14 @@
           required 
           class="form-control"
           style="padding: 10px;"
-          onchange="const file = this.files[0]; if (file) { if (file.size > 5 * 1024 * 1024) { alert('El archivo no puede superar los 5MB. Por favor selecciona una imagen más ligera.'); this.value = ''; document.getElementById('preview-main-box').style.display = 'none'; return; } const reader = new FileReader(); reader.onload = (e) => { document.getElementById('preview-main-img').src = e.target.result; document.getElementById('preview-main-box').style.display = 'block'; }; reader.readAsDataURL(file); }"
+          onchange="handlePhotoChange(this, 'foto-principal-error', 'foto-principal-error-msg', 'preview-main-box', 'preview-main-img')"
         />
+        <!-- Error visual amigable para foto principal -->
+        <div id="foto-principal-error" style="display: none; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 14px; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: var(--radius-md); color: #BE123C; font-size: 13px; font-weight: 600;">
+          <span>⚠️</span>
+          <span id="foto-principal-error-msg"></span>
+        </div>
+
         <div id="preview-main-box" style="display: none; margin-top: 12px;">
           <div style="width: 140px; height: 140px; border-radius: 12px; overflow: hidden; border: 2px solid var(--color-primary); box-shadow: var(--shadow-sm);">
             <img id="preview-main-img" src="" alt="Vista previa principal" style="width: 100%; height: 100%; object-fit: cover;" />
@@ -55,20 +68,24 @@
         <div class="form-row two-cols" style="margin-top: 12px;">
           <div class="form-group">
             <label class="form-label" for="foto-2">Foto adicional 2</label>
-            <input id="foto-2" type="file" name="foto_2" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
+            <input id="foto-2" type="file" name="foto_2" accept="image/*" class="form-control" style="padding: 8px;" onchange="handlePhotoChange(this, 'foto-extra-error', 'foto-extra-error-msg', null, null)" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-3">Foto adicional 3</label>
-            <input id="foto-3" type="file" name="foto_3" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
+            <input id="foto-3" type="file" name="foto_3" accept="image/*" class="form-control" style="padding: 8px;" onchange="handlePhotoChange(this, 'foto-extra-error', 'foto-extra-error-msg', null, null)" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-4">Foto adicional 4</label>
-            <input id="foto-4" type="file" name="foto_4" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
+            <input id="foto-4" type="file" name="foto_4" accept="image/*" class="form-control" style="padding: 8px;" onchange="handlePhotoChange(this, 'foto-extra-error', 'foto-extra-error-msg', null, null)" />
           </div>
           <div class="form-group">
             <label class="form-label" for="foto-5">Foto adicional 5</label>
-            <input id="foto-5" type="file" name="foto_5" accept="image/*" class="form-control" style="padding: 8px;" onchange="if(this.files[0] && this.files[0].size > 5*1024*1024){alert('El archivo no puede superar 5MB.'); this.value='';}" />
+            <input id="foto-5" type="file" name="foto_5" accept="image/*" class="form-control" style="padding: 8px;" onchange="handlePhotoChange(this, 'foto-extra-error', 'foto-extra-error-msg', null, null)" />
           </div>
+        </div>
+        <div id="foto-extra-error" style="display: none; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 14px; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: var(--radius-md); color: #BE123C; font-size: 13px; font-weight: 600;">
+          <span>⚠️</span>
+          <span id="foto-extra-error-msg"></span>
         </div>
       </details>
 
@@ -216,10 +233,133 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px;">
-        {{ icons.check("", 20) }} Publicar Animal Ahora
+      <!-- Alerta Resumen de Errores en Cliente -->
+      <div id="form-validation-summary" style="display: none; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; color: #BE123C; font-size: 13px; font-weight: 600;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 14px;">
+          <span>⚠️</span> <span>Por favor completa los siguientes campos obligatorios antes de continuar:</span>
+        </div>
+        <ul id="form-validation-list" style="margin: 0; padding-left: 20px; font-weight: 500; font-size: 13px; line-height: 1.5;"></ul>
+      </div>
+
+      <!-- Botón con Estado de Envío / Spinner -->
+      <button type="submit" id="submit-animal-btn" class="btn-primary" style="width: 100%; font-size: 16px; padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+        <span id="btn-content" style="display: flex; align-items: center; gap: 8px;">
+          {{ icons.check("", 20) }} Publicar Animal Ahora
+        </span>
+        <span id="btn-spinner" style="display: none; align-items: center; gap: 8px;">
+          <svg style="animation: spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+          Subiendo fotografías y publicando caso...
+        </span>
       </button>
     </form>
   </div>
 </div>
+
+<style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+function handlePhotoChange(input, errorId, errorMsgId, previewBoxId, previewImgId) {
+  const file = input.files[0];
+  const errBox = document.getElementById(errorId);
+  const errMsg = document.getElementById(errorMsgId);
+  const previewBox = previewBoxId ? document.getElementById(previewBoxId) : null;
+  const previewImg = previewImgId ? document.getElementById(previewImgId) : null;
+
+  if (!file) {
+    if (errBox) errBox.style.display = 'none';
+    if (previewBox) previewBox.style.display = 'none';
+    return;
+  }
+
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+  if (file.size > 5 * 1024 * 1024) {
+    input.value = '';
+    if (previewBox) previewBox.style.display = 'none';
+    if (errBox && errMsg) {
+      errMsg.innerText = `La foto seleccionada pesa ${sizeMB} MB (el límite máximo permitido es 5 MB). Por favor selecciona una imagen más liviana.`;
+      errBox.style.display = 'flex';
+    }
+    return;
+  }
+
+  if (errBox) errBox.style.display = 'none';
+  if (previewBox && previewImg) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      previewBox.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function handleAnimalFormSubmit(e) {
+  const missing = [];
+  const foto = document.getElementById('foto-principal');
+  const name = document.getElementById('pet-name');
+  const species = document.getElementById('pet-species');
+  const muni = document.getElementById('pet-muni');
+  const age = document.getElementById('pet-age-months');
+  const desc = document.getElementById('pet-desc');
+
+  // Restaurar bordes previos
+  [foto, name, species, muni, age, desc].forEach(el => {
+    if (el) el.style.borderColor = 'var(--color-border)';
+  });
+
+  if (!foto.files || foto.files.length === 0) {
+    missing.push({ el: foto, msg: 'Foto principal del animal (requerida)' });
+  }
+  if (!name.value.trim()) {
+    missing.push({ el: name, msg: 'Nombre del peludito' });
+  }
+  if (!species.value) {
+    missing.push({ el: species, msg: 'Especie (perro o gato)' });
+  }
+  if (!muni.value) {
+    missing.push({ el: muni, msg: 'Municipio o ciudad oficial' });
+  }
+  if (!age.value || parseInt(age.value) < 1) {
+    missing.push({ el: age, msg: 'Edad estimada en meses (número mayor o igual a 1)' });
+  }
+  if (!desc.value.trim()) {
+    missing.push({ el: desc, msg: 'Historia de rescate y personalidad' });
+  }
+
+  const summary = document.getElementById('form-validation-summary');
+  const list = document.getElementById('form-validation-list');
+
+  if (missing.length > 0) {
+    e.preventDefault();
+    list.innerHTML = '';
+    missing.forEach(item => {
+      item.el.style.borderColor = '#BE123C';
+      const li = document.createElement('li');
+      li.innerText = item.msg;
+      list.appendChild(li);
+    });
+    summary.style.display = 'block';
+    missing[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    missing[0].el.focus();
+    return false;
+  }
+
+  summary.style.display = 'none';
+  const btn = document.getElementById('submit-animal-btn');
+  const btnContent = document.getElementById('btn-content');
+  const btnSpinner = document.getElementById('btn-spinner');
+  if (btn && btnContent && btnSpinner) {
+    btnContent.style.display = 'none';
+    btnSpinner.style.display = 'flex';
+  }
+  return true;
+}
+</script>
 {% endblock %}

@@ -90,6 +90,65 @@ async def new_animal_form(
     )
 
 
+def _render_animal_error_card(title: str, message: str) -> str:
+    return f"""
+    <div class="creation-card" style="max-width: 680px; margin: 30px auto; padding: 32px 24px; text-align: center; border-left: 4px solid #BE123C;">
+      <div style="width: 48px; height: 48px; margin: 0 auto 16px; background: #FFF1F2; color: #BE123C; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+        ⚠️
+      </div>
+      <h3 style="font-size: 20px; font-weight: 800; color: #9F1239; margin-bottom: 8px;">{title}</h3>
+      <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 24px; line-height: 1.5;">{message}</p>
+      <a href="/animals/new" class="btn-secondary" style="text-decoration: none; padding: 10px 20px; font-size: 13px;">
+        ← Volver al Formulario
+      </a>
+    </div>
+    """
+
+
+def _render_animal_success_card(
+    animal_id: int, animal_name: str, municipality: str, contact_email: str
+) -> str:
+    return f"""
+    <div class="creation-card" style="text-align: center; padding: 48px 32px; max-width: 680px; margin: 30px auto;">
+      <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: rgba(13, 148, 136, 0.12); color: var(--color-teal); border: 2px solid var(--color-teal-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+        ✓
+      </div>
+
+      <span class="brand-badge" style="background: rgba(13, 148, 136, 0.1); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 4px 14px; font-weight: 700; font-size: 12px;">
+        ¡PERFIL CREADO EXITOSAMENTE!
+      </span>
+
+      <h2 style="font-size: 28px; font-weight: 800; color: var(--color-text-main); margin: 14px 0 8px;">
+        ¡{animal_name} ya está en adopción!
+      </h2>
+
+      <p style="font-size: 15px; color: var(--color-text-secondary); max-width: 520px; margin: 0 auto 24px; line-height: 1.6;">
+        El caso ha sido registrado en la red nacional. La ciudadanía ya puede encontrarlo en el directorio de adopciones de <strong>{municipality.title()}</strong>.
+      </p>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 32px; text-align: left; display: flex; gap: 14px; align-items: flex-start;">
+        <div style="font-size: 24px; flex-shrink: 0;">🔑</div>
+        <div>
+          <strong style="color: var(--color-text-main); font-size: 14px;">PIN de Gestión Despachado:</strong>
+          <p style="margin: 4px 0 0; font-size: 13px; color: var(--color-text-secondary); line-height: 1.5;">
+            Enviamos el código PIN secreto de administración al correo <strong>{contact_email}</strong>.<br>
+            Lo necesitarás cuando {animal_name} encuentre su familia definitiva para marcarlo como <em>Adoptado</em>.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <a href="/animals/{animal_id}" class="btn-primary" style="text-decoration: none; padding: 12px 24px; font-size: 14px;">
+          Ver Ficha de {animal_name} →
+        </a>
+        <a href="/animals/new" class="btn-secondary" style="text-decoration: none; padding: 12px 20px; font-size: 14px;">
+          Publicar Otro Peludito
+        </a>
+      </div>
+    </div>
+    """
+
+
 @router.post("/", response_class=HTMLResponse)
 async def post_new_animal(
     request: Request,
@@ -126,7 +185,10 @@ async def post_new_animal(
     source = source_result.scalar_one_or_none()
     if not source or not source.is_active:
         return HTMLResponse(
-            content="<article><header>Error</header><p>Fuente no encontrada o inactiva</p></article>",
+            content=_render_animal_error_card(
+                "Fuente no disponible",
+                "La entidad u organización seleccionada no se encuentra activa en el sistema.",
+            ),
             status_code=400,
         )
 
@@ -139,7 +201,7 @@ async def post_new_animal(
             validate_image_file(upload)
         except ValueError as err:
             return HTMLResponse(
-                content=f"<article><header>Archivo no permitido</header><p>{str(err)}</p></article>",
+                content=_render_animal_error_card("Archivo no permitido", str(err)),
                 status_code=400,
             )
 
@@ -148,7 +210,7 @@ async def post_new_animal(
         foto_url = await upload_photo_to_r2(foto)
     except Exception as e:
         return HTMLResponse(
-            content=f"<article><header>Error al subir foto</header><p>{str(e)}</p></article>",
+            content=_render_animal_error_card("Error al procesar fotografía", str(e)),
             status_code=500,
         )
     extras = [f for f in [foto_2, foto_3, foto_4, foto_5] if f and f.filename]
@@ -157,7 +219,10 @@ async def post_new_animal(
     # 3. Explicit species validation before further processing
     if species not in ["canino", "felino"]:
         return HTMLResponse(
-            content="<article><header>Error</header><p>Especie inválida. Debe ser canino o felino.</p></article>",
+            content=_render_animal_error_card(
+                "Especie inválida",
+                "Por favor selecciona una especie válida (canino o felino).",
+            ),
             status_code=400,
         )
 
@@ -190,7 +255,7 @@ async def post_new_animal(
         )
     except Exception as e:
         return HTMLResponse(
-            content=f"<article><header>Error de Validación</header><p>{str(e)}</p></article>",
+            content=_render_animal_error_card("Error en los datos ingresados", str(e)),
             status_code=400,
         )
 
@@ -201,7 +266,7 @@ async def post_new_animal(
         result = await create_animal_profile(db, source_id, data_dict, foto_url)
     except ValueError as e:
         return HTMLResponse(
-            content=f"<article><header>Error</header><p>{str(e)}</p></article>",
+            content=_render_animal_error_card("No fue posible crear el perfil", str(e)),
             status_code=400,
         )
     animal = result["animal"]
@@ -217,10 +282,9 @@ async def post_new_animal(
 
     # 5. Return success confirmation without exposing plaintext PIN
     return HTMLResponse(
-        content=f"<article><header style='background-color: var(--pico-primary-background); color: white;'>¡Perfil Creado!</header>"
-        f"El peludito <strong>{animal.name}</strong> está publicado.<br><br>"
-        f"✅ <strong>Te enviamos el PIN de administración al correo:</strong> <mark>{contact_email}</mark><br>"
-        f"<small>Revisa tu bandeja de entrada o spam. Lo necesitarás si deseas marcar a {animal.name} como adoptado.</small></article>"
+        content=_render_animal_success_card(
+            animal.id, animal.name, animal.municipality, contact_email
+        )
     )
 
 

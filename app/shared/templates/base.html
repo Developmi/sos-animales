@@ -23,6 +23,15 @@
       integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
       crossorigin="anonymous"
     ></script>
+    <script>
+      // Permite que HTMX intercambie y muestre respuestas de error (400, 422, 500) formateadas
+      document.addEventListener("DOMContentLoaded", function() {
+        document.body.addEventListener("htmx:responseError", function(evt) {
+          evt.detail.shouldSwap = true;
+          evt.detail.isError = false;
+        });
+      });
+    </script>
   </head>
   <body>
     <!-- Accesibilidad: Saltar al contenido principal -->
