@@ -1,35 +1,166 @@
 {% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
 {% block title %}Panel de Administración — SOS Animales{% endblock %}
+
 {% block content %}
-<h1>Panel de Administración</h1>
-<div class="grid">
-  <article>
-    <header>Campañas</header>
-    <p style="font-size: 2rem; font-weight: bold;">{{ campaign_count }}</p>
-  </article>
-  <article>
-    <header>Animales</header>
-    <p style="font-size: 2rem; font-weight: bold;">{{ animal_count }}</p>
-  </article>
-  <article>
-    <header>Fuentes</header>
-    <p style="font-size: 2rem; font-weight: bold;">{{ source_count }}</p>
-  </article>
-  <article>
-    <header>Puntos Fijos</header>
-    <p style="font-size: 2rem; font-weight: bold;">{{ fixed_point_count }}</p>
-  </article>
-</div>
-<section>
-  <h2>Acciones Rápidas</h2>
-  <div class="grid">
-    <a href="/sterilization/new" role="button">Crear Jornada</a>
-    <a href="/sterilization/fixed-points/new" role="button">Registrar Punto Fijo</a>
-    <a href="/animals/new" role="button">Publicar Animal</a>
-    <a href="/sources/register" role="button">Registrar Fundación</a>
+<div class="container creation-view">
+  <!-- Header del Panel -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="brand-badge" style="background: rgba(13, 148, 136, 0.12); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 4px 12px; font-weight: 700; font-size: 12px;">
+          {{ icons.shield_check("", 14) }} ADMINISTRACIÓN CENTRAL
+        </span>
+      </div>
+      <h1 class="page-title" style="margin: 0 0 6px 0;">Panel de Administración</h1>
+      <p class="page-subtitle" style="margin: 0;">Supervisa la red, aprueba albergues y coordina las jornadas nacionales</p>
+    </div>
+
+    <form method="post" action="/auth/logout" style="margin: 0;">
+      <button type="submit" class="btn-secondary" style="font-size: 14px; padding: 8px 16px; border-radius: var(--radius-md);">
+        Cerrar Sesión
+      </button>
+    </form>
   </div>
-</section>
-<form method="post" action="/auth/logout">
-  <button type="submit" class="secondary">Cerrar Sesión</button>
-</form>
+
+  <!-- Métricas en Cuadrícula -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+    <div class="creation-card" style="padding: 20px; text-align: center; margin: 0;">
+      <div style="color: var(--color-primary); margin-bottom: 8px;">{{ icons.calendar("", 28) }}</div>
+      <div style="font-size: 2.2rem; font-weight: 800; color: var(--color-text-main); line-height: 1.1;">{{ campaign_count }}</div>
+      <div style="font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-top: 4px;">Jornadas de Esterilización</div>
+    </div>
+
+    <div class="creation-card" style="padding: 20px; text-align: center; margin: 0;">
+      <div style="color: var(--color-amber); margin-bottom: 8px;">{{ icons.dog("", 28) }}</div>
+      <div style="font-size: 2.2rem; font-weight: 800; color: var(--color-text-main); line-height: 1.1;">{{ animal_count }}</div>
+      <div style="font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-top: 4px;">Peluditos en Adopción</div>
+    </div>
+
+    <div class="creation-card" style="padding: 20px; text-align: center; margin: 0;">
+      <div style="color: var(--color-teal); margin-bottom: 8px;">{{ icons.building("", 28) }}</div>
+      <div style="font-size: 2.2rem; font-weight: 800; color: var(--color-text-main); line-height: 1.1;">{{ source_count }}</div>
+      <div style="font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-top: 4px;">Refugios y Fundaciones</div>
+    </div>
+
+    <div class="creation-card" style="padding: 20px; text-align: center; margin: 0;">
+      <div style="color: #6366F1; margin-bottom: 8px;">{{ icons.syringe("", 28) }}</div>
+      <div style="font-size: 2.2rem; font-weight: 800; color: var(--color-text-main); line-height: 1.1;">{{ fixed_point_count }}</div>
+      <div style="font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-top: 4px;">Puntos Quirúrgicos Fijos</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN CENTRAL: Validación y Auditoría de Fundaciones -->
+  <div class="creation-card" style="margin-bottom: 32px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; margin-bottom: 20px;">
+      <div>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+          {{ icons.shield_check("", 22) }} Auditoría y Validación de Fundaciones
+        </h2>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+          Revisa las organizaciones registradas y certifícalas como oficiales con insignia pública
+        </p>
+      </div>
+      <span class="brand-badge" style="background: rgba(245, 158, 11, 0.12); color: var(--color-amber); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 9999px; padding: 4px 12px; font-weight: 700; font-size: 12px;">
+        {{ pending_sources | length }} Pendientes
+      </span>
+    </div>
+
+    {% if pending_sources %}
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        {% for source in pending_sources %}
+          <div id="source-row-{{ source.id }}" style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--color-text-main);">{{ source.name }}</h3>
+                <span style="background: var(--color-bg-subtle); color: var(--color-text-secondary); font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase;">
+                  {{ source.type }}
+                </span>
+              </div>
+              <div style="font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px;">
+                <span>📍 {{ source.municipality | capitalize }}{% if source.department %}, {{ source.department | capitalize }}{% endif %}</span>
+                {% if source.contact_email %}<span>✉️ {{ source.contact_email }}</span>{% endif %}
+                {% if source.contact_whatsapp %}<span>📱 {{ source.contact_whatsapp }}</span>{% endif %}
+              </div>
+              <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 6px;">
+                Registrada: {{ source.created_at.strftime('%d/%m/%Y %H:%M') if source.created_at else 'Recientemente' }}
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <a href="/sources/{{ source.id }}" target="_blank" class="btn-secondary" style="font-size: 13px; padding: 8px 14px; text-decoration: none;">
+                Ver Perfil
+              </a>
+              <button 
+                type="button"
+                class="btn-primary" 
+                style="font-size: 13px; padding: 8px 18px; background: var(--color-teal); border-color: var(--color-teal);"
+                hx-post="/admin/sources/{{ source.id }}/verify"
+                hx-target="#source-row-{{ source.id }}"
+                hx-swap="outerHTML"
+              >
+                {{ icons.check("", 16) }} Aprobar y Validar
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 32px 16px; background: var(--color-bg-subtle); border-radius: 12px;">
+        <div style="color: var(--color-teal); margin-bottom: 8px;">{{ icons.check("", 36) }}</div>
+        <h3 style="font-size: 16px; font-weight: 700; margin: 0 0 4px 0; color: var(--color-text-main);">
+          No hay fundaciones pendientes por validar
+        </h3>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+          Todas las organizaciones registradas han sido auditadas o validadas.
+        </p>
+      </div>
+    {% endif %}
+
+    <!-- Fundaciones ya verificadas -->
+    {% if verified_sources %}
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--color-border);">
+        <details>
+          <summary style="font-size: 13px; font-weight: 700; color: var(--color-teal); cursor: pointer; padding: 6px 0;">
+            Ver fundaciones ya certificadas ({{ verified_sources | length }} activas)
+          </summary>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+            {% for vs in verified_sources %}
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--color-bg-subtle); border-radius: 8px; font-size: 13px;">
+                <div>
+                  <strong>{{ vs.name }}</strong> • <span>{{ vs.municipality | capitalize }}</span>
+                </div>
+                <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); border: 1px solid var(--color-teal); border-radius: 9999px; padding: 2px 10px; font-weight: 700; font-size: 11px;">
+                  OFICIAL VERIFICADA
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        </details>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Acciones Rápidas del Administrador -->
+  <div class="creation-card">
+    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin: 0 0 16px 0;">
+      Acciones Rápidas
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+      <a href="/sterilization/new" class="btn-primary" style="text-decoration: none; text-align: center; padding: 12px;">
+        {{ icons.calendar("", 18) }} Crear Jornada
+      </a>
+      <a href="/sterilization/fixed-points/new" class="btn-secondary" style="text-decoration: none; text-align: center; padding: 12px;">
+        {{ icons.syringe("", 18) }} Registrar Punto Fijo
+      </a>
+      <a href="/animals/new" class="btn-primary" style="text-decoration: none; text-align: center; padding: 12px;">
+        {{ icons.dog("", 18) }} Publicar Animal
+      </a>
+      <a href="/sources/register" class="btn-secondary" style="text-decoration: none; text-align: center; padding: 12px;">
+        {{ icons.building("", 18) }} Registrar Fundación
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

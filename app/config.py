@@ -50,6 +50,15 @@ class Settings(BaseSettings):
     FRESHNESS_DAYS: int = 5
     FRESHNESS_HIDE_DAYS: int = 15
 
+    @field_validator("ADMIN_PASSWORD_HASH", mode="before")
+    @classmethod
+    def normalize_admin_password_hash(cls, v: str) -> str:
+        if isinstance(v, str):
+            v = v.strip().strip("'\"")
+            if v.startswith("2b$") or v.startswith("2a$") or v.startswith("2y$"):
+                v = "$" + v
+        return v
+
     @field_validator("FRESHNESS_HIDE_DAYS")
     @classmethod
     def validate_hide_days_greater_than_freshness(

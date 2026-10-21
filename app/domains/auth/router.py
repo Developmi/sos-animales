@@ -1,3 +1,4 @@
+import hmac
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -28,6 +29,33 @@ async def login_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(request, "login.html", {})
 
 
+@router.get("/admin/login")
+async def admin_login_redirect() -> RedirectResponse:
+    """Defensive redirect for requests to /admin/login towards official /auth/login."""
+    return RedirectResponse(url="/auth/login", status_code=302)
+
+
+def verify_admin_password(plain_password: str, stored_hash_or_plain: str) -> bool:
+    """Verifies plain password against stored hash or raw dev fallback in constant time."""
+    stored = stored_hash_or_plain.strip().strip("'\"")
+    if (
+        stored.startswith("$2")
+        or stored.startswith("2b$")
+        or stored.startswith("2a$")
+        or stored.startswith("2y$")
+    ):
+        if not stored.startswith("$"):
+            stored = "$" + stored
+        try:
+            return bcrypt.checkpw(
+                plain_password.encode("utf-8"), stored.encode("utf-8")
+            )
+        except (ValueError, TypeError):
+            pass
+    # Constant-time comparison for raw plain text fallback (dev convenience)
+    return hmac.compare_digest(plain_password, stored)
+
+
 @router.post("/auth/login", response_class=HTMLResponse)
 async def login(request: Request, password: str = Form(...)) -> Response:
     client_ip = request.client.host if request.client else "127.0.0.1"
@@ -38,9 +66,7 @@ async def login(request: Request, password: str = Form(...)) -> Response:
             {"error": "Demasiados intentos. Espera un minuto."},
             status_code=429,
         )
-    if not bcrypt.checkpw(
-        password.encode("utf-8"), settings.ADMIN_PASSWORD_HASH.encode("utf-8")
-    ):
+    if not verify_admin_password(password, settings.ADMIN_PASSWORD_HASH):
         return templates.TemplateResponse(
             request,
             "login.html",
@@ -95,6 +121,12 @@ async def admin_panel(
     fixed_point_count = (
         await db.execute(select(func.count(FixedPoint.id)))
     ).scalar() or 0
+
+    sources_res = await db.execute(select(Source).order_by(Source.created_at.desc()))
+    all_sources = sources_res.scalars().all()
+    pending_sources = [s for s in all_sources if s.status == "pending"]
+    verified_sources = [s for s in all_sources if s.status == "verified"]
+
     return templates.TemplateResponse(
         request,
         "admin_panel.html",
@@ -103,5 +135,42 @@ async def admin_panel(
             "animal_count": animal_count,
             "source_count": source_count,
             "fixed_point_count": fixed_point_count,
+            "pending_sources": pending_sources,
+            "verified_sources": verified_sources,
         },
+    )
+
+
+@router.post("/admin/sources/{source_id}/verify", response_class=HTMLResponse)
+async def admin_verify_source(
+    request: Request,
+    source_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    from app.domains.sources.tools import verify_source
+
+    source = await verify_source(db, source_id)
+    if not source:
+        return HTMLResponse(
+            "<span style='color: var(--color-danger);'>Fundación no encontrada</span>",
+            status_code=404,
+        )
+    return HTMLResponse(
+        f"""
+        <div id="source-row-{source.id}" style="padding: 14px 18px; background: rgba(13, 148, 136, 0.08); border: 1px solid var(--color-teal-border); border-left: 4px solid var(--color-teal); border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="font-weight: 700; color: var(--color-text-main); font-size: 15px;">{source.name}</div>
+            <div style="font-size: 13px; color: var(--color-text-secondary); margin-top: 2px;">
+              📍 {source.municipality.capitalize()} • Tipo: {source.type.capitalize()}
+            </div>
+            <div style="font-size: 12px; color: var(--color-teal); font-weight: 700; margin-top: 4px;">
+              ✓ Verificada exitosamente por el Administrador
+            </div>
+          </div>
+          <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); border: 1px solid var(--color-teal); border-radius: 9999px; padding: 4px 14px; font-weight: 700; font-size: 12px;">
+            OFICIAL VERIFICADA
+          </span>
+        </div>
+        """
     )

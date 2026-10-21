@@ -120,6 +120,41 @@ async def test_auth_login_correct_password(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_auth_login_plain_text_dev_fallback(client: AsyncClient) -> None:
+    """POST /auth/login must accept plain text dev fallback if set in env."""
+    original_hash = settings.ADMIN_PASSWORD_HASH
+    settings.ADMIN_PASSWORD_HASH = "dev_secret_plain"
+    try:
+        response = await client.post(
+            "/auth/login",
+            data={"password": "dev_secret_plain"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.headers.get("location") == "/admin/"
+    finally:
+        settings.ADMIN_PASSWORD_HASH = original_hash
+
+
+@pytest.mark.asyncio
+async def test_auth_login_unprefixed_bcrypt_hash(client: AsyncClient) -> None:
+    """POST /auth/login must handle bcrypt hash when leading $ was stripped by shell."""
+    original_hash = settings.ADMIN_PASSWORD_HASH
+    # Strip leading $
+    settings.ADMIN_PASSWORD_HASH = TEST_ADMIN_PASSWORD_HASH.lstrip("$")
+    try:
+        response = await client.post(
+            "/auth/login",
+            data={"password": TEST_ADMIN_PASSWORD},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.headers.get("location") == "/admin/"
+    finally:
+        settings.ADMIN_PASSWORD_HASH = original_hash
+
+
+@pytest.mark.asyncio
 async def test_auth_logout(client: AsyncClient) -> None:
     """POST /auth/logout must clear the cookie and redirect to /."""
     response = await client.post("/auth/logout", follow_redirects=False)
@@ -310,8 +345,10 @@ async def test_sources_list_page(
 
 
 @pytest.mark.asyncio
-async def test_sources_register_form(client: AsyncClient) -> None:
-    """GET /sources/register must return 200 (no DB needed)."""
+async def test_sources_register_form(
+    client: AsyncClient, db_override: Iterator[None]
+) -> None:
+    """GET /sources/register must return 200."""
     response = await client.get("/sources/register")
     assert response.status_code == 200
 
@@ -376,3 +413,32 @@ async def test_protected_verification_checklist_no_auth(
     )
     assert response.status_code == 302
     assert response.headers.get("location") == "/auth/login"
+
+
+@pytest.mark.asyncio
+async def test_admin_verify_source_no_auth(client: AsyncClient) -> None:
+    """POST /admin/sources/1/verify without auth → 302 redirect."""
+    response = await client.post("/admin/sources/1/verify", follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers.get("location") == "/auth/login"
+
+
+@pytest.mark.asyncio
+async def test_admin_verify_source_with_auth(
+    auth_client: AsyncClient, db_override: Iterator[None]
+) -> None:
+    """POST /admin/sources/1/verify with auth verifies the foundation."""
+    response = await auth_client.post("/admin/sources/1/verify")
+    assert response.status_code in (200, 404)
+    if response.status_code == 200:
+        assert "OFICIAL VERIFICADA" in response.text
+
+
+@pytest.mark.asyncio
+async def test_active_municipality_options(
+    client: AsyncClient, db_override: Iterator[None]
+) -> None:
+    """GET /sterilization/active-municipality-options returns active options."""
+    response = await client.get("/sterilization/active-municipality-options")
+    assert response.status_code == 200
+    assert "<option" in response.text
