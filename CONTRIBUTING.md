@@ -6,7 +6,7 @@ Thank you for your interest in contributing to **SOS Animales**. This project fo
 
 ```bash
 # 1. Clone and install dependencies using uv (never use pip, poetry, or npm)
-git clone https://github.com/Miguel-DevOps/sos-animales.git
+git clone https://github.com/Developmi/sos-animales.git
 cd sos-animales
 uv sync
 
@@ -84,7 +84,7 @@ Contributions touching these topics will be declined.
 
 ## Reporting Issues
 
-Use [GitHub Issues](https://github.com/Miguel-DevOps/sos-animales/issues). Include:
+Use [GitHub Issues](https://github.com/Developmi/sos-animales/issues). Include:
 - Steps to reproduce
 - Expected vs. actual behavior
 - Environment (OS, Python version, `uv --version`, Docker version)

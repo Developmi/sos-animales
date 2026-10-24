@@ -13,7 +13,7 @@ _National open-data platform connecting citizens, animal shelters, and veterinar
 ![uv](https://img.shields.io/badge/uv_|_Package_Manager-DE5FE9?style=for-the-badge&logo=uv&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker_|_READY-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Production_Stable-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-AGPL--3.0_©_Miguel_Lozano_|_Developmi-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-AGPL--3.0-blue?style=for-the-badge)
 ![Maintainer](https://img.shields.io/badge/Maintainer-Miguel_Lozano-black?style=for-the-badge)![Role](https://img.shields.io/badge/Cloud_&_Infrastructure_Engineer-333?style=for-the-badge)
 ![CI](https://img.shields.io/badge/CI-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white)
 
@@ -85,7 +85,7 @@ In Phase 1 (v1.0.0), the platform operates without public user account registrat
 
 ```bash
 # 1. Clone the repository and synchronize the locked environment
-git clone https://github.com/Miguel-DevOps/sos-animales.git
+git clone https://github.com/Developmi/sos-animales.git
 cd sos-animales
 uv sync
 

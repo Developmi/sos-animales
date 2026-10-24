@@ -13,7 +13,7 @@
 
 If you discover a security vulnerability in this project, please report it privately via one of these channels:
 
-- **GitHub Security Advisories:** [Report a vulnerability](https://github.com/Miguel-DevOps/sos-animales/security/advisories/new)
+- **GitHub Security Advisories:** [Report a vulnerability](https://github.com/Developmi/sos-animales/security/advisories/new)
 - **Maintainer Security Email:** `miguel@developmi.com` or `security@sos-animales.org` — encrypt with PGP if the finding is critical (GPG key available upon request or via repository security advisories).
 
 Include in your report:
