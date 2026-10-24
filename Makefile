@@ -217,13 +217,21 @@ test-coverage-gate: ## Enforce strict statement coverage threshold (>= 80%)
 	@$(UV) pytest --cov=app --cov-report=term-missing --cov-fail-under=80
 	@echo "✓ Coverage threshold gate passed (>= 80%)."
 
+.PHONY: sbom
+sbom: ## Generate SPDX SBOM and scan with Trivy + OpenVEX
+	@echo "==> Supply Chain (Syft SPDX SBOM + Trivy SBOM Scan)"
+	@docker image inspect $(IMAGE_NAME) >/dev/null 2>&1 || docker build -t $(IMAGE_NAME) .
+	@docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$$PWD:/workspace" anchore/syft:latest $(IMAGE_NAME) -o spdx-json=/workspace/sbom.spdx.json
+	@$(TOOLS)/trivy sbom sbom.spdx.json --exit-code 1 --severity HIGH,CRITICAL --vex vex/sos-animales-vex.json
+	@echo "✓ SPDX SBOM generated (sbom.spdx.json) and verified (0 HIGH, 0 CRITICAL)."
+
 .PHONY: test-security
-test-security: ## Run Trivy vulnerability scan against container image
-	@echo "==> Security (Trivy container scan)"
+test-security: ## Run Trivy vulnerability scan against container image with OpenVEX governance
+	@echo "==> Security (Trivy container scan + OpenVEX)"
 	@test -x $(TOOLS)/trivy || $(MAKE) --no-print-directory tools
 	@docker image inspect $(IMAGE_NAME) >/dev/null 2>&1 || docker build -t $(IMAGE_NAME) .
-	@$(TOOLS)/trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed $(IMAGE_NAME)
-	@echo "✓ Trivy container security scan passed (0 HIGH, 0 CRITICAL)."
+	@$(TOOLS)/trivy image --exit-code 1 --severity HIGH,CRITICAL --vex vex/sos-animales-vex.json $(IMAGE_NAME)
+	@echo "✓ Trivy container security scan passed with OpenVEX governance (0 HIGH, 0 CRITICAL)."
 
 .PHONY: check
 check: lint test-coverage-gate ## Run complete QA gate (all linters + coverage gate)
@@ -310,7 +318,7 @@ shell-db: ## Open interactive psql shell inside the PostgreSQL container
 
 .PHONY: clean
 clean: ## Remove temporary test, cache, and coverage artifacts
-	@rm -rf .pytest_cache .ruff_cache .mypy_cache .coverage coverage.xml htmlcov
+	@rm -rf .pytest_cache .ruff_cache .mypy_cache .coverage coverage.xml htmlcov sbom.*.json
 	@echo "✓ Temporary artifacts cleaned."
 
 # ------------------------------------------------------------------------------

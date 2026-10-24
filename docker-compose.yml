@@ -46,7 +46,7 @@ services:
         max-file: "3"
 
   db:
-    image: postgres:17.4-alpine
+    image: postgres:17.4-alpine@sha256:7062a2109c4b51f3c792c7ea01e83ed12ef9a980886e3b3d380a7d2e5f6ce3f5
     container_name: sos_animales_db
     restart: unless-stopped
     security_opt:
@@ -92,7 +92,7 @@ services:
         max-file: "3"
 
   valkey:
-    image: valkey/valkey:8.0.2-alpine
+    image: valkey/valkey:8.0.2-alpine@sha256:752ba000a58bc8925d11ee863a39b5225617cd2cb3dbc9ec8ac65268b65ebb6d
     container_name: sos_animales_valkey
     restart: unless-stopped
     security_opt:

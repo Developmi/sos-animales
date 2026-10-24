@@ -61,7 +61,21 @@ reference-ui/
 openspec/
 odd-*.md
 skills-lock.json
-vex/
 e2e_home_page.txt
 opencodeses.txt
 *.bak
+
+# Cryptographic Private Keys & Ephemeral Supply Chain Outputs
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.asc
+*.gpg
+cosign.key
+id_ed25519*
+id_rsa*
+!*.pub
+sbom.*.json
+*.attestation

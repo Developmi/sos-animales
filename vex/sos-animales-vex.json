@@ -1,0 +1,391 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/sos-animales/sos-animales/vex/2026-10-23-v1.0.0",
+  "author": "Miguel Lozano | Developmi <miguel@developmi.com>",
+  "role": "Software Supply Chain Security Architect",
+  "timestamp": "2026-10-23T21:30:00Z",
+  "version": 2,
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2023-45853"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/zlib1g@1.2.13.dfsg-1?arch=amd64&distro=debian-12.15&epoch=1"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/zlib1g@1.2.13.dfsg-1?arch=amd64&distro=debian-12.15&epoch=1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "CVE-2023-45853 affects the optional MiniZip contrib function zipOpenNewFileInZip4_6, which is neither compiled into nor invoked by the Python 3.12 runtime or SOS Animales FastAPI application."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-7458"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SOS Animales uses PostgreSQL 17 via asyncpg exclusively in production and never loads or executes SQLite database files or FTS queries."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-11822"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SQLite FTS5 full-text search is never initialized or queried by SOS Animales, which relies exclusively on PostgreSQL 17."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-11824"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SQLite FTS5 full-text search is never initialized or queried by SOS Animales, which relies exclusively on PostgreSQL 17."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-69720"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libncursesw6@6.4-4?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libtinfo6@6.4-4?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/ncurses-base@6.4-4?arch=all&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/ncurses-bin@6.4-4?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The container runs headless Uvicorn under non-root UID 10001 with /sbin/nologin and never invokes terminal ncurses binaries or untrusted terminfo definitions."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-16742"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libsystemd0@252.39-1~deb12u2?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libudev1@252.39-1~deb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "systemd-homed is not installed or running inside the minimal OCI container environment."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-41992"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gzip@1.12-1?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The gzip CLI and legacy LZH decompression routines are never invoked by the FastAPI application."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-54369"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libacl1@2.3.1-3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "The container runs with read_only: true, cap_drop: ALL, no-new-privileges: true, and never modifies POSIX ACLs."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-84782"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3@3.0.22-1~deb12u1?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/openssl@3.0.22-1~deb12u1?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SOS Animales operates exclusively over TCP/HTTP(S) and never enables or negotiates UDP DTLS handshakes."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-9538"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u4?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Perl and Archive::Tar are OS base dependencies that are never invoked at runtime by the Python 3.12 FastAPI service."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-53613"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "Container executes as non-root UID 10001 with cap_drop: ALL, no-new-privileges: true, and read_only: true; mount operations are forbidden."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-53615"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "DOS partition table parsing in util-linux/libblkid is never invoked by the FastAPI application."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "Container executes as non-root UID 10001 with cap_drop: ALL and no-new-privileges: true; privileged mount helpers cannot execute."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "Container executes as non-root UID 10001 with cap_drop: ALL and no-new-privileges: true; nsenter cgroup operations are denied by the kernel."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "Container executes as non-root UID 10001 with cap_drop: ALL, no-new-privileges: true, and read_only: true; X-mount.subdir operations cannot be invoked."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-78410"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15&epoch=1"
+        },
+        {
+          "@id": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        },
+        {
+          "@id": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "Container executes as non-root UID 10001 with cap_drop: ALL, no-new-privileges: true, and read_only: true; bind mount operations are forbidden."
+    }
+  ]
+}
