@@ -213,8 +213,7 @@ class TestAuthMiddleware:
         request = Request(
             {"type": "http", "headers": [(b"cookie", f"access_token={token}".encode())]}
         )
-        result = await require_auth(request)
-        assert result is None
+        await require_auth(request)
 
     @pytest.mark.asyncio
     async def test_get_current_admin_no_cookie(self) -> None:

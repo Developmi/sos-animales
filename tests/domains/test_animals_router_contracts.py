@@ -578,16 +578,18 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
     db_session: AsyncSession,
 ) -> None:
     """Direct execution of post_new_animal covers all internal statements and lines 185-288."""
+    from starlette.datastructures import Headers
+
     req = make_starlette_request("POST", "/animals/")
     f_valid = UploadFile(
         filename="dog.jpg",
         file=io.BytesIO(b"\xff\xd8\xff\xe0valid_jpeg_header"),
-        headers={"content-type": "image/jpeg"},
+        headers=Headers({"content-type": "image/jpeg"}),
     )
     f_gallery = UploadFile(
         filename="gallery.jpg",
         file=io.BytesIO(b"\xff\xd8\xff\xe0gallery_bytes"),
-        headers={"content-type": "image/jpeg"},
+        headers=Headers({"content-type": "image/jpeg"}),
     )
 
     # Branch 1: Source not found (lines 186-193)
@@ -656,7 +658,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
     f_bad_mime = UploadFile(
         filename="bad.txt",
         file=io.BytesIO(b"not image"),
-        headers={"content-type": "text/plain"},
+        headers=Headers({"content-type": "text/plain"}),
     )
     resp_bad_img = await post_new_animal(
         request=req,

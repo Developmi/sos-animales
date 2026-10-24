@@ -182,6 +182,7 @@ async def test_post_new_campaign_success_with_geocoding(
     assert "¡Jornada Publicada!" in response.text
     assert "Jornada San Cristóbal Norte" in response.text
     assert "📍 Ubicación detectada en el mapa." in response.text
+    assert sample_source.contact_email is not None
     assert sample_source.contact_email in response.text
 
 
@@ -691,7 +692,7 @@ def test_freshness_days_and_status_all_branches() -> None:
 
     # 1. Neither last_confirmed_at nor created_at set -> None -> "unknown"
     camp.last_confirmed_at = None
-    camp.created_at = None
+    camp.created_at = None  # type: ignore[assignment]
     assert get_freshness_days(camp) is None
     assert get_freshness_status(camp) == "unknown"
 

@@ -442,7 +442,7 @@ async def test_vote_for_update_htmx_direct_not_found(
             request=mock_request, update_id=999999123, db=db_session
         )
         assert response.status_code == 404
-        assert "reporte no encontrado" in response.body.decode().lower()
+        assert "reporte no encontrado" in bytes(response.body).decode().lower()
 
 
 @pytest.mark.asyncio
