@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-10-19
+## [1.0.0] - 2026-10-23
 
 ### Added
+- **Comprehensive Contract & TDD Shield (92% Global Coverage)**:
+  - 293 automated tests across `animals`, `sterilization`, `community`, `sources`, `verification`, `auth`, and `shared/security` with 100% router and security coverage.
+- **Dynamic Foundation Selector on Animal Publishing (`GET /animals/new`)**:
+  - Replaced hardcoded `source_id=1` with dynamic active foundation selector and `?source_id=` pre-selection from foundation profiles.
+- **Supply Chain & CI/CD Governance**:
+  - Added `.github/dependabot.yml` monitoring `uv`, `github-actions`, and `docker` ecosystems weekly.
 - **Core Domain Modules**:
   - `sterilization`: Management and geo-search for sterilization campaigns and permanent fixed points.
   - `sources`: Shelter and foundation registry with structured two-tier validation.

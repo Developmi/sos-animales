@@ -73,7 +73,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     geo.valkey_client = None
 
 
-app = FastAPI(title="SOS Animales", lifespan=lifespan)
+app = FastAPI(title="SOS Animales", version="1.0.0", lifespan=lifespan)
 
 # Reverse proxy header support (X-Forwarded-For) for accurate rate limiting
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["127.0.0.1", "::1", "100.*"])
