@@ -1,6 +1,6 @@
 <div align="center">
 
-<!-- TODO: add logo to docs/assets/logo.png -->
+<img src="docs/assets/sos-animales.png" width="180" alt="SOS Animales Logo Made By Developmi" />
 
 # SOS Animales | Developmi
 
