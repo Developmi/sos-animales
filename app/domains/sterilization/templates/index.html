@@ -65,37 +65,12 @@
     </button>
   </form>
 
-  <!-- Quick Filter Pills -->
-  <div class="quick-pills-bar" aria-label="Filtros rápidos de ciudad" style="margin-bottom: 24px;">
-    <button 
-      type="button" 
-      class="search-pill" 
-      onclick="document.getElementById('muni-search-input').value = 'Bogotá'; htmx.trigger('#muni-search-input', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Bogotá
-    </button>
-    <button 
-      type="button" 
-      class="search-pill" 
-      onclick="document.getElementById('muni-search-input').value = 'Medellín'; htmx.trigger('#muni-search-input', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Medellín
-    </button>
-    <button 
-      type="button" 
-      class="search-pill" 
-      onclick="document.getElementById('muni-search-input').value = 'Cali'; htmx.trigger('#muni-search-input', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Cali
-    </button>
-    <button 
-      type="button" 
-      class="search-pill" 
-      onclick="document.getElementById('muni-search-input').value = ''; htmx.ajax('GET', '/sterilization/campaigns', '#results-container');"
-    >
-      {{ icons.close("", 16) }} Todas las ciudades
-    </button>
-    <a href="/sterilization/new" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px; text-decoration: none; margin-left: auto;">
+  <!-- Stats & Action Line -->
+  <div class="catalog-stats-row" style="margin-bottom: 24px;">
+    <div>
+      Brigadas veterinarias y puntos fijos activos en Colombia
+    </div>
+    <a href="/sterilization/new" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px; text-decoration: none;">
       {{ icons.plus("", 16) }} Publicar Jornada
     </a>
   </div>

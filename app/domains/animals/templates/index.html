@@ -62,52 +62,6 @@
     </button>
   </form>
 
-  <!-- Quick Pill Chips para filtrado rápido -->
-  <div class="quick-pills-bar" aria-label="Filtros rápidos">
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-muni').value = 'Bogotá'; htmx.trigger('#filter-muni', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Bogotá
-    </button>
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-muni').value = 'Medellín'; htmx.trigger('#filter-muni', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Medellín
-    </button>
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-muni').value = 'Cali'; htmx.trigger('#filter-muni', 'keyup');"
-    >
-      {{ icons.pin_location("", 16) }} Cali
-    </button>
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-species').value = 'canino'; htmx.trigger('#filter-species', 'change');"
-    >
-      {{ icons.dog("", 16) }} Perros
-    </button>
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-species').value = 'felino'; htmx.trigger('#filter-species', 'change');"
-    >
-      {{ icons.cat("", 16) }} Gatos
-    </button>
-    <button 
-      type="button"
-      class="search-pill" 
-      onclick="document.getElementById('filter-muni').value = ''; document.getElementById('filter-species').value = ''; htmx.ajax('GET', '/animals/list', '#animals-grid');"
-    >
-      {{ icons.close("", 16) }} Restablecer
-    </button>
-  </div>
-
   <!-- Stats Line -->
   <div class="catalog-stats-row">
     <div>
