@@ -291,6 +291,30 @@ async def test_new_animal_form_success_http(app_client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_new_animal_form_renders_active_sources_selector_and_preselection(
+    app_client: AsyncClient,
+    active_source: Source,
+    inactive_source: Source,
+) -> None:
+    """Contract: GET /animals/new renders a <select name='source_id'> with active foundations, excludes inactive ones, and supports ?source_id= pre-selection."""
+    response = await app_client.get("/animals/new")
+    assert response.status_code == 200
+    assert 'type="hidden" name="source_id"' not in response.text
+    assert 'name="source_id"' in response.text
+    assert f'<option value="{active_source.id}"' in response.text
+    assert active_source.name in response.text
+    assert inactive_source.name not in response.text
+    assert "/sources/register" in response.text
+
+    # Pre-selection contract when ?source_id= is provided
+    resp_preselected = await app_client.get(
+        f"/animals/new?source_id={active_source.id}"
+    )
+    assert resp_preselected.status_code == 200
+    assert f'<option value="{active_source.id}" selected>' in resp_preselected.text
+
+
+@pytest.mark.asyncio
 async def test_new_animal_form_geo_exception_fallback(app_client: AsyncClient) -> None:
     """GET /animals/new catches get_grouped_municipalities error and renders with empty dict."""
     with patch(

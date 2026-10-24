@@ -81,17 +81,26 @@ async def get_animals_list_htmx(
 
 @router.get("/new", response_class=HTMLResponse)
 async def new_animal_form(
-    request: Request, db: AsyncSession = Depends(get_db)
+    request: Request,
+    source_id: int | None = Query(None),
+    db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Render form to publish an animal for adoption."""
     try:
+        result = await db.execute(select(Source).where(Source.is_active))
+        sources = result.scalars().all()
         grouped = await get_grouped_municipalities(db)
     except Exception:
+        sources = []
         grouped = {}
     return templates.TemplateResponse(
         request=request,
         name="profile_form.html",
-        context={"grouped_municipalities": grouped},
+        context={
+            "sources": sources,
+            "selected_source_id": source_id,
+            "grouped_municipalities": grouped,
+        },
     )
 
 
