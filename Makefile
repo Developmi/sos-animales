@@ -218,12 +218,14 @@ test-coverage-gate: ## Enforce strict statement coverage threshold (>= 80%)
 	@echo "✓ Coverage threshold gate passed (>= 80%)."
 
 .PHONY: sbom
-sbom: ## Generate SPDX SBOM and scan with Trivy + OpenVEX
-	@echo "==> Supply Chain (Syft SPDX SBOM + Trivy SBOM Scan)"
+sbom: ## Generate SPDX & CycloneDX SBOMs and scan with Trivy + OpenVEX
+	@echo "==> Supply Chain (SPDX & CycloneDX SBOM + Trivy OpenVEX Scan)"
+	@test -x $(TOOLS)/trivy || $(MAKE) --no-print-directory tools
 	@docker image inspect $(IMAGE_NAME) >/dev/null 2>&1 || docker build -t $(IMAGE_NAME) .
-	@docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$$PWD:/workspace" anchore/syft:latest $(IMAGE_NAME) -o spdx-json=/workspace/sbom.spdx.json
+	@$(TOOLS)/trivy image --format spdx-json --output sbom.spdx.json $(IMAGE_NAME)
+	@$(TOOLS)/trivy image --format cyclonedx --output sbom.cdx.json $(IMAGE_NAME)
 	@$(TOOLS)/trivy sbom sbom.spdx.json --exit-code 1 --severity HIGH,CRITICAL --vex vex/sos-animales-vex.json
-	@echo "✓ SPDX SBOM generated (sbom.spdx.json) and verified (0 HIGH, 0 CRITICAL)."
+	@echo "✓ SPDX (sbom.spdx.json) & CycloneDX (sbom.cdx.json) SBOMs generated and verified (0 HIGH, 0 CRITICAL)."
 
 .PHONY: test-security
 test-security: ## Run Trivy vulnerability scan against container image with OpenVEX governance

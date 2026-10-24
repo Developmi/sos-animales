@@ -20,6 +20,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Stage 2: Hardened runtime environment
 FROM python:3.12-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70 AS runner
 
+LABEL org.opencontainers.image.title="sos-animales" \
+      org.opencontainers.image.description="Production-grade platform for animal rescue, adoption, and sterilization campaigns in Colombia" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.source="https://github.com/Developmi/sos-animales" \
+      org.opencontainers.image.licenses="AGPL" \
+      org.opencontainers.image.authors="Miguel Lozano <miguel@developmi.com>"
+
 # Create dedicated non-root user (UID/GID 10001)
 RUN groupadd -g 10001 appuser && \
     useradd -u 10001 -g appuser -s /sbin/nologin -M appuser

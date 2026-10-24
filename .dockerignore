@@ -1,46 +1,60 @@
 # Version control
+.git/
 .git
 .gitignore
+.github/
 .github
 
-# Python virtual environment and bytecode
-.venv
-venv
-.uv
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-
-# Test, lint, and local tool caches
-.pytest_cache
-.ruff_cache
-.mypy_cache
-.coverage
-coverage.xml
-htmlcov
-tests
-tools/bin
-
-# Environment files (preserve only template)
+# Environment and secret files (preserve only template)
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+cosign.key
+id_ed25519*
+id_rsa*
 
-# Container, CI, and supply-chain artifacts
+# Python virtual environment, packaging, and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.uv/
+*.egg-info/
+dist/
+build/
+
+# Test, lint, and local tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+tests/
+test/
+spec/
+tools/bin/
+
+# Container, CI, and supply-chain build artifacts
 Dockerfile*
 docker-compose*.yml
-cosign.key
 *.attestation
 sbom.*.json
 
 # Logs, IDE, and OS artifacts
 *.log
-logs
+logs/
 .DS_Store
 Thumbs.db
-.idea
-.vscode
+.idea/
+.vscode/
 
 # Documentation & temporary artifacts
 README.md
@@ -49,7 +63,7 @@ CHANGELOG.md
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 SECURITY.md
-docs
+docs/
 *.md
 *.txt
 *.bak

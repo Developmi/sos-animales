@@ -14,6 +14,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
+    pids_limit: 100
     env_file:
       - .env
     environment:
@@ -37,6 +38,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 10s
     networks:
       - internal_net
     logging:
@@ -49,19 +51,18 @@ services:
     image: postgres:17.4-alpine@sha256:7062a2109c4b51f3c792c7ea01e83ed12ef9a980886e3b3d380a7d2e5f6ce3f5
     container_name: sos_animales_db
     restart: unless-stopped
+    user: "70:70"
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    cap_add:
-      - CHOWN
-      - SETUID
-      - SETGID
-      - DAC_OVERRIDE
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
-      - /var/run/postgresql:rw,noexec,nosuid,nodev,size=16m
+      - /var/run/postgresql:rw,noexec,nosuid,nodev,uid=70,gid=70,mode=3775,size=16m
+    pids_limit: 100
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass}
@@ -95,15 +96,18 @@ services:
     image: valkey/valkey:8.0.2-alpine@sha256:752ba000a58bc8925d11ee863a39b5225617cd2cb3dbc9ec8ac65268b65ebb6d
     container_name: sos_animales_valkey
     restart: unless-stopped
+    user: "1000:1000"
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    user: "1000:1000"
     command: ["valkey-server", "--save", "", "--appendonly", "no"]
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=32m
+    pids_limit: 50
+    env_file:
+      - .env
     ports:
       - "127.0.0.1:${VALKEY_PORT:-6379}:6379"
     deploy:
@@ -128,6 +132,7 @@ services:
 volumes:
   pgdata:
     name: sos_animales_pgdata
+    driver: local
 
 networks:
   internal_net:
