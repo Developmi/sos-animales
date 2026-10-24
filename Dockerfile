@@ -35,7 +35,7 @@ COPY --chown=appuser:appuser migrations /app/migrations
 COPY --chown=appuser:appuser alembic.ini /app/alembic.ini
 COPY --chown=appuser:appuser data /app/data
 COPY --chown=appuser:appuser seed /app/seed
-COPY --chmod=755 --chown=appuser:appuser entrypoint.sh /app/entrypoint.sh
+COPY --chmod=755 --chown=appuser:appuser scripts/entrypoint.sh /app/entrypoint.sh
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
