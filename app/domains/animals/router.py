@@ -27,7 +27,12 @@ from app.database import get_db
 from app.domains.sources.models import Source
 from app.shared.email import send_pin_email_sync
 from app.shared.geo import get_grouped_municipalities
-from app.shared.security import check_pin_rate_limit, record_failed_pin_attempt
+from app.shared.security import (
+    check_pin_rate_limit,
+    get_client_ip,
+    record_failed_pin_attempt,
+    reset_pin_attempts,
+)
 from app.domains.animals.tools import (
     upload_photo_to_r2,
     upload_multiple_photos,
@@ -312,7 +317,7 @@ async def adopt_animal(
     pin: str = Form(...),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    client_ip = get_client_ip(request)
     if not await check_pin_rate_limit(
         client_ip, animal_id, max_attempts=5, window_seconds=3600
     ):
@@ -326,6 +331,7 @@ async def adopt_animal(
     success = await mark_as_adopted(db, animal_id, pin)
 
     if success:
+        await reset_pin_attempts(client_ip, animal_id)
         return templates.TemplateResponse(
             request=request,
             name="adopt_success.html",

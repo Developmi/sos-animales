@@ -14,7 +14,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.domains.community.tools import register_update, get_entity_updates, cast_vote
-from app.shared.security import check_rate_limit, mark_as_voted, has_voted_recently
+from app.shared.security import (
+    check_create_update_rate_limit,
+    check_rate_limit,
+    get_client_ip,
+    has_voted_recently,
+    mark_as_voted,
+)
 from app.domains.community.schemas import CommunityUpdateCreate
 
 router = APIRouter(prefix="/community", tags=["community"])
@@ -49,6 +55,7 @@ async def post_update(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Save community report and return confirmation fragment."""
+    client_ip = get_client_ip(request)
     # Validate with Pydantic before delegating to tools
     try:
         CommunityUpdateCreate(
@@ -57,6 +64,13 @@ async def post_update(
             campaign_id=campaign_id,
             animal_id=animal_id,
         )
+        if not await check_create_update_rate_limit(
+            client_ip, campaign_id=campaign_id, animal_id=animal_id, window_seconds=900
+        ):
+            return HTMLResponse(
+                content="<div style='background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 14px; color: #B45309; font-size: 13px;'><strong>⏳ Límite alcanzado:</strong> Ya enviaste un reporte recientemente para este caso. Espera 15 minutos antes de enviar otro.</div>",
+                status_code=429,
+            )
         new_update = await register_update(
             db, update_type, note, campaign_id, animal_id
         )
@@ -67,7 +81,6 @@ async def post_update(
         )
 
     # 2. Block the creator from immediate self-voting
-    client_ip = request.client.host if request.client else "127.0.0.1"
     await mark_as_voted(client_ip, new_update.id)
 
     # Build confirmation response
@@ -89,7 +102,7 @@ async def list_updates_htmx(
 ) -> HTMLResponse:
     """Return HTML fragment with list of community reports."""
     updates = await get_entity_updates(db, campaign_id, animal_id)
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    client_ip = get_client_ip(request)
 
     # Identify report IDs the client IP has already voted for
     voted_ids = [u.id for u in updates if await has_voted_recently(client_ip, u.id)]
@@ -112,7 +125,7 @@ async def vote_for_update_htmx(
     """Record vote and return updated status button."""
 
     # 1. Retrieve client IP
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    client_ip = get_client_ip(request)
 
     # 2. Check rate limit window (900 seconds = 15 minutes)
     if not await check_rate_limit(client_ip, update_id, window_seconds=900):

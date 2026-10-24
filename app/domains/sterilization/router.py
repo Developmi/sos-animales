@@ -99,15 +99,15 @@ async def post_new_campaign(
             booking_url=booking_url,
             source_url=source_url,
         )
+        result = await create_new_campaign(
+            db, source_id, campaign_data.model_dump(), address
+        )
     except Exception as e:
         return HTMLResponse(
             content=f"<article><header>Error de Validación</header><p>{str(e)}</p></article>",
             status_code=400,
         )
 
-    result = await create_new_campaign(
-        db, source_id, campaign_data.model_dump(), address
-    )
     camp = result["campaign"]
     pin = result["raw_pin"]
     contact_email = result["contact_email"]
@@ -178,19 +178,19 @@ async def post_new_fixed_point(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     # Validate with Pydantic schema before delegating to tools
-    fp_data = FixedPointCreate(
-        name=name,
-        municipality=municipality,
-        address=address,
-        schedule_text=schedule_text,
-        species=species,
-        is_free=is_free,
-        requirements=requirements,
-        source_url=source_url,
-    )
     try:
+        fp_data = FixedPointCreate(
+            name=name,
+            municipality=municipality,
+            address=address,
+            schedule_text=schedule_text,
+            species=species,
+            is_free=is_free,
+            requirements=requirements,
+            source_url=source_url,
+        )
         fp = await create_new_fixed_point(db, source_id, fp_data.model_dump())
-    except ValueError as e:
+    except Exception as e:
         return HTMLResponse(
             content=f"<article><header>Error</header><p>{str(e)}</p></article>",
             status_code=400,
