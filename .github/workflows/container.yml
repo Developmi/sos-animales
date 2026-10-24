@@ -2,10 +2,9 @@ name: Build, Scan, Sign & Publish OCI Container
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*.*.*' ]
+    branches: [main]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: [ main ]
 
 # RULE ZERO: Top-level empty permissions
 permissions: {}
@@ -74,7 +73,7 @@ jobs:
           TRIVY_VEX: vex/sos-animales-vex.json
         with:
           scan-type: "sbom"
-          input: "sbom.spdx.json"
+          scan-ref: "sbom.spdx.json"
           format: "table"
           exit-code: "1"
           ignore-unfixed: false
