@@ -2,8 +2,9 @@
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.domains.sources.tools import register_source
+
 from app.domains.sources.schemas import SourceRegisterIn
+from app.domains.sources.tools import register_source
 
 
 @pytest.mark.asyncio

@@ -3,8 +3,9 @@
 Verifies that the app initializes Valkey on startup and serves requests.
 """
 
-import pytest
 from collections.abc import Generator
+
+import pytest
 from fastapi.testclient import TestClient
 
 

@@ -14,11 +14,12 @@
 Reusable across all application domains.
 """
 
+import logging
 import secrets
 import time
 from typing import Any
+
 import bcrypt
-import logging
 
 from app.shared import cache, geo
 

@@ -6,7 +6,7 @@ Covers:
 """
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 import jwt
@@ -33,7 +33,7 @@ from app.shared.models.location import Department, Municipality
 def make_admin_token() -> str:
     """Generate valid admin JWT token for authenticated requests."""
     return jwt.encode(
-        {"sub": "admin", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+        {"sub": "admin", "exp": datetime.now(UTC) + timedelta(hours=1)},
         settings.JWT_SECRET,
         algorithm="HS256",
     )
@@ -154,9 +154,7 @@ async def test_post_new_campaign_success_with_geocoding(
     sample_source: Source,
 ) -> None:
     """POST /sterilization/new creates campaign and reports location found when lat is present."""
-    future_date = (datetime.now(timezone.utc) + timedelta(days=10)).strftime(
-        "%Y-%m-%dT%H:%M"
-    )
+    future_date = (datetime.now(UTC) + timedelta(days=10)).strftime("%Y-%m-%dT%H:%M")
     form_data = {
         "source_id": str(sample_source.id),
         "title": "Jornada San Cristóbal Norte",
@@ -192,9 +190,7 @@ async def test_post_new_campaign_success_without_geocoding(
     sample_source: Source,
 ) -> None:
     """POST /sterilization/new creates campaign and reports warning when geocoding fails (lat is None)."""
-    future_date = (datetime.now(timezone.utc) + timedelta(days=12)).strftime(
-        "%Y-%m-%dT%H:%M"
-    )
+    future_date = (datetime.now(UTC) + timedelta(days=12)).strftime("%Y-%m-%dT%H:%M")
     form_data = {
         "source_id": str(sample_source.id),
         "title": "Jornada Rural Veredal",
@@ -223,9 +219,7 @@ async def test_post_new_campaign_validation_error(
     sample_source: Source,
 ) -> None:
     """POST /sterilization/new returns HTTP 400 when start date is in the past."""
-    past_date = (datetime.now(timezone.utc) - timedelta(days=5)).strftime(
-        "%Y-%m-%dT%H:%M"
-    )
+    past_date = (datetime.now(UTC) - timedelta(days=5)).strftime("%Y-%m-%dT%H:%M")
     form_data = {
         "source_id": str(sample_source.id),
         "title": "Jornada Inválida Pasada",
@@ -247,9 +241,7 @@ async def test_post_new_campaign_duplicate_title_returns_400(
     sample_source: Source,
 ) -> None:
     """Submitting a duplicate campaign title for the same source should return HTTP 400 instead of HTTP 500."""
-    future_date = (datetime.now(timezone.utc) + timedelta(days=6)).strftime(
-        "%Y-%m-%dT%H:%M"
-    )
+    future_date = (datetime.now(UTC) + timedelta(days=6)).strftime("%Y-%m-%dT%H:%M")
     form_data = {
         "source_id": str(sample_source.id),
         "title": "Jornada Repetida",
@@ -287,7 +279,7 @@ async def test_get_campaigns_htmx_filters(
     sample_source: Source,
 ) -> None:
     """GET /sterilization/campaigns returns HTMX fragment filtered by municipality and species."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=4)
+    future_date = datetime.now(UTC) + timedelta(days=4)
     camp_data = {
         "title": "Esterilización Chapinero Felinos",
         "municipality": "Bogotá",
@@ -430,7 +422,7 @@ async def test_get_campaign_detail_found(
     sample_source: Source,
 ) -> None:
     """GET /sterilization/campaigns/{id} returns campaign detail page and evaluates freshness."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=8)
+    future_date = datetime.now(UTC) + timedelta(days=8)
     data = {
         "title": "Jornada Bosa Centro",
         "municipality": "Bogotá",
@@ -469,7 +461,7 @@ async def test_confirm_freshness_campaign_success(
     sample_source: Source,
 ) -> None:
     """POST /sterilization/confirm/campaign/{id} updates last_confirmed_at and returns confirmation."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=5)
+    future_date = datetime.now(UTC) + timedelta(days=5)
     res = await create_new_campaign(
         db_session,
         sample_source.id,
@@ -575,7 +567,7 @@ async def test_get_active_municipality_options(
 ) -> None:
     """GET /sterilization/active-municipality-options returns active options with selected attribute."""
     # Seed a campaign in Medellín
-    future_date = datetime.now(timezone.utc) + timedelta(days=3)
+    future_date = datetime.now(UTC) + timedelta(days=3)
     await create_new_campaign(
         db_session,
         sample_source.id,
@@ -640,7 +632,7 @@ async def test_create_new_campaign_duplicate_raises_value_error(
     data = {
         "title": "Jornada Unica 2026",
         "municipality": "Bogotá",
-        "starts_at": datetime.now(timezone.utc) + timedelta(days=5),
+        "starts_at": datetime.now(UTC) + timedelta(days=5),
         "species": ["canino"],
         "is_free": True,
     }
@@ -660,7 +652,7 @@ async def test_create_new_campaign_fallback_contact_email_when_source_missing(
     data = {
         "title": "Jornada Fuente Fantasma",
         "municipality": "Bogotá",
-        "starts_at": datetime.now(timezone.utc) + timedelta(days=5),
+        "starts_at": datetime.now(UTC) + timedelta(days=5),
         "species": ["canino"],
         "is_free": True,
     }
@@ -685,7 +677,7 @@ def test_freshness_days_and_status_all_branches() -> None:
         source_id=1,
         title="Freshness Test Campaign",
         municipality="Bogotá",
-        starts_at=datetime.now(timezone.utc) + timedelta(days=5),
+        starts_at=datetime.now(UTC) + timedelta(days=5),
         species=["canino"],
         status="scheduled",
     )
@@ -697,23 +689,23 @@ def test_freshness_days_and_status_all_branches() -> None:
     assert get_freshness_status(camp) == "unknown"
 
     # 2. Created just now (0 days) -> "fresh"
-    camp.created_at = datetime.now(timezone.utc)
+    camp.created_at = datetime.now(UTC)
     assert get_freshness_status(camp) == "fresh"
 
     # 3. Confirmed within FRESHNESS_DAYS (e.g. 5 days ago) -> "fresh"
-    camp.last_confirmed_at = datetime.now(timezone.utc) - timedelta(
+    camp.last_confirmed_at = datetime.now(UTC) - timedelta(
         days=settings.FRESHNESS_DAYS - 2
     )
     assert get_freshness_status(camp) == "fresh"
 
     # 4. Confirmed between FRESHNESS_DAYS and FRESHNESS_HIDE_DAYS -> "stale"
-    camp.last_confirmed_at = datetime.now(timezone.utc) - timedelta(
+    camp.last_confirmed_at = datetime.now(UTC) - timedelta(
         days=settings.FRESHNESS_DAYS + 2
     )
     assert get_freshness_status(camp) == "stale"
 
     # 5. Confirmed beyond FRESHNESS_HIDE_DAYS -> "hidden"
-    camp.last_confirmed_at = datetime.now(timezone.utc) - timedelta(
+    camp.last_confirmed_at = datetime.now(UTC) - timedelta(
         days=settings.FRESHNESS_HIDE_DAYS + 5
     )
     assert get_freshness_status(camp) == "hidden"
@@ -741,7 +733,7 @@ async def test_confirm_entity_freshness_tools_all_branches(
         {
             "title": "Freshness Direct Tool Camp",
             "municipality": "Bogotá",
-            "starts_at": datetime.now(timezone.utc) + timedelta(days=2),
+            "starts_at": datetime.now(UTC) + timedelta(days=2),
             "species": ["canino"],
             "is_free": True,
         },
@@ -777,7 +769,7 @@ async def test_contract_post_sterilization_campaigns_endpoint(
     sample_source: Source,
 ) -> None:
     """Contract test: POST /sterilization/campaigns returns 405 because creation uses HTMX POST /sterilization/new."""
-    future_date = (datetime.now(timezone.utc) + timedelta(days=5)).isoformat()
+    future_date = (datetime.now(UTC) + timedelta(days=5)).isoformat()
     payload = {
         "source_id": sample_source.id,
         "title": "REST Campaign",
@@ -797,7 +789,7 @@ async def test_contract_post_campaign_register_pet(
     sample_source: Source,
 ) -> None:
     """Contract test: POST /sterilization/campaigns/{id}/register returns 404 (no PII pet registration stored by design)."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=5)
+    future_date = datetime.now(UTC) + timedelta(days=5)
     camp_res = await create_new_campaign(
         db_session,
         sample_source.id,
@@ -831,7 +823,7 @@ async def test_contract_post_campaign_cancel_with_pin(
     sample_source: Source,
 ) -> None:
     """Contract test: POST /sterilization/campaigns/{id}/cancel returns 404 because cancellation uses POST /community/update."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=5)
+    future_date = datetime.now(UTC) + timedelta(days=5)
     camp_res = await create_new_campaign(
         db_session,
         sample_source.id,

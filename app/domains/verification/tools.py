@@ -5,12 +5,14 @@
 - record_checklist_result: records veterinary evaluation criteria results.
 """
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
-from app.domains.verification.models import VerificationRequest, Visit, ChecklistResult
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.domains.sources.models import Source
+from app.domains.verification.models import ChecklistResult, VerificationRequest, Visit
 
 
 async def create_verification_request(

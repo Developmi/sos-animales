@@ -5,9 +5,10 @@ Caches results in Valkey to avoid Nominatim rate limiting and respects
 fair-use OpenStreetMap policies.
 """
 
-import logging
-import httpx
 import json
+import logging
+
+import httpx
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -119,6 +120,7 @@ async def geocode_address(
 async def get_grouped_municipalities(db: AsyncSession) -> dict[str, list[str]]:
     """Return dict of {department_name: [municipality_names]} sorted alphabetically."""
     from sqlalchemy import select
+
     from app.shared.models.location import Department, Municipality
 
     stmt = (
@@ -142,9 +144,10 @@ async def get_active_municipalities(db: AsyncSession, domain: str = "all") -> li
     domain options: 'animals', 'sterilization', 'sources', 'all'
     """
     from sqlalchemy import select
+
     from app.domains.animals.models import AnimalProfile
-    from app.domains.sterilization.models import Campaign, FixedPoint
     from app.domains.sources.models import Source
+    from app.domains.sterilization.models import Campaign, FixedPoint
 
     munis: set[str] = set()
 

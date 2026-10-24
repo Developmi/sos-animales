@@ -23,7 +23,6 @@ from app.domains.animals.tools import (
 )
 from app.domains.sources.models import Source
 
-
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 
 
@@ -286,8 +285,9 @@ async def test_get_animal_detail_not_found(
 @pytest.mark.asyncio
 async def test_upload_photo_to_r2_returns_url() -> None:
     """Simulates upload and validates returning a public URL."""
-    from fastapi import UploadFile
     from io import BytesIO
+
+    from fastapi import UploadFile
 
     file = UploadFile(filename="test.jpg", file=BytesIO(b"fake-image-data"))
     url = await upload_photo_to_r2(file)
@@ -301,9 +301,11 @@ async def test_upload_photo_to_r2_returns_url() -> None:
 
 def test_validate_image_file_rejects_oversized_file() -> None:
     """Files over 5MB must be strictly rejected before any network/cloud upload."""
-    from fastapi import UploadFile
     from io import BytesIO
+
+    from fastapi import UploadFile
     from starlette.datastructures import Headers
+
     from app.domains.animals.tools import validate_image_file
 
     oversized_data = b"0" * (5 * 1024 * 1024 + 10)
@@ -318,9 +320,11 @@ def test_validate_image_file_rejects_oversized_file() -> None:
 
 def test_validate_image_file_rejects_invalid_mime() -> None:
     """Non-image files must be rejected."""
-    from fastapi import UploadFile
     from io import BytesIO
+
+    from fastapi import UploadFile
     from starlette.datastructures import Headers
+
     from app.domains.animals.tools import validate_image_file
 
     file = UploadFile(

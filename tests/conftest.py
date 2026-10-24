@@ -1,13 +1,18 @@
 """Shared pytest fixtures across all domain test suites."""
 
 import os
-import pytest_asyncio
 from collections.abc import AsyncGenerator
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from app.config import settings
 from app.database import Base
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 
 @pytest_asyncio.fixture

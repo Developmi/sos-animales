@@ -6,35 +6,36 @@
 - GET /sterilization/fixed-points/new & POST /sterilization/fixed-points/new — fixed veterinary points
 """
 
+from datetime import datetime
+
 from fastapi import (
     APIRouter,
-    Request,
-    Depends,
-    Query,
-    HTTPException,
-    Form,
     BackgroundTasks,
+    Depends,
+    Form,
+    HTTPException,
+    Query,
+    Request,
 )
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.domains.auth.middleware import require_auth
-
-from app.shared.email import send_pin_email_sync
-from app.domains.sterilization.tools import (
-    find_nearby_campaigns,
-    create_new_campaign,
-    create_new_fixed_point,
-)
-from app.domains.sterilization.tools import get_campaign_detail, get_freshness_status
-from app.domains.sterilization.tools import confirm_entity_freshness
-from app.config import settings
 from app.domains.sources.models import Source
 from app.domains.sterilization.schemas import CampaignCreate, FixedPointCreate
+from app.domains.sterilization.tools import (
+    confirm_entity_freshness,
+    create_new_campaign,
+    create_new_fixed_point,
+    find_nearby_campaigns,
+    get_campaign_detail,
+    get_freshness_status,
+)
+from app.shared.email import send_pin_email_sync
 from app.shared.geo import get_active_municipalities, get_grouped_municipalities
 from app.shared.models.location import Department, Municipality
 
@@ -104,7 +105,7 @@ async def post_new_campaign(
         )
     except Exception as e:
         return HTMLResponse(
-            content=f"<article><header>Error de Validación</header><p>{str(e)}</p></article>",
+            content=f"<article><header>Error de Validación</header><p>{e!s}</p></article>",
             status_code=400,
         )
 
@@ -192,7 +193,7 @@ async def post_new_fixed_point(
         fp = await create_new_fixed_point(db, source_id, fp_data.model_dump())
     except Exception as e:
         return HTMLResponse(
-            content=f"<article><header>Error</header><p>{str(e)}</p></article>",
+            content=f"<article><header>Error</header><p>{e!s}</p></article>",
             status_code=400,
         )
     return HTMLResponse(
@@ -290,10 +291,21 @@ async def get_active_municipality_options(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """HTMX: return <option> elements of ONLY active municipalities that have records."""
+    import unicodedata
+
+    def _norm(s: str) -> str:
+        return (
+            unicodedata.normalize("NFKD", s)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+            .lower()
+        )
+
     munis = await get_active_municipalities(db, domain=domain)
     options = ['<option value="">Todas las ciudades</option>']
+    sel_norm = _norm(selected) if selected else None
     for m in munis:
         val = m.lower()
-        is_sel = " selected" if selected and selected.lower() == val else ""
+        is_sel = " selected" if sel_norm and _norm(val) == sel_norm else ""
         options.append(f'<option value="{val}"{is_sel}>{m}</option>')
     return HTMLResponse("".join(options))

@@ -11,21 +11,22 @@ Covers:
 """
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.main import app
 from app.config import settings
 from app.database import get_db
-from app.domains.sources.models import Source
 from app.domains.animals.tools import create_animal_profile
+from app.domains.community.tools import cast_vote, register_update
+from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign
 from app.domains.sterilization.tools import create_new_campaign
-from app.domains.community.tools import register_update, cast_vote
+from app.main import app
 
 
 @pytest_asyncio.fixture
@@ -97,7 +98,7 @@ async def test_post_community_update_success_xor_campaign(
     db_session: AsyncSession,
 ) -> None:
     """Submit a community report for a valid sterilization campaign."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=2)
+    future_date = datetime.now(UTC) + timedelta(days=2)
     camp_result = await create_new_campaign(
         db_session,
         sample_source.id,
@@ -212,7 +213,7 @@ async def test_confirmed_vote_at_threshold_updates_campaign_freshness(
     sample_source: Source,
 ) -> None:
     """When a 'confirmed' vote reaches the community consensus threshold, campaign last_confirmed_at must be updated."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=5)
+    future_date = datetime.now(UTC) + timedelta(days=5)
     camp_result = await create_new_campaign(
         db_session,
         sample_source.id,
@@ -245,5 +246,5 @@ async def test_confirmed_vote_at_threshold_updates_campaign_freshness(
     camp_refreshed = (await db_session.execute(stmt)).scalar_one()
     assert camp_refreshed.last_confirmed_at is not None
     # Must be very recent (< 60 seconds)
-    delta = datetime.now(timezone.utc) - camp_refreshed.last_confirmed_at
+    delta = datetime.now(UTC) - camp_refreshed.last_confirmed_at
     assert delta.total_seconds() < 60

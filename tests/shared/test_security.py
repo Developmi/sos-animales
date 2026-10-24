@@ -1,7 +1,9 @@
 import time
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
-from collections.abc import AsyncGenerator
+
 from app.shared.security import generate_pin, hash_pin, verify_pin
 
 # ponytail: unique prefix per test run avoids stale Valkey key collisions
@@ -30,8 +32,8 @@ def test_hash_and_verify_pin() -> None:
 async def _init_valkey_for_tests() -> AsyncGenerator[None, None]:
     """Ensure valkey_client is initialized before async rate limit tests,
     and torn down after each test."""
-    from app.shared.geo import init_valkey, close_valkey
     from app.config import settings
+    from app.shared.geo import close_valkey, init_valkey
 
     init_valkey(settings.VALKEY_URL)
     yield
@@ -67,8 +69,9 @@ async def test_check_rate_limit_duplicate_is_blocked() -> None:
 @pytest.mark.asyncio
 async def test_check_rate_limit_default_window_is_900() -> None:
     """Default window_seconds should be 900 (15 minutes)."""
-    from app.shared.security import check_rate_limit
     import inspect
+
+    from app.shared.security import check_rate_limit
 
     sig = inspect.signature(check_rate_limit)
     default = sig.parameters["window_seconds"].default
@@ -78,7 +81,7 @@ async def test_check_rate_limit_default_window_is_900() -> None:
 @pytest.mark.asyncio
 async def test_mark_as_voted_blocks_immediately() -> None:
     """mark_as_voted should block subsequent check_rate_limit."""
-    from app.shared.security import mark_as_voted, check_rate_limit
+    from app.shared.security import check_rate_limit, mark_as_voted
 
     ip = f"10.{_UNIQUE}.0.3"
     update_id = int(f"997{_UNIQUE}") % 1000000

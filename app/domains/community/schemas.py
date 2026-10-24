@@ -5,7 +5,6 @@
 """
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
-from typing import Optional
 
 
 class CommunityUpdateCreate(BaseModel):
@@ -15,9 +14,9 @@ class CommunityUpdateCreate(BaseModel):
         ...,
         pattern=r"^(confirmed|full|cancelled|wrong_info|adopted|in_treatment)$",
     )
-    note: Optional[str] = None
-    campaign_id: Optional[int] = None
-    animal_id: Optional[int] = None
+    note: str | None = None
+    campaign_id: int | None = None
+    animal_id: int | None = None
 
     @model_validator(mode="after")
     def validate_single_target(self) -> "CommunityUpdateCreate":

@@ -1,5 +1,5 @@
 import jwt
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
 
 from app.config import settings
 

@@ -7,20 +7,21 @@
 - source_id: FK to Source (shelter/rescuer).
 """
 
+from datetime import date, datetime
+
 from sqlalchemy import (
-    Integer,
-    String,
     Boolean,
     Date,
     DateTime,
-    Text,
     ForeignKey,
     Index,
+    Integer,
+    String,
+    Text,
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import date, datetime
 
 from app.database import Base
 

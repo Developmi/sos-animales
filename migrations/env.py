@@ -1,21 +1,20 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
 # --- IMPORTACIONES ---
 from app.config import settings
 from app.database import Base
+from app.domains.animals import models as animals_models  # noqa: F401
+from app.domains.community import models as community_models  # noqa: F401
 
 # Import domain models so Base.metadata is fully populated for autogenerate
 from app.domains.sources import models as sources_models  # noqa: F401
 from app.domains.sterilization import models as sterilization_models  # noqa: F401
-from app.domains.animals import models as animals_models  # noqa: F401
-from app.domains.community import models as community_models  # noqa: F401
 from app.domains.verification import models as verification_models  # noqa: F401
 from app.shared.models import location as location_models  # noqa: F401
 

@@ -10,27 +10,28 @@ Covers:
 """
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+import jwt
 import pytest
 import pytest_asyncio
-import jwt
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.main import app
 from app.config import settings
 from app.database import get_db
-from app.domains.sources.models import Source
-from app.domains.sources.tools import register_source, verify_source
-from app.domains.sources.schemas import SourceRegisterIn
 from app.domains.animals.tools import create_animal_profile
+from app.domains.sources.models import Source
+from app.domains.sources.schemas import SourceRegisterIn
+from app.domains.sources.tools import register_source, verify_source
 from app.domains.sterilization.tools import create_new_campaign
 from app.domains.verification.tools import create_verification_request, schedule_visit
+from app.main import app
 
 
 def make_admin_token() -> str:
     return jwt.encode(
-        {"sub": "admin", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+        {"sub": "admin", "exp": datetime.now(UTC) + timedelta(hours=1)},
         settings.JWT_SECRET,
         algorithm="HS256",
     )
@@ -82,7 +83,7 @@ async def test_source_profile_renders_animals_campaigns_and_normalized_whatsapp(
     )
 
     # Create a campaign for this source
-    future_date = datetime.now(timezone.utc) + timedelta(days=6)
+    future_date = datetime.now(UTC) + timedelta(days=6)
     await create_new_campaign(
         db_session,
         sample_foundation.id,
@@ -187,7 +188,7 @@ async def test_verification_workflow_full_flow(
     )
 
     # 2. Schedule visit
-    visit_date = datetime.now(timezone.utc) + timedelta(days=1)
+    visit_date = datetime.now(UTC) + timedelta(days=1)
     visit = await schedule_visit(
         db_session,
         req.id,
@@ -232,7 +233,7 @@ async def test_verification_workflow_rejected_when_criterion_fails(
         db_session,
         req.id,
         visit_type="presencial",
-        scheduled_at=datetime.now(timezone.utc) + timedelta(days=1),
+        scheduled_at=datetime.now(UTC) + timedelta(days=1),
         visitor_name="Dr. Pérez",
     )
 

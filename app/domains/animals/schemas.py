@@ -8,7 +8,6 @@
 from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
 
 VALID_SPECIES = ["canino", "felino"]
 
@@ -19,22 +18,22 @@ class AnimalCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     species: str = Field(...)
     municipality: str = Field(..., min_length=3, max_length=100)
-    breed: Optional[str] = None
-    age_months: Optional[int] = Field(None, ge=1, le=360)
-    age_years: Optional[int] = Field(None, ge=0, le=50)
-    size: Optional[str] = Field(None, pattern=r"^(pequeno|mediano|grande)$")
+    breed: str | None = None
+    age_months: int | None = Field(None, ge=1, le=360)
+    age_years: int | None = Field(None, ge=0, le=50)
+    size: str | None = Field(None, pattern=r"^(pequeno|mediano|grande)$")
     is_sterilized: bool = False
-    description: Optional[str] = None
-    sexo: Optional[str] = Field(None, pattern=r"^(macho|hembra)$")
-    fecha_nacimiento: Optional[date] = None
-    etapa_madurez: Optional[str] = Field(
+    description: str | None = None
+    sexo: str | None = Field(None, pattern=r"^(macho|hembra)$")
+    fecha_nacimiento: date | None = None
+    etapa_madurez: str | None = Field(
         None, pattern=r"^(cachorro|joven|adulto|geronte)$"
     )
-    condiciones_especiales: Optional[list[str]] = None
-    compatible_ninos: Optional[bool] = None
-    compatible_otros_animales: Optional[bool] = None
-    microchip: Optional[str] = Field(None, max_length=50)
-    source_url: Optional[str] = None
+    condiciones_especiales: list[str] | None = None
+    compatible_ninos: bool | None = None
+    compatible_otros_animales: bool | None = None
+    microchip: str | None = Field(None, max_length=50)
+    source_url: str | None = None
     data_origin: str = "source_submitted"
 
     @field_validator("fecha_nacimiento")
@@ -57,8 +56,8 @@ class AnimalCreate(BaseModel):
 class AnimalFilter(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    municipality: Optional[str] = None
-    species: Optional[str] = Field(None, pattern=r"^(canino|felino)?$")
+    municipality: str | None = None
+    species: str | None = Field(None, pattern=r"^(canino|felino)?$")
 
 
 class AdoptAction(BaseModel):

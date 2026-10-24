@@ -6,14 +6,15 @@
 - POST /community/{update_id}/vote — cast vote with anti-spam rate limiting.
 """
 
-from fastapi import APIRouter, Request, Depends, Form, Query
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
-from app.domains.community.tools import register_update, get_entity_updates, cast_vote
+from app.domains.community.schemas import CommunityUpdateCreate
+from app.domains.community.tools import cast_vote, get_entity_updates, register_update
 from app.shared.security import (
     check_create_update_rate_limit,
     check_rate_limit,
@@ -21,7 +22,6 @@ from app.shared.security import (
     has_voted_recently,
     mark_as_voted,
 )
-from app.domains.community.schemas import CommunityUpdateCreate
 
 router = APIRouter(prefix="/community", tags=["community"])
 
@@ -76,7 +76,7 @@ async def post_update(
         )
     except Exception as e:
         return HTMLResponse(
-            content=f"<div style='background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 8px; padding: 14px; color: #E11D48; font-size: 13px;'><strong>Error de validación:</strong> {str(e)}</div>",
+            content=f"<div style='background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 8px; padding: 14px; color: #E11D48; font-size: 13px;'><strong>Error de validación:</strong> {e!s}</div>",
             status_code=400,
         )
 

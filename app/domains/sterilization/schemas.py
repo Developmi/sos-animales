@@ -5,10 +5,9 @@
 - CampaignFilter: query parameter filters for campaign searches.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
 
 
 class CampaignCreate(BaseModel):
@@ -18,18 +17,18 @@ class CampaignCreate(BaseModel):
     municipality: str = Field(..., min_length=3, max_length=100)
     starts_at: datetime
     species: list[str]
-    capacity: Optional[int] = Field(default=None, ge=1)
+    capacity: int | None = Field(default=None, ge=1)
     is_free: bool = True
-    requirements: Optional[str] = None
-    booking_url: Optional[str] = None
-    source_url: Optional[str] = None
+    requirements: str | None = None
+    booking_url: str | None = None
+    source_url: str | None = None
     data_origin: str = "source_submitted"
 
     @field_validator("starts_at")
     @classmethod
     def validate_starts_at(cls, v: datetime) -> datetime:
-        compare_val = v if v.tzinfo is not None else v.replace(tzinfo=timezone.utc)
-        if compare_val < datetime.now(timezone.utc):
+        compare_val = v if v.tzinfo is not None else v.replace(tzinfo=UTC)
+        if compare_val < datetime.now(UTC):
             raise ValueError("La fecha de inicio no puede estar en el pasado")
         return v
 
@@ -43,8 +42,8 @@ class FixedPointCreate(BaseModel):
     schedule_text: str = Field(..., min_length=3)
     species: list[str]
     is_free: bool = True
-    requirements: Optional[str] = None
-    source_url: Optional[str] = None
+    requirements: str | None = None
+    source_url: str | None = None
     data_origin: str = "source_submitted"
 
 
@@ -52,4 +51,4 @@ class CampaignFilter(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     municipality: str = "bogota"
-    species: Optional[str] = None
+    species: str | None = None

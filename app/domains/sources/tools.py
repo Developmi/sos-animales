@@ -6,11 +6,13 @@
 - get_source: retrieves source by primary key ID.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.domains.sources.models import Source
 from app.domains.sources.schemas import SourceRegisterIn
-from sqlalchemy import select
 
 
 async def register_source(db: AsyncSession, data: SourceRegisterIn) -> Source:
@@ -69,7 +71,7 @@ async def verify_source(db: AsyncSession, source_id: int) -> Source | None:
     source = result.scalar_one_or_none()
     if source:
         source.status = "verified"
-        source.verified_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        source.verified_at = datetime.now(UTC).replace(tzinfo=None)
         await db.commit()
         await db.refresh(source)
     return source

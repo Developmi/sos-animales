@@ -1,9 +1,10 @@
 """Tests for legal routes, custom error handlers, and template wiring."""
 
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
-from collections.abc import AsyncGenerator
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 

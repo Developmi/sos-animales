@@ -4,19 +4,20 @@ Covers auth (login, logout, admin panel), home, ping, legal routes,
 and smoke tests for public GET and protected unauthorized routes.
 """
 
+from collections.abc import AsyncGenerator, Iterator
+from datetime import UTC, datetime, timedelta
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import bcrypt
 import jwt
 import pytest
 import pytest_asyncio
-from datetime import datetime, timedelta, timezone
-from collections.abc import AsyncGenerator, Iterator
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
-from app.main import app
 from app.config import settings
 from app.database import get_db
+from app.main import app
 
 TEST_ADMIN_PASSWORD = "test_admin_password_123"
 TEST_ADMIN_PASSWORD_HASH = bcrypt.hashpw(
@@ -26,7 +27,7 @@ TEST_ADMIN_PASSWORD_HASH = bcrypt.hashpw(
 
 def make_token() -> str:
     return jwt.encode(
-        {"sub": "admin", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+        {"sub": "admin", "exp": datetime.now(UTC) + timedelta(hours=1)},
         settings.JWT_SECRET,
         algorithm="HS256",
     )

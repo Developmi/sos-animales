@@ -6,18 +6,19 @@
 - mark_as_adopted: updates status to adopted upon valid PIN verification.
 """
 
-import uuid
 import logging
+import uuid
+from datetime import UTC, datetime
 from typing import Any
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from fastapi import UploadFile
 from sqlalchemy import select
-from datetime import datetime, timezone
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.shared.security import generate_pin, hash_pin, verify_pin
-from app.domains.sources.models import Source
 from app.domains.animals.models import AnimalProfile
+from app.domains.sources.models import Source
+from app.shared.security import generate_pin, hash_pin, verify_pin
 
 logger = logging.getLogger(__name__)
 
@@ -175,7 +176,7 @@ async def mark_as_adopted(db: AsyncSession, animal_id: int, pin: str) -> bool:
 
     if verify_pin(pin, animal.pin_hash):
         animal.status = "adopted"
-        animal.adopted_at = datetime.now(timezone.utc)
+        animal.adopted_at = datetime.now(UTC)
         await db.commit()
         return True
 

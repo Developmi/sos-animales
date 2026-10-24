@@ -5,22 +5,22 @@
 - POST /verification/visits/{visit_id}/checklist — submit checklist evaluation results.
 """
 
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.domains.auth.middleware import require_auth
-from app.domains.verification.tools import (
-    record_checklist_result,
-    create_verification_request,
-)
 from app.domains.sources.tools import get_source
-from app.config import settings
-from app.domains.verification.schemas import VerificationRequestCreate
 from app.domains.verification.models import Visit
+from app.domains.verification.schemas import VerificationRequestCreate
+from app.domains.verification.tools import (
+    create_verification_request,
+    record_checklist_result,
+)
 
 router = APIRouter(prefix="/verification", tags=["verification"])
 

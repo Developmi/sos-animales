@@ -1,9 +1,9 @@
 import hmac
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
@@ -11,11 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
-from app.domains.auth.middleware import require_auth
-from app.domains.auth import rate_limit
-from app.domains.sterilization.models import Campaign, FixedPoint
 from app.domains.animals.models import AnimalProfile
+from app.domains.auth import rate_limit
+from app.domains.auth.middleware import require_auth
 from app.domains.sources.models import Source
+from app.domains.sterilization.models import Campaign, FixedPoint
 
 router = APIRouter(tags=["auth"])
 
@@ -74,7 +74,7 @@ async def login(request: Request, password: str = Form(...)) -> Response:
             {"error": "Contraseña incorrecta"},
             status_code=400,
         )
-    exp = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
+    exp = datetime.now(UTC) + timedelta(minutes=settings.JWT_EXPIRE_MINUTES)
     token = jwt.encode(
         {"sub": "admin", "exp": exp}, settings.JWT_SECRET, algorithm="HS256"
     )
