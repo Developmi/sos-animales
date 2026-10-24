@@ -1,13 +1,17 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+*.pyo
+*.pyd
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
 
-# Virtual environments
-.venv
+# Virtual environments & package manager caches
+.venv/
+venv/
+.uv/
 tools/bin/
 
 # Ruff, mypy & pytest cache
@@ -18,10 +22,32 @@ tools/bin/
 coverage.xml
 htmlcov/
 
-# Environment variables
+# Environment variables (root .env.example is the SSOT)
 .env
 .env.*
+.env.local
+.env.*.local
 !.env.example
+
+# Cryptographic keys, certificates & supply-chain signing artifacts
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+cosign.key
+sbom.*.json
+*.attestation
+
+# Logs & runtime diagnostics
+*.log
+logs/
+
+# OS & Editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
 
 # AI agents, harnesses, memory & scratch artifacts (DO NOT COMMIT)
 .agents/

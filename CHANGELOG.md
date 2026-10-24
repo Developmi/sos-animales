@@ -1,8 +1,11 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
 
 ## [1.0.0] - 2026-10-23
 
@@ -30,5 +33,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Sanitized logging: zero plaintext PIN exposure in stdout and HTML responses.
   - OpenVEX governance template (`vex/sos-animales-vex.json`).
 - **CI/CD Automation**:
-  - Hardened GitHub Actions workflow (`ci.yml`) with immutable SHA-40 action pinning and least-privilege `permissions: {}`.
+  - Hardened GitHub Actions workflows (`lint.yml`, `test.yml`, `container.yml`) with immutable SHA-40 action pinning and least-privilege `permissions: {}`.
   - Automated OCI container building and Trivy vulnerability scanning (`container.yml`).

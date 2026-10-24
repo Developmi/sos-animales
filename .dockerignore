@@ -1,28 +1,54 @@
 # Version control
 .git
 .gitignore
+.github
 
 # Python virtual environment and bytecode
 .venv
+venv
+.uv
 __pycache__
 *.pyc
 *.pyo
 *.pyd
 
-# Test and lint caches
+# Test, lint, and local tool caches
 .pytest_cache
 .ruff_cache
 .mypy_cache
+.coverage
+coverage.xml
+htmlcov
 tests
+tools/bin
 
 # Environment files (preserve only template)
 .env
 .env.*
 !.env.example
 
+# Container, CI, and supply-chain artifacts
+Dockerfile*
+docker-compose*.yml
+cosign.key
+*.attestation
+sbom.*.json
+
+# Logs, IDE, and OS artifacts
+*.log
+logs
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+
 # Documentation & temporary artifacts
 README.md
 ROADMAP.md
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
 docs
 *.md
 *.txt
