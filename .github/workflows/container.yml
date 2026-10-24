@@ -58,7 +58,7 @@ jobs:
           upload-artifact: false
 
       - name: Vulnerability Scan Image with Trivy + OpenVEX
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.28.0
         env:
           TRIVY_VEX: vex/sos-animales-vex.json
         with:
@@ -69,7 +69,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Vulnerability Scan SPDX SBOM with Trivy + OpenVEX
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.28.0
         env:
           TRIVY_VEX: vex/sos-animales-vex.json
         with:
