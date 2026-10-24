@@ -16,7 +16,8 @@ services:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
     pids_limit: 100
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-pass}@db:5432/${POSTGRES_DB:-sos_animales}
       - VALKEY_URL=redis://valkey:6379/0
@@ -62,7 +63,8 @@ services:
       - /var/run/postgresql:rw,noexec,nosuid,nodev,uid=70,gid=70,mode=3775,size=16m
     pids_limit: 100
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass}
@@ -107,7 +109,8 @@ services:
       - /tmp:rw,noexec,nosuid,nodev,size=32m
     pids_limit: 50
     env_file:
-      - .env
+      - path: .env
+        required: false
     ports:
       - "127.0.0.1:${VALKEY_PORT:-6379}:6379"
     deploy:

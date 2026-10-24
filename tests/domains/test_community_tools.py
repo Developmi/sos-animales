@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.domains.community.tools import register_update, cast_vote, get_entity_updates
-from app.domains.animals.models import AnimalProfile  # noqa: F811 — trigger table registration
+from app.domains.animals.models import AnimalProfile
+from app.domains.community.tools import cast_vote, get_entity_updates, register_update
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign
 
@@ -338,8 +338,9 @@ async def test_animal_profile_has_data_governance_fields(
     db_session: AsyncSession, sample_source: Source
 ) -> None:
     """New fields save and load correctly."""
-    from app.domains.animals.models import AnimalProfile
     from datetime import date
+
+    from app.domains.animals.models import AnimalProfile
 
     animal = AnimalProfile(
         name="Test Gov",
@@ -492,8 +493,9 @@ async def test_create_animal_profile_passes_all_fields(
     db_session: AsyncSession, sample_source: Source
 ) -> None:
     """create_animal_profile() passes all 9 new fields through data dict."""
-    from app.domains.animals.tools import create_animal_profile
     from datetime import date
+
+    from app.domains.animals.tools import create_animal_profile
 
     data = {
         "name": "Test All Fields",

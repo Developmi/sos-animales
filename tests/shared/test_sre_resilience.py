@@ -8,26 +8,27 @@ Covers:
 5. Readiness endpoint (/health/ready) degraded status reporting without service interruption.
 """
 
+import io
+from collections.abc import AsyncGenerator
+from unittest.mock import MagicMock, patch
+
 import pytest
 import pytest_asyncio
-from collections.abc import AsyncGenerator
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
-from unittest.mock import patch, MagicMock
-
-from app.main import app
-from app.database import get_db
-from app.shared.security import (
-    check_rate_limit,
-    check_pin_rate_limit,
-    record_failed_pin_attempt,
-    _vote_fallback,
-    _pin_attempts,
-)
-from app.domains.animals.tools import upload_photo_to_r2
 from fastapi import UploadFile
-import io
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.domains.animals.tools import upload_photo_to_r2
+from app.main import app
+from app.shared.security import (
+    _pin_attempts,
+    _vote_fallback,
+    check_pin_rate_limit,
+    check_rate_limit,
+    record_failed_pin_attempt,
+)
 
 
 @pytest_asyncio.fixture
@@ -166,7 +167,7 @@ async def test_health_ready_reports_degraded_when_valkey_down_without_crashing(
 @pytest.mark.asyncio
 async def test_valkey_outage_login_rate_limit_memory_fallback() -> None:
     """When Valkey is unreachable, check_login_rate_limit must enforce in-memory rate limiting."""
-    from app.domains.auth.rate_limit import check_login_rate_limit, _login_fallback
+    from app.domains.auth.rate_limit import _login_fallback, check_login_rate_limit
 
     test_ip = "10.0.0.99"
     _login_fallback.pop(test_ip, None)

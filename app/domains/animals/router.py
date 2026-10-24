@@ -7,23 +7,36 @@
 - POST /animals/{id}/adopt — mark animal as adopted with PIN.
 """
 
+from datetime import date
+
 from fastapi import (
     APIRouter,
     BackgroundTasks,
-    Request,
     Depends,
-    Form,
     File,
-    UploadFile,
-    Query,
+    Form,
     HTTPException,
+    Query,
+    Request,
+    UploadFile,
 )
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import date
+
+from app.config import settings
 from app.database import get_db
+from app.domains.animals.schemas import AdoptAction, AnimalCreate
+from app.domains.animals.tools import (
+    create_animal_profile,
+    get_animal_detail,
+    list_animals_by_filters,
+    mark_as_adopted,
+    upload_multiple_photos,
+    upload_photo_to_r2,
+    validate_image_file,
+)
 from app.domains.sources.models import Source
 from app.shared.email import send_pin_email_sync
 from app.shared.geo import get_grouped_municipalities
@@ -33,17 +46,6 @@ from app.shared.security import (
     record_failed_pin_attempt,
     reset_pin_attempts,
 )
-from app.domains.animals.tools import (
-    upload_photo_to_r2,
-    upload_multiple_photos,
-    validate_image_file,
-    create_animal_profile,
-    list_animals_by_filters,
-    get_animal_detail,
-    mark_as_adopted,
-)
-from app.config import settings
-from app.domains.animals.schemas import AnimalCreate, AdoptAction
 
 router = APIRouter(prefix="/animals", tags=["animals"])
 

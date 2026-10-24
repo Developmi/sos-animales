@@ -10,7 +10,6 @@ from unittest.mock import MagicMock, patch
 from app.config import settings
 from app.shared.email import send_pin_email_sync
 
-
 # ── TC-01: Email dispatch with mocked SMTP ───────────────────────────────────
 
 

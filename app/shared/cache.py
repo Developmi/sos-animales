@@ -5,6 +5,7 @@ across authentication, rate-limiting, and observability components.
 """
 
 import logging
+
 from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)

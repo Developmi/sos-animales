@@ -9,15 +9,15 @@ Covers:
 """
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+import jwt
 import pytest
 import pytest_asyncio
-import jwt
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession
+from httpx import ASGITransport, AsyncClient
 from pydantic import ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.main import app
 from app.config import settings
 from app.database import get_db
 from app.domains.sources.models import Source
@@ -28,11 +28,12 @@ from app.domains.sterilization.tools import (
     find_nearby_campaigns,
     get_campaign_detail,
 )
+from app.main import app
 
 
 def make_admin_token() -> str:
     return jwt.encode(
-        {"sub": "admin", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+        {"sub": "admin", "exp": datetime.now(UTC) + timedelta(hours=1)},
         settings.JWT_SECRET,
         algorithm="HS256",
     )
@@ -77,7 +78,7 @@ async def test_campaign_address_retention_in_db(
     sample_shelter: Source,
 ) -> None:
     """Verify that the physical address supplied when creating a campaign is saved in the database."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=5)
+    future_date = datetime.now(UTC) + timedelta(days=5)
     data = {
         "title": "Jornada Kennedy Central",
         "municipality": "Bogotá",
@@ -108,7 +109,7 @@ async def test_campaign_address_retention_in_db(
 
 def test_campaign_capacity_validation() -> None:
     """Validate that capacity cannot be negative."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=3)
+    future_date = datetime.now(UTC) + timedelta(days=3)
 
     # Negative capacity must fail
     with pytest.raises(ValidationError):
@@ -133,7 +134,7 @@ def test_campaign_capacity_validation() -> None:
 
 def test_campaign_starts_at_past_validation() -> None:
     """Validate that a past start date is rejected by schema."""
-    past_date = datetime.now(timezone.utc) - timedelta(days=2)
+    past_date = datetime.now(UTC) - timedelta(days=2)
     with pytest.raises(ValidationError) as exc_info:
         CampaignCreate(
             title="Jornada Pasada",
@@ -150,9 +151,7 @@ async def test_post_new_campaign_endpoint_validation_error_handling(
     sample_shelter: Source,
 ) -> None:
     """Submitting invalid data (e.g. past date) to POST /sterilization/new returns controlled HTTP 400."""
-    past_date = (datetime.now(timezone.utc) - timedelta(days=3)).strftime(
-        "%Y-%m-%dT%H:%M"
-    )
+    past_date = (datetime.now(UTC) - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
     form_data = {
         "source_id": str(sample_shelter.id),
         "title": "Jornada Inválida",
@@ -178,7 +177,7 @@ async def test_campaign_detail_renders_physical_address_in_html(
     sample_shelter: Source,
 ) -> None:
     """Campaign detail view /sterilization/campaigns/{id} must render the physical address."""
-    future_date = datetime.now(timezone.utc) + timedelta(days=7)
+    future_date = datetime.now(UTC) + timedelta(days=7)
     data = {
         "title": "Gran Jornada Suba",
         "municipality": "Bogotá",
@@ -208,7 +207,7 @@ async def test_find_nearby_campaigns_excludes_expired_dates(
 ) -> None:
     """find_nearby_campaigns must exclude past campaigns and return active future ones."""
     # Future campaign
-    future_date = datetime.now(timezone.utc) + timedelta(days=4)
+    future_date = datetime.now(UTC) + timedelta(days=4)
     data_future = {
         "title": "Jornada Vigente Engativá",
         "municipality": "Bogotá",

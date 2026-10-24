@@ -5,14 +5,14 @@
 - get_entity_updates: retrieves existing updates for a campaign or animal ordered by vote count.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.config import settings
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.community.models import CommunityUpdate
+from app.config import settings
 from app.domains.animals.models import AnimalProfile
+from app.domains.community.models import CommunityUpdate
 from app.domains.sterilization.models import Campaign
 
 
@@ -107,7 +107,7 @@ async def cast_vote(db: AsyncSession, update_id: int) -> CommunityUpdate | None:
                     if camp.status != update_obj.update_type:
                         camp.status = update_obj.update_type
                 elif update_obj.update_type == "confirmed":
-                    camp.last_confirmed_at = datetime.now(timezone.utc)
+                    camp.last_confirmed_at = datetime.now(UTC)
 
         # --- Status resolution for animal profiles ---
         if update_obj.animal_id and update_obj.update_type in (
@@ -121,7 +121,7 @@ async def cast_vote(db: AsyncSession, update_id: int) -> CommunityUpdate | None:
             if animal and animal.status != update_obj.update_type:
                 animal.status = update_obj.update_type
                 if update_obj.update_type == "adopted":
-                    animal.adopted_at = datetime.now(timezone.utc)
+                    animal.adopted_at = datetime.now(UTC)
 
     await db.commit()
     await db.refresh(update_obj)

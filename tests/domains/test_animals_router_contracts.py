@@ -53,7 +53,6 @@ from app.domains.animals.tools import create_animal_profile
 from app.domains.sources.models import Source
 from app.main import app
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # FIXTURES & HELPERS
 # ─────────────────────────────────────────────────────────────────────────────

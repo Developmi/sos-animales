@@ -7,9 +7,10 @@
   (local veterinary partner or virtual session, executing the identical checklist).
 """
 
-from sqlalchemy import Integer, String, Boolean, DateTime, Text, ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 

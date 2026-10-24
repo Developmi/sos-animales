@@ -7,19 +7,17 @@
 - confirm_entity_freshness: update freshness timestamp.
 """
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from datetime import datetime, timedelta, timezone
-
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.config import settings
+from app.domains.sources.models import Source
+from app.domains.sterilization.models import Campaign, FixedPoint
 from app.shared.geo import geocode_address
 from app.shared.security import generate_pin, hash_pin
-
-from app.domains.sterilization.models import Campaign
-from app.domains.sources.models import Source
-from app.domains.sterilization.models import FixedPoint
 
 
 async def create_new_fixed_point(
@@ -67,7 +65,7 @@ def get_freshness_days(obj: Campaign | FixedPoint) -> int | None:
     last = obj.last_confirmed_at or obj.created_at
     if last is None:
         return None
-    delta = datetime.now(timezone.utc) - last
+    delta = datetime.now(UTC) - last
     return delta.days
 
 
@@ -100,12 +98,12 @@ async def find_nearby_campaigns(
     Enforces freshness policy: hides campaigns unconfirmed for more than
     FRESHNESS_HIDE_DAYS days.
     """
-    cutoff = datetime.now(timezone.utc) - timedelta(days=settings.FRESHNESS_HIDE_DAYS)
+    cutoff = datetime.now(UTC) - timedelta(days=settings.FRESHNESS_HIDE_DAYS)
 
     query = select(Campaign).where(
         Campaign.municipality.ilike(f"%{municipality}%"),
         Campaign.status == "scheduled",
-        Campaign.starts_at >= datetime.now(timezone.utc),
+        Campaign.starts_at >= datetime.now(UTC),
         # Hide stale data: fall back to created_at if last_confirmed_at is null
         func.coalesce(Campaign.last_confirmed_at, Campaign.created_at) >= cutoff,
     )
@@ -195,7 +193,7 @@ async def confirm_entity_freshness(
     entity_type: "campaign" or "fixed-point"
     Returns True if record was found and updated, False otherwise.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if entity_type == "campaign":
         result = await db.execute(select(Campaign).where(Campaign.id == entity_id))

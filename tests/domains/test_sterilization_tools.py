@@ -13,14 +13,13 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.sources.models import Source
 from app.domains.sterilization.tools import (
     create_new_campaign,
     create_new_fixed_point,
     find_nearby_campaigns,
     get_campaign_detail,
 )
-from app.domains.sources.models import Source
-
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -148,7 +147,7 @@ async def test_create_new_fixed_point_with_source_url(
     fp = await create_new_fixed_point(db_session, sample_source.id, data)
 
     assert fp.source_url == "https://ejemplo.com/vet"
-    assert fp.is_free == False  # noqa: E712
+    assert fp.is_free is False
 
 
 # ── TC-05: Find campaigns by municipality ────────────────────────────────────

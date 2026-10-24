@@ -11,17 +11,18 @@ Covers:
 8. Catalog filtering by adoption status (available vs adopted).
 """
 
+from collections.abc import AsyncGenerator
+from unittest.mock import MagicMock, patch
+
 import pytest
 import pytest_asyncio
-from collections.abc import AsyncGenerator
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from unittest.mock import patch, MagicMock
 
-from app.main import app
 from app.database import get_db
-from app.domains.sources.models import Source
 from app.domains.animals.tools import create_animal_profile
+from app.domains.sources.models import Source
+from app.main import app
 
 
 @pytest_asyncio.fixture

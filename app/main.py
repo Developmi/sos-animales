@@ -15,24 +15,23 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
-from pydantic import ValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.config import settings
-from app.database import get_db, engine
+from app.database import engine, get_db
+from app.domains.animals.router import router as animals_router
+from app.domains.auth.router import router as auth_router
+from app.domains.community.router import router as community_router
 from app.domains.sources.router import router as sources_router
 from app.domains.sterilization.router import router as sterilization_router
-from app.domains.animals.router import router as animals_router
-from app.domains.community.router import router as community_router
 from app.domains.verification.router import router as verification_router
-from app.domains.auth.router import router as auth_router
-from app.shared import cache
-from app.shared import geo
+from app.shared import cache, geo
 
 # ── Global Logging Configuration ──────────────────────────────────────────
 logging.basicConfig(

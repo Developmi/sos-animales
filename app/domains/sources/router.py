@@ -6,20 +6,18 @@
 - GET /sources/{id} — public shelter profile with verified badge.
 """
 
-from fastapi import APIRouter, Request, Depends, Form, Query
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select as sql_select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.domains.sources.schemas import SourceRegisterIn
-from app.domains.sources.tools import register_source, get_source, list_sources
-from app.domains.sterilization.models import Campaign
-from app.domains.animals.models import AnimalProfile
-from sqlalchemy import select as sql_select
-from fastapi import HTTPException
-
 from app.config import settings
+from app.database import get_db
+from app.domains.animals.models import AnimalProfile
+from app.domains.sources.schemas import SourceRegisterIn
+from app.domains.sources.tools import get_source, list_sources, register_source
+from app.domains.sterilization.models import Campaign
 from app.shared.geo import get_grouped_municipalities
 
 router = APIRouter(prefix="/sources", tags=["sources"])

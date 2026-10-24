@@ -10,7 +10,7 @@ Exposed settings:
 - R2_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET_NAME / R2_PUBLIC_URL: Cloudflare R2 photos
 """
 
-from pydantic import field_validator, ValidationInfo
+from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

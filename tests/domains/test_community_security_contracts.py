@@ -36,9 +36,7 @@ from app.domains.community.tools import (
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign
 from app.main import app
-from app.shared import cache, geo
-from app.shared import security
-
+from app.shared import cache, geo, security
 
 # ── Shared Fixtures ──────────────────────────────────────────────────────────
 

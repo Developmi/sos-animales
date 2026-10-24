@@ -1,14 +1,15 @@
 """Tests for verification domain tools and inspection checklists."""
 
+from datetime import UTC, datetime, timedelta
+
 import pytest
-from datetime import datetime, timedelta, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.sources.models import Source
 from app.domains.verification.tools import (
     create_verification_request,
-    schedule_visit,
     record_checklist_result,
+    schedule_visit,
 )
 
 

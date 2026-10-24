@@ -8,20 +8,21 @@
 Both models include last_confirmed_at tracking for the freshness policy.
 """
 
+from datetime import datetime
+
 from sqlalchemy import (
-    Integer,
-    String,
     Boolean,
     DateTime,
     Float,
-    Text,
     ForeignKey,
     Index,
+    Integer,
+    String,
+    Text,
     func,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
 
 from app.database import Base
 

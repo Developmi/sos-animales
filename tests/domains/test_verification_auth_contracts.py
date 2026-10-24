@@ -7,7 +7,7 @@ Target coverage modules:
 """
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import jwt
@@ -15,8 +15,8 @@ import pytest
 import pytest_asyncio
 from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
-from starlette.requests import Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 
 from app.config import settings
 from app.database import get_db
@@ -26,7 +26,6 @@ from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign
 from app.domains.verification.models import ChecklistResult, VerificationRequest, Visit
 from app.main import app
-
 
 # ---------------------------------------------------------------------------
 # Helpers & Fixtures
@@ -41,11 +40,11 @@ def create_test_token(
 ) -> str:
     """Generate JWT tokens for testing various auth conditions."""
     if expired:
-        exp = datetime.now(timezone.utc) - timedelta(hours=2)
+        exp = datetime.now(UTC) - timedelta(hours=2)
     elif delta is not None:
-        exp = datetime.now(timezone.utc) + delta
+        exp = datetime.now(UTC) + delta
     else:
-        exp = datetime.now(timezone.utc) + timedelta(hours=2)
+        exp = datetime.now(UTC) + timedelta(hours=2)
 
     payload: dict[str, str | datetime] = {"exp": exp}
     if sub is not None:

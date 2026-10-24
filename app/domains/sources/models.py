@@ -8,9 +8,11 @@ The verified status is reached after veterinary audit. While pending,
 public views display an unverified advisory banner.
 """
 
-from sqlalchemy import Integer, String, Boolean, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.database import Base
 
 

@@ -4,7 +4,6 @@
 """
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from typing import Optional
 
 
 class SourceRegisterIn(BaseModel):
@@ -14,6 +13,6 @@ class SourceRegisterIn(BaseModel):
     type: str = Field(..., pattern=r"^(official|verified_shelter|community)$")
     municipality: str = Field(..., min_length=3, max_length=100)
     department: str = Field(..., min_length=3, max_length=100)
-    contact_email: Optional[EmailStr] = None
-    contact_whatsapp: Optional[str] = None
-    contact_url: Optional[str] = None
+    contact_email: EmailStr | None = None
+    contact_whatsapp: str | None = None
+    contact_url: str | None = None

@@ -9,8 +9,8 @@ Datos cargados desde seed estático (data/colombia/), no desde API en runtime.
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "a1b2c3d4e5f6"
 down_revision: Union[str, Sequence[str], None] = "a8cf202515a5"
