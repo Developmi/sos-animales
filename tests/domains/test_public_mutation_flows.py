@@ -170,6 +170,7 @@ async def test_post_animal_reads_source_contact_email(
             "breed": "Criollo",
             "age_years": "3",
             "size": "mediano",
+            "accept_terms": "true",
         }
         files = {"foto": ("boby.jpg", b"fake-image-bytes", "image/jpeg")}
 

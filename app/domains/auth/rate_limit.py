@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 
 from app.shared import cache, geo
+from app.shared.ip_privacy import anonymize_ip
 
 logger = logging.getLogger(__name__)
 
@@ -40,10 +41,11 @@ def _check_memory_rate_limit(ip: str, now: float) -> bool:
 async def check_login_rate_limit(ip: str) -> bool:
     """Verify IP rate limit for administrator authentication.
 
-    Uses Valkey INCR with TTL expiration. Falls back to in-memory sliding window
-    if Valkey is unavailable, preventing brute-force exposure during cache downtime.
+    Uses Valkey INCR with TTL expiration over the anonymized IP digest. Falls back to in-memory
+    sliding window if Valkey is unavailable, preventing brute-force exposure during cache downtime.
     """
-    key = f"ratelimit:login:{ip}:{datetime.now().strftime('%Y%m%d%H%M')}"
+    ip_hash = anonymize_ip(ip)
+    key = f"ratelimit:login:{ip_hash}:{datetime.now().strftime('%Y%m%d%H%M')}"
     valkey = cache.valkey_client or geo.valkey_client
     now = time.time()
     try:
@@ -51,7 +53,7 @@ async def check_login_rate_limit(ip: str) -> bool:
             logger.warning(
                 "Valkey client not initialized, using memory fallback for login rate limit"
             )
-            return _check_memory_rate_limit(ip, now)
+            return _check_memory_rate_limit(ip_hash, now)
         count = await valkey.incr(key)
         if count == 1:
             await valkey.expire(key, WINDOW_SECONDS)
@@ -60,4 +62,4 @@ async def check_login_rate_limit(ip: str) -> bool:
         logger.warning(
             "Valkey unreachable in check_login_rate_limit, using memory fallback: %s", e
         )
-        return _check_memory_rate_limit(ip, now)
+        return _check_memory_rate_limit(ip_hash, now)

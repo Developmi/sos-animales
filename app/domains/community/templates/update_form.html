@@ -40,6 +40,16 @@
     <span style="color: var(--color-text-muted); font-size: 12px;">Tu reporte ayuda a que toda la comunidad tenga información real y oportuna.</span>
   </div>
 
+  <!-- Consentimiento obligatorio Ley 1581 de 2012 -->
+  <div style="margin-top: 2px;">
+    <label class="form-checkbox-row" style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+      <input type="checkbox" name="accept_terms" value="true" required style="margin-top: 3px;" />
+      <span style="font-size: 12px; color: var(--color-text-secondary); line-height: 1.45;">
+        * Acepto el <a href="/legal/data-processing" target="_blank" rel="noopener">tratamiento de datos (Ley 1581 de 2012)</a> y los <a href="/legal/terms" target="_blank" rel="noopener">Términos de Uso</a>. Se procesa un hash anónimo temporal de red para prevenir abuso automatizado.
+      </span>
+    </label>
+  </div>
+
   <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px;">
     <button type="submit" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
       {{ icons.paw_heart("", 16) }} <span>Enviar Reporte Comunitario</span>

@@ -40,7 +40,9 @@ from app.domains.animals.tools import (
 from app.domains.sources.models import Source
 from app.shared.email import send_pin_email_sync
 from app.shared.geo import get_grouped_municipalities
+from app.shared.ip_privacy import is_terms_accepted
 from app.shared.security import (
+    check_action_rate_limit,
     check_pin_rate_limit,
     get_client_ip,
     record_failed_pin_attempt,
@@ -191,10 +193,31 @@ async def post_new_animal(
     compatible_otros_animales: str | None = Form(None),
     microchip: str | None = Form(None),
     source_url: str | None = Form(None),
+    accept_terms: bool = Form(True),
     background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Process form submission, upload photo, generate PIN, and persist to database."""
+    if not is_terms_accepted(accept_terms):
+        return HTMLResponse(
+            content=_render_animal_error_card(
+                "Consentimiento requerido",
+                "Debes aceptar el tratamiento de datos personales conforme a la Ley 1581 de 2012 para publicar un caso.",
+            ),
+            status_code=400,
+        )
+
+    client_ip = get_client_ip(request)
+    if not await check_action_rate_limit(
+        client_ip, "animals_new", max_attempts=10, window_seconds=900
+    ):
+        return HTMLResponse(
+            content=_render_animal_error_card(
+                "Límite de publicaciones alcanzado",
+                "Has realizado demasiadas publicaciones seguidas. Por seguridad espera 15 minutos antes de publicar otro caso.",
+            ),
+            status_code=429,
+        )
 
     # 0. Validate that source exists and is active
     source_result = await db.execute(select(Source).where(Source.id == source_id))

@@ -80,6 +80,7 @@ async def test_post_community_update_success_xor_animal(
         "update_type": "in_treatment",
         "note": "El peludito está recibiendo atención veterinaria",
         "animal_id": str(animal.id),
+        "accept_terms": "true",
     }
 
     response = await app_client.post("/community/update", data=form_data)
@@ -117,6 +118,7 @@ async def test_post_community_update_success_xor_campaign(
         "update_type": "full",
         "note": "Agotados todos los turnos disponibles",
         "campaign_id": str(camp.id),
+        "accept_terms": "true",
     }
 
     response = await app_client.post("/community/update", data=form_data)
@@ -135,6 +137,7 @@ async def test_post_community_update_validation_error_neither_target_returns_400
     form_data = {
         "update_type": "full",
         "note": "Reporte sin destino",
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=form_data)
     assert response.status_code == 400
@@ -155,6 +158,7 @@ async def test_post_community_update_validation_error_both_targets_returns_400(
         "note": "Reporte ambiguo",
         "campaign_id": "1",
         "animal_id": "1",
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=form_data)
     assert response.status_code == 400

@@ -10,6 +10,8 @@ Exposed settings:
 - R2_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET_NAME / R2_PUBLIC_URL: Cloudflare R2 photos
 """
 
+import ipaddress
+
 from pydantic import ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -19,6 +21,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     COMMUNITY_VOTE_THRESHOLD: int
     VALKEY_URL: str
+
+    # Comma-separated trusted reverse proxy IPs or CIDR networks (Caddy, Tailscale CGNAT, Docker bridge)
+    TRUSTED_PROXY_IPS: str = "127.0.0.1,::1,100.64.0.0/10,172.16.0.0/12"
 
     # Plausible Analytics (optional - loaded only with explicit user consent)
     PLAUSIBLE_DOMAIN: str | None = None
@@ -58,6 +63,28 @@ class Settings(BaseSettings):
             if v.startswith("2b$") or v.startswith("2a$") or v.startswith("2y$"):
                 v = "$" + v
         return v
+
+    @field_validator("TRUSTED_PROXY_IPS")
+    @classmethod
+    def validate_trusted_proxy_ips(cls, v: str) -> str:
+        entries = [item.strip() for item in v.split(",") if item.strip()]
+        if not entries:
+            raise ValueError(
+                "TRUSTED_PROXY_IPS must contain at least one IP, CIDR network, or '*'"
+            )
+        for entry in entries:
+            if entry == "*":
+                continue
+            try:
+                if "/" in entry:
+                    ipaddress.ip_network(entry, strict=False)
+                else:
+                    ipaddress.ip_address(entry)
+            except ValueError as err:
+                raise ValueError(
+                    f"Invalid entry '{entry}' in TRUSTED_PROXY_IPS. Use valid IP or CIDR notation (e.g. '100.64.0.0/10'), not glob wildcards."
+                ) from err
+        return ",".join(entries)
 
     @field_validator("FRESHNESS_HIDE_DAYS")
     @classmethod

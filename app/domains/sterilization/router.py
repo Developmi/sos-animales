@@ -38,6 +38,7 @@ from app.domains.sterilization.tools import (
 from app.shared.email import send_pin_email_sync
 from app.shared.geo import get_active_municipalities, get_grouped_municipalities
 from app.shared.models.location import Department, Municipality
+from app.shared.security import check_action_rate_limit, get_client_ip
 
 router = APIRouter(prefix="/sterilization", tags=["sterilization"])
 
@@ -231,6 +232,17 @@ async def confirm_freshness(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Update last_confirmed_at to current timestamp to renew freshness."""
+    client_ip = get_client_ip(request)
+    if not await check_action_rate_limit(
+        client_ip,
+        f"confirm_freshness:{entity_type}:{entity_id}",
+        max_attempts=1,
+        window_seconds=900,
+    ):
+        return HTMLResponse(
+            content="⏳ Ya confirmaste recientemente esta información. Espera 15 minutos.",
+            status_code=429,
+        )
     ok = await confirm_entity_freshness(db, entity_type, entity_id)
     if not ok:
         raise HTTPException(
