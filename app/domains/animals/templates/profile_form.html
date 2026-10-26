@@ -243,12 +243,22 @@
       </div>
 
       <!-- Section 4: PIN de Seguridad -->
-      <div class="pin-explainer-banner" style="margin-bottom: 24px;">
+      <div class="pin-explainer-banner" style="margin-bottom: 18px;">
         {{ icons.key_pin("", 24) }}
         <div>
           <strong>Gestión Descentralizada con PIN:</strong><br>
           Al publicar, el sistema generará un <strong>código PIN de 4 dígitos</strong> que se enviará al correo del refugio/rescatista. Lo usarás para marcar el caso como "Adoptado" sin necesidad de cuentas ni contraseñas.
         </div>
+      </div>
+
+      <!-- Consentimiento obligatorio Ley 1581 de 2012 -->
+      <div style="margin-bottom: 20px;">
+        <label class="form-checkbox-row" style="align-items: flex-start; gap: 10px; cursor: pointer;">
+          <input type="checkbox" id="pet-accept-terms" name="accept_terms" value="true" required style="margin-top: 3px;" />
+          <span style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.5;">
+            * Autorizo el <a href="/legal/data-processing" target="_blank" rel="noopener">tratamiento de datos personales (Ley 1581 de 2012)</a> y acepto los <a href="/legal/terms" target="_blank" rel="noopener">Términos de Uso</a>, certificando que la publicación corresponde a una adopción gratuita y responsable.
+          </span>
+        </label>
       </div>
 
       <!-- Alerta Resumen de Errores en Cliente -->

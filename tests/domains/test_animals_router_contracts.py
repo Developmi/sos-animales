@@ -29,7 +29,7 @@ Covers:
 import io
 from collections.abc import AsyncGenerator
 from datetime import date
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 import pytest_asyncio
@@ -361,6 +361,7 @@ async def test_post_animal_rejected_nonexistent_source_http(
         "name": "Fantasma",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     response = await app_client.post("/animals/", data=data, files=files)
     assert response.status_code == 400
@@ -380,6 +381,7 @@ async def test_post_animal_rejected_inactive_source_http(
         "name": "Pelusa",
         "species": "felino",
         "municipality": "Medellín",
+        "accept_terms": "true",
     }
     response = await app_client.post("/animals/", data=data, files=files)
     assert response.status_code == 400
@@ -398,6 +400,7 @@ async def test_post_animal_rejected_invalid_primary_image_type(
         "name": "Rocky",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     response = await app_client.post("/animals/", data=data, files=files)
     assert response.status_code == 400
@@ -420,6 +423,7 @@ async def test_post_animal_rejected_invalid_gallery_image_type(
         "name": "Rocky Gallery Fail",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     response = await app_client.post("/animals/", data=data, files=files)
     assert response.status_code == 400
@@ -439,6 +443,7 @@ async def test_post_animal_rejected_oversized_image(
         "name": "Gigante",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     response = await app_client.post("/animals/", data=data, files=files)
     assert response.status_code == 400
@@ -458,6 +463,7 @@ async def test_post_animal_r2_upload_exception_returns_500(
         "name": "R2 Fail Dog",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     with patch(
         "app.domains.animals.router.upload_photo_to_r2",
@@ -481,6 +487,7 @@ async def test_post_animal_rejected_invalid_species(
         "name": "Bugs Bunny",
         "species": "conejo",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     with patch(
         "app.domains.animals.router.upload_photo_to_r2",
@@ -505,6 +512,7 @@ async def test_post_animal_rejected_pydantic_validation_future_birthdate(
         "species": "canino",
         "municipality": "Bogotá",
         "fecha_nacimiento": "2099-01-01",
+        "accept_terms": "true",
     }
     with patch(
         "app.domains.animals.router.upload_photo_to_r2",
@@ -528,6 +536,7 @@ async def test_post_animal_rejected_pydantic_validation_short_municipality(
         "name": "Chiquito",
         "species": "canino",
         "municipality": "AB",
+        "accept_terms": "true",
     }
     with patch(
         "app.domains.animals.router.upload_photo_to_r2",
@@ -559,6 +568,7 @@ async def test_post_animal_duplicate_name_rejection(
         "name": "Clonado",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     with patch(
         "app.domains.animals.router.upload_photo_to_r2",
@@ -575,9 +585,15 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
     inactive_source: Source,
     source_without_email: Source,
     db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Direct execution of post_new_animal covers all internal statements and lines 185-288."""
     from starlette.datastructures import Headers
+
+    monkeypatch.setattr(
+        "app.domains.animals.router.check_action_rate_limit",
+        AsyncMock(return_value=True),
+    )
 
     req = make_starlette_request("POST", "/animals/")
     f_valid = UploadFile(

@@ -89,6 +89,7 @@ async def test_post_animal_multipart_with_mocked_r2(
             "size": "grande",
             "is_sterilized": "true",
             "sexo": "macho",
+            "accept_terms": "true",
         }
         files = {
             "foto": ("max.jpg", b"\xff\xd8\xff\xe0mock_jpeg_bytes", "image/jpeg"),
@@ -127,6 +128,7 @@ async def test_post_animal_duplicate_name_for_same_source_rejected(
         "name": "Rocky",
         "species": "canino",
         "municipality": "Bogotá",
+        "accept_terms": "true",
     }
     files = {"foto": ("rocky.jpg", b"image-content", "image/jpeg")}
 
@@ -146,6 +148,7 @@ async def test_post_animal_invalid_species_rejected(
         "name": "Iguani",
         "species": "reptil",
         "municipality": "Cali",
+        "accept_terms": "true",
     }
     files = {"foto": ("iguani.jpg", b"image-content", "image/jpeg")}
 

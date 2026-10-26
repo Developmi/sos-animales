@@ -155,6 +155,7 @@ async def test_post_community_update_with_valid_animal_id(
         "update_type": "in_treatment",
         "note": "El animal inició tratamiento antibiótico",
         "animal_id": str(sample_animal.id),
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 200
@@ -174,6 +175,7 @@ async def test_post_community_update_with_valid_campaign_id(
         "update_type": "full",
         "note": "Cupos completamente agotados a las 9am",
         "campaign_id": str(sample_campaign.id),
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 200
@@ -193,6 +195,7 @@ async def test_post_community_update_creator_is_marked_as_voted(
         "update_type": "full",
         "note": "Cupos llenos",
         "campaign_id": str(sample_campaign.id),
+        "accept_terms": "true",
     }
     # Submit report from test client IP (127.0.0.1)
     response = await app_client.post("/community/update", data=payload)
@@ -221,6 +224,7 @@ async def test_post_community_update_xor_violation_neither_returns_400(
     payload = {
         "update_type": "full",
         "note": "No target provided",
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 400
@@ -237,6 +241,7 @@ async def test_post_community_update_xor_violation_both_returns_400(
         "note": "Both targets provided",
         "campaign_id": str(sample_campaign.id),
         "animal_id": str(sample_animal.id),
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 400
@@ -252,6 +257,7 @@ async def test_post_community_update_invalid_update_type_returns_400(
         "update_type": "unknown_type_value",
         "note": "Invalid type payload",
         "animal_id": str(sample_animal.id),
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 400
@@ -267,6 +273,7 @@ async def test_post_community_update_nonexistent_campaign_returns_400(
         "update_type": "full",
         "note": "Campaign not found",
         "campaign_id": "99999999",
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 400
@@ -285,6 +292,7 @@ async def test_post_community_update_nonexistent_animal_returns_400(
         "update_type": "in_treatment",
         "note": "Animal not found",
         "animal_id": "99999999",
+        "accept_terms": "true",
     }
     response = await app_client.post("/community/update", data=payload)
     assert response.status_code == 400
@@ -680,14 +688,17 @@ def test_pin_generation_and_hashing_contracts() -> None:
 @pytest.mark.asyncio
 async def test_check_rate_limit_valkey_available_atomic_set_nx() -> None:
     """check_rate_limit with live/mocked Valkey client."""
+    from app.shared.ip_privacy import anonymize_ip
+
     mock_valkey = AsyncMock()
     mock_valkey.set.return_value = True
+    ip_hash = anonymize_ip("192.168.1.10")
 
     with patch.object(cache, "valkey_client", mock_valkey):
         result = await security.check_rate_limit("192.168.1.10", 101, window_seconds=60)
         assert result is True
         mock_valkey.set.assert_awaited_once_with(
-            "rate_limit:192.168.1.10:101", "1", ex=60, nx=True
+            f"rate_limit:{ip_hash}:101", "1", ex=60, nx=True
         )
 
     # Subsequent attempt returns False from Valkey SET NX
@@ -702,6 +713,8 @@ async def test_check_rate_limit_valkey_available_atomic_set_nx() -> None:
 @pytest.mark.asyncio
 async def test_check_rate_limit_in_memory_fallback_and_pruning() -> None:
     """check_rate_limit uses in-memory dict when Valkey is down and prunes >1000 items (lines 62-77)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     security._vote_fallback.clear()
 
     with (
@@ -709,6 +722,7 @@ async def test_check_rate_limit_in_memory_fallback_and_pruning() -> None:
         patch.object(geo, "valkey_client", None),
     ):
         ip = "10.50.0.1"
+        ip_hash = anonymize_ip(ip)
         update_id = 501
 
         # First attempt passes
@@ -720,7 +734,7 @@ async def test_check_rate_limit_in_memory_fallback_and_pruning() -> None:
         assert res2 is False
 
         # Attempt after window expires passes
-        security._vote_fallback[(ip, update_id)] = time.time() - 901
+        security._vote_fallback[(ip_hash, update_id)] = time.time() - 901
         res3 = await security.check_rate_limit(ip, update_id, window_seconds=900)
         assert res3 is True
 
@@ -744,22 +758,26 @@ async def test_check_rate_limit_in_memory_fallback_and_pruning() -> None:
 @pytest.mark.asyncio
 async def test_mark_as_voted_valkey_and_fallback() -> None:
     """mark_as_voted records in Valkey or falls back to in-memory dict (lines 80-94)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     # 1. Valkey available
     mock_valkey = AsyncMock()
+    ip_hash_20 = anonymize_ip("192.168.1.20")
     with patch.object(cache, "valkey_client", mock_valkey):
         await security.mark_as_voted("192.168.1.20", 201)
         mock_valkey.set.assert_awaited_once_with(
-            "rate_limit:192.168.1.20:201", "1", ex=900, nx=True
+            f"rate_limit:{ip_hash_20}:201", "1", ex=900, nx=True
         )
 
     # 2. Valkey unavailable (raises exception)
     security._vote_fallback.clear()
+    ip_hash_25 = anonymize_ip("192.168.1.25")
     with (
         patch.object(cache, "valkey_client", None),
         patch.object(geo, "valkey_client", None),
     ):
         await security.mark_as_voted("192.168.1.25", 202)
-        assert ("192.168.1.25", 202) in security._vote_fallback
+        assert (ip_hash_25, 202) in security._vote_fallback
 
     security._vote_fallback.clear()
 
@@ -767,12 +785,15 @@ async def test_mark_as_voted_valkey_and_fallback() -> None:
 @pytest.mark.asyncio
 async def test_has_voted_recently_valkey_and_fallback() -> None:
     """has_voted_recently queries Valkey or in-memory dict without modifying TTL (lines 96-114)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     # 1. Valkey available
     mock_valkey = AsyncMock()
     mock_valkey.exists.return_value = 1
+    ip_hash_30 = anonymize_ip("192.168.1.30")
     with patch.object(cache, "valkey_client", mock_valkey):
         assert await security.has_voted_recently("192.168.1.30", 301) is True
-        mock_valkey.exists.assert_awaited_once_with("rate_limit:192.168.1.30:301")
+        mock_valkey.exists.assert_awaited_once_with(f"rate_limit:{ip_hash_30}:301")
 
     mock_valkey.exists.return_value = 0
     with patch.object(cache, "valkey_client", mock_valkey):
@@ -780,6 +801,7 @@ async def test_has_voted_recently_valkey_and_fallback() -> None:
 
     # 2. Valkey exception -> in-memory fallback (lines 108-114)
     security._vote_fallback.clear()
+    ip_hash_1 = anonymize_ip("10.0.0.1")
     with (
         patch.object(cache, "valkey_client", None),
         patch.object(geo, "valkey_client", None),
@@ -788,11 +810,11 @@ async def test_has_voted_recently_valkey_and_fallback() -> None:
         assert await security.has_voted_recently("10.0.0.1", 401) is False
 
         # Key present and fresh (< 900s)
-        security._vote_fallback[("10.0.0.1", 401)] = time.time()
+        security._vote_fallback[(ip_hash_1, 401)] = time.time()
         assert await security.has_voted_recently("10.0.0.1", 401) is True
 
         # Key present but stale (>= 900s)
-        security._vote_fallback[("10.0.0.1", 401)] = time.time() - 950
+        security._vote_fallback[(ip_hash_1, 401)] = time.time() - 950
         assert await security.has_voted_recently("10.0.0.1", 401) is False
 
     security._vote_fallback.clear()
@@ -801,13 +823,16 @@ async def test_has_voted_recently_valkey_and_fallback() -> None:
 @pytest.mark.asyncio
 async def test_pin_rate_limit_valkey_success_and_blocked() -> None:
     """check_pin_rate_limit and record_failed_pin_attempt with Valkey client (lines 120-135, 142-156)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     mock_valkey = MagicMock()
     mock_valkey.get = AsyncMock()
     mock_pipeline = MagicMock()
     mock_pipeline.incr = MagicMock(return_value=mock_pipeline)
     mock_pipeline.expire = MagicMock(return_value=mock_pipeline)
-    mock_pipeline.execute = AsyncMock(return_value=[1, True])
+    mock_pipeline.execute = AsyncMock(return_value=[1, True, 1, True])
     mock_valkey.pipeline = MagicMock(return_value=mock_pipeline)
+    ip_hash_50 = anonymize_ip("192.168.1.50")
 
     with patch.object(cache, "valkey_client", mock_valkey):
         # No previous attempts
@@ -833,17 +858,19 @@ async def test_pin_rate_limit_valkey_success_and_blocked() -> None:
 
         # Record a failed attempt via pipeline (lines 150-155)
         await security.record_failed_pin_attempt("192.168.1.50", 1, window_seconds=3600)
-        mock_pipeline.incr.assert_called_once_with("pin_attempts:192.168.1.50:1")
-        mock_pipeline.expire.assert_called_once_with(
-            "pin_attempts:192.168.1.50:1", 3600
-        )
+        mock_pipeline.incr.assert_any_call(f"pin_attempts:{ip_hash_50}:1")
+        mock_pipeline.expire.assert_any_call(f"pin_attempts:{ip_hash_50}:1", 3600)
         mock_pipeline.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_pin_rate_limit_valkey_exception_fallback() -> None:
     """check_pin_rate_limit and record_failed_pin_attempt when Valkey raises exception (lines 133-134, 156-158)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
+    ip_hash_10 = anonymize_ip("10.10.10.10")
     mock_valkey = MagicMock()
     mock_valkey.get = AsyncMock(side_effect=Exception("Valkey socket error"))
     mock_pipeline = MagicMock()
@@ -861,21 +888,26 @@ async def test_pin_rate_limit_valkey_exception_fallback() -> None:
 
         # record_failed_pin_attempt falls back to memory on valkey exception (lines 156-158)
         await security.record_failed_pin_attempt("10.10.10.10", 2, window_seconds=3600)
-        assert len(security._pin_attempts[("10.10.10.10", 2)]) == 1
+        assert len(security._pin_attempts[(ip_hash_10, 2)]) == 1
 
     security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
 
 
 @pytest.mark.asyncio
 async def test_pin_rate_limit_in_memory_fallback() -> None:
     """check_pin_rate_limit and record_failed_pin_attempt when Valkey is None (lines 136-140, 159-161)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
 
     with (
         patch.object(cache, "valkey_client", None),
         patch.object(geo, "valkey_client", None),
     ):
         ip = "172.16.0.99"
+        ip_hash = anonymize_ip(ip)
         animal_id = 77
 
         # Initially 0 attempts
@@ -898,7 +930,8 @@ async def test_pin_rate_limit_in_memory_fallback() -> None:
 
         # When attempts age past window_seconds, they are filtered out
         now = time.time()
-        security._pin_attempts[(ip, animal_id)] = [now - 3700, now - 3650]
+        security._pin_attempts[(ip_hash, animal_id)] = [now - 3700, now - 3650]
+        security._pin_global_attempts[animal_id] = [now - 3700, now - 3650]
         assert (
             await security.check_pin_rate_limit(
                 ip, animal_id, max_attempts=3, window_seconds=3600
@@ -907,6 +940,7 @@ async def test_pin_rate_limit_in_memory_fallback() -> None:
         )
 
     security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
 
 
 def test_reset_pin_attempts_exists_in_security_module() -> None:
@@ -919,26 +953,30 @@ def test_reset_pin_attempts_exists_in_security_module() -> None:
 @pytest.mark.asyncio
 async def test_reset_pin_attempts_valkey_and_memory_fallback() -> None:
     """reset_pin_attempts clears attempts in Valkey and memory fallback (including exception path)."""
+    from app.shared.ip_privacy import anonymize_ip
+
     security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
     ip = "198.51.100.42"
+    ip_hash = anonymize_ip(ip)
     animal_id = 88
 
     # 1. Valkey available + memory entry cleared
-    security._pin_attempts[(ip, animal_id)] = [time.time()]
+    security._pin_attempts[(ip_hash, animal_id)] = [time.time()]
     mock_valkey = MagicMock()
     mock_valkey.delete = AsyncMock(return_value=1)
     with patch.object(cache, "valkey_client", mock_valkey):
         await security.reset_pin_attempts(ip, animal_id)
-        mock_valkey.delete.assert_awaited_once_with(f"pin_attempts:{ip}:{animal_id}")
-        assert (ip, animal_id) not in security._pin_attempts
+        mock_valkey.delete.assert_any_await(f"pin_attempts:{ip_hash}:{animal_id}")
+        assert (ip_hash, animal_id) not in security._pin_attempts
 
     # 2. Valkey raises exception -> logs warning and still clears memory fallback
-    security._pin_attempts[(ip, animal_id)] = [time.time()]
+    security._pin_attempts[(ip_hash, animal_id)] = [time.time()]
     mock_valkey_err = MagicMock()
     mock_valkey_err.delete = AsyncMock(side_effect=RuntimeError("Valkey down"))
     with patch.object(cache, "valkey_client", mock_valkey_err):
         await security.reset_pin_attempts(ip, animal_id)
-        assert (ip, animal_id) not in security._pin_attempts
+        assert (ip_hash, animal_id) not in security._pin_attempts
 
 
 def test_get_client_ip_proxy_headers_and_fallbacks() -> None:
@@ -969,18 +1007,21 @@ def test_get_client_ip_proxy_headers_and_fallbacks() -> None:
 @pytest.mark.asyncio
 async def test_check_create_update_rate_limit_valkey_and_fallback_pruning() -> None:
     """check_create_update_rate_limit enforces cooldown in Valkey and memory fallback with pruning."""
+    from app.shared.ip_privacy import anonymize_ip
+
     security._create_update_fallback.clear()
 
     # 1. Valkey available
     mock_valkey = AsyncMock()
     mock_valkey.set.return_value = True
+    ip_hash_1 = anonymize_ip("203.0.113.1")
     with patch.object(cache, "valkey_client", mock_valkey):
         allowed = await security.check_create_update_rate_limit(
             "203.0.113.1", campaign_id=10, window_seconds=900
         )
         assert allowed is True
         mock_valkey.set.assert_awaited_once_with(
-            "create_update_rate_limit:203.0.113.1:campaign:10", "1", ex=900, nx=True
+            f"create_update_rate_limit:{ip_hash_1}:campaign:10", "1", ex=900, nx=True
         )
 
     # 2. Memory fallback when Valkey is down + pruning > 1000 items
@@ -1026,6 +1067,7 @@ async def test_post_community_update_rate_limit_blocks_duplicate_ip_and_respects
         "update_type": "in_treatment",
         "note": "Primer reporte desde IP A",
         "animal_id": str(sample_animal.id),
+        "accept_terms": "true",
     }
     headers_ip_a = {"X-Forwarded-For": "203.0.113.111"}
     headers_ip_b = {"X-Forwarded-For": "203.0.113.222"}
@@ -1042,6 +1084,9 @@ async def test_post_community_update_rate_limit_blocks_duplicate_ip_and_respects
     )
     assert res2.status_code == 429
     assert "límite alcanzado" in res2.text.lower() or "espera" in res2.text.lower()
+
+    # Clear cookie to simulate a completely different user/device from IP B
+    app_client.cookies.clear()
 
     # Submission from IP B for the same animal succeeds
     res3 = await app_client.post(

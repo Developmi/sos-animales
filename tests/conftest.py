@@ -3,6 +3,7 @@
 import os
 from collections.abc import AsyncGenerator
 
+import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -13,6 +14,17 @@ from sqlalchemy.ext.asyncio import (
 
 from app.config import settings
 from app.database import Base
+from app.shared import security
+
+
+@pytest.fixture(autouse=True)
+def reset_security_rate_limits() -> None:
+    """Ensure in-memory rate-limit fallbacks are clean for every test."""
+    security._action_fallback.clear()
+    security._vote_fallback.clear()
+    security._create_update_fallback.clear()
+    security._pin_attempts.clear()
+    security._pin_global_attempts.clear()
 
 
 @pytest_asyncio.fixture

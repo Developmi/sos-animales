@@ -16,6 +16,7 @@ from app.domains.auth import rate_limit
 from app.domains.auth.middleware import require_auth
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign, FixedPoint
+from app.shared.security import get_client_ip
 
 router = APIRouter(tags=["auth"])
 
@@ -59,7 +60,7 @@ def verify_admin_password(plain_password: str, stored_hash_or_plain: str) -> boo
 
 @router.post("/auth/login", response_class=HTMLResponse)
 async def login(request: Request, password: str = Form(...)) -> Response:
-    client_ip = request.client.host if request.client else "127.0.0.1"
+    client_ip = get_client_ip(request)
     if not await rate_limit.check_login_rate_limit(client_ip):
         return templates.TemplateResponse(
             request,

@@ -19,6 +19,8 @@ from app.domains.sources.schemas import SourceRegisterIn
 from app.domains.sources.tools import get_source, list_sources, register_source
 from app.domains.sterilization.models import Campaign
 from app.shared.geo import get_grouped_municipalities
+from app.shared.ip_privacy import is_terms_accepted
+from app.shared.security import check_action_rate_limit, get_client_ip
 
 router = APIRouter(prefix="/sources", tags=["sources"])
 
@@ -59,6 +61,29 @@ async def post_register_form(
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
     """Process self-registration form and return HTMX success fragment."""
+    if not is_terms_accepted(accept_terms):
+        return templates.TemplateResponse(
+            request=request,
+            name="error_not_found.html",
+            context={
+                "message": "Debes aceptar el tratamiento de datos personales (Ley 1581 de 2012) para registrar una organización."
+            },
+            status_code=400,
+        )
+
+    client_ip = get_client_ip(request)
+    if not await check_action_rate_limit(
+        client_ip, "sources_register", max_attempts=10, window_seconds=900
+    ):
+        return templates.TemplateResponse(
+            request=request,
+            name="error_not_found.html",
+            context={
+                "message": "Demasiadas solicitudes de registro desde tu conexión. Espera 15 minutos antes de intentar de nuevo."
+            },
+            status_code=429,
+        )
+
     try:
         # Map HTML form payload to Pydantic schema
         data = SourceRegisterIn(
