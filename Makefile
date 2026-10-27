@@ -14,7 +14,8 @@ SHELL := /bin/bash
 TOOLS := tools/bin
 UV := uv run
 DOCKER_COMPOSE := docker compose
-IMAGE_NAME := sos-animales:local
+IMAGE_NAME ?= sos-animales:local
+export IMAGE_NAME
 
 .PHONY: help
 help: ## Show this help menu with all available targets
