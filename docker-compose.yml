@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: sos-animales:local
+    image: ${IMAGE_NAME:-ghcr.io/developmi/sos-animales:v1.0.1}
     container_name: sos_animales_web
     restart: unless-stopped
     security_opt:
@@ -22,7 +22,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-pass}@db:5432/${POSTGRES_DB:-sos_animales}
       - VALKEY_URL=redis://valkey:6379/0
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -103,9 +103,10 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    command: ["valkey-server", "--save", "", "--appendonly", "no", "--protected-mode", "no"]
     read_only: true
     tmpfs:
+      - /data:rw,noexec,nosuid,nodev,size=64m
       - /tmp:rw,noexec,nosuid,nodev,size=32m
     pids_limit: 50
     env_file:
