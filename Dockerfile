@@ -22,7 +22,7 @@ FROM python:3.12-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3
 
 LABEL org.opencontainers.image.title="sos-animales" \
       org.opencontainers.image.description="Production-grade platform for animal rescue, adoption, and sterilization campaigns in Colombia" \
-      org.opencontainers.image.version="1.0.1" \
+      org.opencontainers.image.version="1.0.2" \
       org.opencontainers.image.source="https://github.com/Developmi/sos-animales" \
       org.opencontainers.image.licenses="AGPL" \
       org.opencontainers.image.authors="Miguel Lozano <miguel@developmi.com>"

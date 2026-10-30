@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pausa de Cuidado Técnico — SOS Animales Colombia</title>
+    <link rel="stylesheet" href="/static/css/sos-animales.css" />
+    <style>
+      .maintenance-hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: radial-gradient(circle at top center, rgba(234, 88, 12, 0.08) 0%, rgba(254, 242, 242, 0.4) 50%, #FAF8F5 100%);
+      }
+      .maintenance-card {
+        max-width: 580px;
+        width: 100%;
+        background: #FFFFFF;
+        border: 1px solid var(--color-border, #E2E8F0);
+        border-radius: 20px;
+        padding: 40px 32px;
+        text-align: center;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07);
+      }
+      .badge-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: rgba(234, 88, 12, 0.1);
+        color: var(--color-primary, #C2410C);
+        font-weight: 700;
+        font-size: 13px;
+        border-radius: 9999px;
+        margin-bottom: 20px;
+      }
+      .maintenance-title {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--color-text-main, #1E293B);
+        line-height: 1.25;
+        margin: 0 0 16px 0;
+      }
+      .maintenance-text {
+        font-size: 15px;
+        color: var(--color-text-secondary, #475569);
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+      .maintenance-meta {
+        background: #F8FAFC;
+        border: 1px dashed #CBD5E1;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 13px;
+        color: #64748B;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .maintenance-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn-admin {
+        font-size: 13px;
+        color: #64748B;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid #E2E8F0;
+        transition: all 0.2s ease;
+      }
+      .btn-admin:hover {
+        background: #F1F5F9;
+        color: #1E293B;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="maintenance-hero">
+      <div class="maintenance-card">
+        <div class="badge-tag">
+          🐾 PROTECCIÓN Y CUIDADO TÉCNICO
+        </div>
+        
+        <h1 class="maintenance-title">Estamos en una breve pausa de cuidado</h1>
+        
+        <p class="maintenance-text">
+          SOS Animales Colombia está recibiendo un volumen extraordinario de visitas solidarias. Para proteger la plataforma, evitar sobrecargas y garantizar que cada reporte de esterilización y adopción se procese de manera íntegra, hemos pausado temporalmente las consultas públicas.
+        </p>
+        
+        <div class="maintenance-meta">
+          <span>⏳ Estado: <strong>Optimización en curso</strong></span>
+          <span>•</span>
+          <span>Reintento sugerido: <strong>5 minutos</strong></span>
+        </div>
+
+        <div class="maintenance-actions">
+          <a href="/auth/login" class="btn-admin">Acceso Administrativo</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

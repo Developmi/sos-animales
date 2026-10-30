@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${IMAGE_NAME:-ghcr.io/developmi/sos-animales:v1.0.1}
+    image: ${IMAGE_NAME:-ghcr.io/developmi/sos-animales:v1.0.2}
     container_name: sos_animales_web
     restart: unless-stopped
     security_opt:

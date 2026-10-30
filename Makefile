@@ -335,6 +335,34 @@ clean: ## Remove temporary test, cache, and coverage artifacts
 	@echo "✓ Temporary artifacts cleaned."
 
 # ------------------------------------------------------------------------------
+# Emergency Maintenance Mode Operations
+# ------------------------------------------------------------------------------
+
+.PHONY: maintenance-on
+maintenance-on: ## Enable maintenance mode (returns HTTP 503 to public visitors)
+	@if [ -n "$$(docker compose ps -q web 2>/dev/null)" ]; then \
+		$(DOCKER_COMPOSE) exec web python -m app.cli maintenance on; \
+	else \
+		$(UV) python -m app.cli maintenance on; \
+	fi
+
+.PHONY: maintenance-off
+maintenance-off: ## Disable maintenance mode (returns system to online state)
+	@if [ -n "$$(docker compose ps -q web 2>/dev/null)" ]; then \
+		$(DOCKER_COMPOSE) exec web python -m app.cli maintenance off; \
+	else \
+		$(UV) python -m app.cli maintenance off; \
+	fi
+
+.PHONY: maintenance-status
+maintenance-status: ## Query current maintenance mode status
+	@if [ -n "$$(docker compose ps -q web 2>/dev/null)" ]; then \
+		$(DOCKER_COMPOSE) exec web python -m app.cli maintenance status; \
+	else \
+		$(UV) python -m app.cli maintenance status; \
+	fi
+
+# ------------------------------------------------------------------------------
 # Release Preflight Gate
 # ------------------------------------------------------------------------------
 
