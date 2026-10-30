@@ -1,0 +1,101 @@
+# SOS Animales — Perimeter Caddy WAF Configuration
+# Developmi Hardened Baseline
+
+{
+    admin localhost:2019
+
+    order coraza_waf first
+    order rate_limit before basicauth
+
+    log {
+        output stdout
+        format json
+    }
+}
+
+(waf) {
+    coraza_waf {
+        directives `
+            Include /etc/caddy/coraza.conf
+            Include /etc/caddy/owasp-crs/crs-setup.conf
+            Include /etc/caddy/owasp-crs/rules/*.conf
+
+            # DetectionOnly mode for zero-impact deployment and false-positive baseline profiling
+            SecRuleEngine DetectionOnly
+            SecAuditEngine RelevantOnly
+            SecAuditLog /data/logs/coraza-audit.log
+            SecAuditLogFormat JSON
+            SecAuditLogParts ABCDEFGHIJKZ
+
+            # Request Body Tuning: Allow multipart animal photo uploads up to 10MB
+            SecRequestBodyAccess On
+            SecRequestBodyLimit 10485760
+            SecRequestBodyNoFilesLimit 1048576
+        `
+    }
+}
+
+(security_headers) {
+    header {
+        # Information disclosure suppression
+        -Server
+        -X-Powered-By
+        -X-AspNet-Version
+
+        # HTTP Security Headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=()"
+        X-Permitted-Cross-Domain-Policies "none"
+
+        # Content Security Policy: Tuned for SOS Animales (Pico CSS, HTMX, Leaflet/OpenStreetMap)
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://*.tile.openstreetmap.org; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    }
+}
+
+(rate_limiting) {
+    rate_limit {
+        zone general {
+            key {remote_host}
+            events 120
+            window 1m
+        }
+    }
+}
+
+# Ingress Block
+:80 {
+    import waf
+    import security_headers
+    import rate_limiting
+
+    # Max body size for multipart image and report submissions
+    request_body {
+        max_size 10MB
+    }
+
+    # Defensive perimeter: block secret, backup, and dotfiles
+    @sensitive_paths {
+        path /.git* /.env* /.aws* /.docker* *.sql *.htpasswd *.bak *.conf
+    }
+    respond @sensitive_paths "Forbidden" 403
+
+    # Gzip and Zstandard compression
+    encode zstd gzip
+
+    # Reverse proxy to FastAPI application container
+    reverse_proxy {$UPSTREAM_HOST:web:8000} {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+
+        # Resilient timeouts
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 30s
+        }
+    }
+}
