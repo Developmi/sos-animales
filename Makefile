@@ -190,8 +190,27 @@ lint: lint-python check-format typecheck lint-yaml lint-actions lint-docker lint
 # Testing & Coverage
 # ------------------------------------------------------------------------------
 
+.PHONY: test-services
+test-services: ## Ensure backing services (PostgreSQL & Valkey) are running and migrated
+	@if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then \
+		if [ -z "$$($(DOCKER_COMPOSE) ps -q db 2>/dev/null)" ] || [ -z "$$($(DOCKER_COMPOSE) ps -q valkey 2>/dev/null)" ]; then \
+			echo "==> Backing services down. Starting PostgreSQL & Valkey for integration tests..."; \
+			$(DOCKER_COMPOSE) up -d db valkey >/dev/null 2>&1; \
+			echo "==> Waiting for database readiness and applying migrations..."; \
+			for i in $$(seq 1 30); do \
+				if $(DOCKER_COMPOSE) exec -T db pg_isready -U user -d sos_animales >/dev/null 2>&1; then \
+					break; \
+				fi; \
+				sleep 0.5; \
+			done; \
+			$(UV) alembic upgrade head >/dev/null 2>&1; \
+			$(UV) python -m seed >/dev/null 2>&1; \
+			echo "✓ Backing services ready."; \
+		fi; \
+	fi
+
 .PHONY: test
-test: ## Run full test suite with pytest
+test: test-services ## Run full test suite with pytest
 	@echo "==> Tests (full pytest suite)"
 	@$(UV) pytest
 	@echo "✓ Test suite passed."
@@ -203,19 +222,19 @@ test-unit: ## Run fast unit tests (isolated, no external services)
 	@echo "✓ Unit tests passed."
 
 .PHONY: test-integration
-test-integration: ## Run integration tests with database and services
+test-integration: test-services ## Run integration tests with database and services
 	@echo "==> Tests (integration)"
 	@$(UV) pytest tests/domains/test_*integration*.py tests/domains/test_routers.py tests/domains/test_public_mutation_flows.py tests/shared/test_sre_resilience.py tests/shared/test_valkey_lifecycle.py tests/test_*.py
 	@echo "✓ Integration tests passed."
 
 .PHONY: test-coverage
-test-coverage: ## Run tests and display statement coverage report
+test-coverage: test-services ## Run tests and display statement coverage report
 	@echo "==> Tests (coverage report)"
 	@$(UV) pytest --cov=app --cov-report=term-missing
 	@echo "✓ Coverage report generated."
 
 .PHONY: test-coverage-gate
-test-coverage-gate: ## Enforce strict statement coverage threshold (>= 80%)
+test-coverage-gate: test-services ## Enforce strict statement coverage threshold (>= 80%)
 	@echo "==> Tests (coverage gate >= 80%)"
 	@$(UV) pytest --cov=app --cov-report=term-missing --cov-fail-under=80
 	@echo "✓ Coverage threshold gate passed (>= 80%)."
