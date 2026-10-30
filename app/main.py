@@ -21,6 +21,7 @@ from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.config import settings
@@ -31,7 +32,7 @@ from app.domains.community.router import router as community_router
 from app.domains.sources.router import router as sources_router
 from app.domains.sterilization.router import router as sterilization_router
 from app.domains.verification.router import router as verification_router
-from app.shared import cache, geo
+from app.shared import cache, geo, maintenance
 
 # ── Global Logging Configuration ──────────────────────────────────────────
 logging.basicConfig(
@@ -72,7 +73,62 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     geo.valkey_client = None
 
 
-app = FastAPI(title="SOS Animales", version="1.0.1", lifespan=lifespan)
+# Template engine configuration
+templates = Jinja2Templates(directory="app/shared/templates")
+templates.env.globals["settings"] = settings
+
+
+class MaintenanceMiddleware(BaseHTTPMiddleware):
+    """Intercepts incoming traffic and returns 503 when maintenance mode is active.
+
+    Exempts operational and critical paths:
+    - /health/* (probes must always report container responsiveness)
+    - /auth/* and /admin/* (operators must be able to log in and toggle maintenance)
+    - /static/* (stylesheets and assets for the maintenance UI)
+    - Standard crawler files (/favicon.ico, /robots.txt)
+    """
+
+    async def dispatch(self, request: Request, call_next):  # type: ignore[no-untyped-def]
+        path = request.url.path
+
+        if (
+            path.startswith("/health/")
+            or path.startswith("/auth/")
+            or path.startswith("/admin/")
+            or path.startswith("/static/")
+            or path in ("/favicon.ico", "/robots.txt")
+        ):
+            return await call_next(request)
+
+        if await maintenance.is_maintenance_active():
+            accept_header = request.headers.get("accept", "")
+            retry_after = "300"
+
+            if "application/json" in accept_header and "text/html" not in accept_header:
+                return JSONResponse(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    content={
+                        "detail": "Servicio temporalmente en pausa técnica por mantenimiento",
+                        "retry_after": int(retry_after),
+                    },
+                    headers={"Retry-After": retry_after},
+                )
+
+            return templates.TemplateResponse(
+                request=request,
+                name="maintenance.html",
+                context={},
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                headers={"Retry-After": retry_after},
+            )
+
+        return await call_next(request)
+
+
+app = FastAPI(title="SOS Animales", version="1.0.2", lifespan=lifespan)
+
+# Maintenance interceptor: outer layer behind proxy headers
+app.add_middleware(MaintenanceMiddleware)
 
 # Reverse proxy header support (X-Forwarded-For / X-Forwarded-Proto) via validated CIDR ranges
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=settings.TRUSTED_PROXY_IPS)
@@ -83,10 +139,6 @@ app.include_router(animals_router)
 app.include_router(community_router)
 app.include_router(verification_router)
 app.include_router(auth_router)
-
-# Template engine configuration
-templates = Jinja2Templates(directory="app/shared/templates")
-templates.env.globals["settings"] = settings
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

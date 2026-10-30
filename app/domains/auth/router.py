@@ -16,6 +16,7 @@ from app.domains.auth import rate_limit
 from app.domains.auth.middleware import require_auth
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign, FixedPoint
+from app.shared import maintenance
 from app.shared.security import get_client_ip
 
 router = APIRouter(tags=["auth"])
@@ -129,6 +130,8 @@ async def admin_panel(
     pending_sources = [s for s in all_sources if s.status == "pending"]
     verified_sources = [s for s in all_sources if s.status == "verified"]
 
+    maintenance_info = await maintenance.get_maintenance_info()
+
     return templates.TemplateResponse(
         request,
         "admin_panel.html",
@@ -139,7 +142,29 @@ async def admin_panel(
             "fixed_point_count": fixed_point_count,
             "pending_sources": pending_sources,
             "verified_sources": verified_sources,
+            "maintenance_info": maintenance_info,
         },
+    )
+
+
+@router.post("/admin/maintenance/toggle", response_class=HTMLResponse)
+async def admin_toggle_maintenance(
+    request: Request,
+    _: None = Depends(require_auth),
+) -> HTMLResponse:
+    """Toggles maintenance mode status and returns updated HTMX component."""
+    current_active = await maintenance.is_maintenance_active()
+    new_active = not current_active
+    reason = (
+        "Pausa preventiva activada desde el panel administrativo" if new_active else ""
+    )
+    await maintenance.set_maintenance_mode(new_active, reason=reason)
+
+    maintenance_info = await maintenance.get_maintenance_info()
+    return templates.TemplateResponse(
+        request,
+        "maintenance_card.html",
+        {"maintenance_info": maintenance_info},
     )
 
 
