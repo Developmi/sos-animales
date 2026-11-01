@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-01
+
+### Added
+- **Zero-CDN Offline Vendor Assets**:
+  - Downloaded, validated, and vendored official pinned distributions of HTMX (`v2.0.4`) and Leaflet (`v1.9.4`) into `app/static/js/vendor/` and `app/static/css/vendor/` with complete marker images in `app/static/images/vendor/leaflet/`.
+  - Added deterministic automated tool `tools/vendor.sh` and `make vendor` target with pre-flight Gate 0 checks, linter sweeps, and Trivy filesystem vulnerability gates before downloading and unpacking.
+- **Official Favicon Integration**:
+  - Organized project favicon into `app/static/favicon.ico` with dedicated FastAPI endpoint (`GET /favicon.ico`) and layout head linkage across all HTML templates.
+
+### Security
+- **Perimeter CSP Zero-CDN Hardening**:
+  - Stripped external CDNs (`unpkg.com`, `cdn.jsdelivr.net`) from Content Security Policy headers in `proxy/Caddyfile`, eliminating third-party supply-chain and tracking vectors while restricting tile and asset connections to self and OpenStreetMap.
+
 ## [1.0.2] - 2026-10-30
 
 ### Added

@@ -6,9 +6,10 @@ Hardened perimeter reverse proxy for SOS Animales based on the official [Develop
 
 - **OWASP Coraza WAF & CRS v4:** Pre-configured in `DetectionOnly` mode for zero-impact deployment and threat profiling.
 - **Multipart Photo Uploads:** Supports animal rescue and profile photo uploads up to 10 MB without body truncation or false positives.
-- **Content Security Policy (CSP):** Strictly configured for SOS Animales frontend components:
-  - HTMX (`cdn.jsdelivr.net`)
-  - Leaflet maps and OpenStreetMap tiles (`*.tile.openstreetmap.org`, `unpkg.com`)
+- **Content Security Policy (CSP):** Zero-CDN hardened perimeter for SOS Animales frontend:
+  - HTMX (Self-hosted `/static/js/vendor/htmx.min.js`)
+  - Leaflet maps (Self-hosted `/static/js/vendor/leaflet.js` & `/static/css/vendor/leaflet.css`)
+  - OpenStreetMap tiles (`*.tile.openstreetmap.org`)
   - Google Fonts / Self-hosted assets
 - **Defensive Perimeter:** Automatically drops attempts to read `.env`, `.git`, `.aws`, database dumps, and configuration files.
 - **Adaptive Rate Limiting:** Enforces perimeter burst control per IP (120 req/min).

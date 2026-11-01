@@ -14,7 +14,13 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    Response,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
@@ -125,7 +131,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-app = FastAPI(title="SOS Animales", version="1.0.2", lifespan=lifespan)
+app = FastAPI(title="SOS Animales", version="1.0.3", lifespan=lifespan)
 
 # Maintenance interceptor: outer layer behind proxy headers
 app.add_middleware(MaintenanceMiddleware)
@@ -141,6 +147,12 @@ app.include_router(verification_router)
 app.include_router(auth_router)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon() -> FileResponse:
+    """Official SOS Animales favicon."""
+    return FileResponse("app/static/favicon.ico")
 
 
 @app.get("/", response_class=HTMLResponse)
