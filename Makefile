@@ -95,6 +95,11 @@ reinstall: ## Force reinstall of all development tools
 	@REINSTALL=1 $(MAKE) tools
 	@echo "✓ Development tools reinstalled."
 
+.PHONY: vendor
+vendor: ## Verify and download offline vendor assets (HTMX, Leaflet) with Trivy verification
+	@./tools/vendor.sh
+	@echo "✓ Vendor assets are ready."
+
 .PHONY: doctor
 doctor: ## Verify development environment and tool versions
 	@test -x $(TOOLS)/actionlint || $(MAKE) --no-print-directory tools
