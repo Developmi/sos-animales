@@ -4,8 +4,8 @@
 {% block title %}Jornadas y Brigadas de Esterilización | SOS Animales Colombia{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', path='css/vendor/leaflet.css') }}" />
+<script src="{{ url_for('static', path='js/vendor/leaflet.js') }}"></script>
 
 <div class="container sterilization-view">
   <div class="section-title-group" style="margin-bottom: 24px;">
