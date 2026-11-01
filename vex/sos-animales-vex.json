@@ -92,6 +92,48 @@
     },
     {
       "vulnerability": {
+        "name": "CVE-2026-119373"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SOS Animales uses PostgreSQL 17 exclusively via asyncpg and never invokes or loads SQLite FTS5 extension modules or databases."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-119586"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/sos-animales",
+          "subcomponents": [
+            {
+              "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:deb/debian/libsqlite3-0@3.40.1-2%2Bdeb12u2?arch=amd64&distro=debian-12.15"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "SOS Animales uses PostgreSQL 17 exclusively and never executes SQLite CLI utilities or .recover operations."
+    },
+    {
+      "vulnerability": {
         "name": "CVE-2025-69720"
       },
       "products": [
