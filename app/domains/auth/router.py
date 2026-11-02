@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
@@ -201,3 +201,261 @@ async def admin_verify_source(
         </div>
         """
     )
+
+
+# ── Admin CRUD: Sources ──────────────────────────────────────────────────────
+
+
+@router.get("/admin/sources", response_class=HTMLResponse)
+async def admin_sources_list(
+    request: Request,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    sources_res = await db.execute(select(Source).order_by(Source.created_at.desc()))
+    sources = sources_res.scalars().all()
+    return templates.TemplateResponse(
+        request, "admin_sources.html", {"sources": sources}
+    )
+
+
+@router.get("/admin/sources/{source_id}/edit", response_class=HTMLResponse)
+async def admin_get_source_edit(
+    request: Request,
+    source_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    source = (
+        await db.execute(select(Source).where(Source.id == source_id))
+    ).scalar_one_or_none()
+    if not source:
+        raise HTTPException(status_code=404, detail="Fundación no encontrada")
+    return templates.TemplateResponse(
+        request, "admin_source_edit.html", {"source": source}
+    )
+
+
+@router.post("/admin/sources/{source_id}/edit")
+async def admin_post_source_edit(
+    request: Request,
+    source_id: int,
+    name: str = Form(...),
+    type: str = Form(...),
+    municipality: str = Form(...),
+    department: str = Form(...),
+    contact_email: str | None = Form(None),
+    contact_whatsapp: str | None = Form(None),
+    status: str = Form("pending"),
+    is_active: bool = Form(False),
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    source = (
+        await db.execute(select(Source).where(Source.id == source_id))
+    ).scalar_one_or_none()
+    if not source:
+        raise HTTPException(status_code=404, detail="Fundación no encontrada")
+    source.name = name
+    source.type = type
+    source.municipality = municipality
+    source.department = department
+    source.contact_email = contact_email or None
+    source.contact_whatsapp = contact_whatsapp or None
+    source.status = status
+    source.is_active = is_active
+    await db.commit()
+    await db.refresh(source)
+    return RedirectResponse(url="/admin/sources", status_code=303)
+
+
+@router.post("/admin/sources/{source_id}/delete")
+async def admin_post_source_delete(
+    request: Request,
+    source_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    source = (
+        await db.execute(select(Source).where(Source.id == source_id))
+    ).scalar_one_or_none()
+    if not source:
+        raise HTTPException(status_code=404, detail="Fundación no encontrada")
+    source.is_active = False
+    source.status = "inactive"
+    await db.commit()
+    if "HX-Request" in request.headers:
+        return HTMLResponse(
+            f"<div class='alert-box' style='padding: 12px; background: #FFF1F2; color: #BE123C; border-radius: 8px;'>Organización '{source.name}' desactivada.</div>"
+        )
+    return RedirectResponse(url="/admin/sources", status_code=303)
+
+
+# ── Admin CRUD: Sterilizations ───────────────────────────────────────────────
+
+
+@router.get("/admin/sterilizations", response_class=HTMLResponse)
+async def admin_sterilizations_list(
+    request: Request,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    camps_res = await db.execute(select(Campaign).order_by(Campaign.starts_at.desc()))
+    campaigns = camps_res.scalars().all()
+    return templates.TemplateResponse(
+        request, "admin_sterilizations.html", {"campaigns": campaigns}
+    )
+
+
+@router.get(
+    "/admin/sterilizations/campaigns/{campaign_id}/edit", response_class=HTMLResponse
+)
+async def admin_get_campaign_edit(
+    request: Request,
+    campaign_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    camp = (
+        await db.execute(select(Campaign).where(Campaign.id == campaign_id))
+    ).scalar_one_or_none()
+    if not camp:
+        raise HTTPException(status_code=404, detail="Jornada no encontrada")
+    return templates.TemplateResponse(
+        request, "admin_campaign_edit.html", {"campaign": camp}
+    )
+
+
+@router.post("/admin/sterilizations/campaigns/{campaign_id}/edit")
+async def admin_post_campaign_edit(
+    request: Request,
+    campaign_id: int,
+    title: str = Form(...),
+    address: str | None = Form(None),
+    capacity: int | None = Form(None),
+    requirements: str | None = Form(None),
+    status: str = Form("scheduled"),
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    camp = (
+        await db.execute(select(Campaign).where(Campaign.id == campaign_id))
+    ).scalar_one_or_none()
+    if not camp:
+        raise HTTPException(status_code=404, detail="Jornada no encontrada")
+    camp.title = title
+    camp.address = address
+    camp.capacity = capacity
+    camp.requirements = requirements
+    camp.status = status
+    await db.commit()
+    await db.refresh(camp)
+    return RedirectResponse(url="/admin/sterilizations", status_code=303)
+
+
+@router.post("/admin/sterilizations/campaigns/{campaign_id}/delete")
+async def admin_post_campaign_delete(
+    request: Request,
+    campaign_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    camp = (
+        await db.execute(select(Campaign).where(Campaign.id == campaign_id))
+    ).scalar_one_or_none()
+    if not camp:
+        raise HTTPException(status_code=404, detail="Jornada no encontrada")
+    camp.status = "cancelled"
+    await db.commit()
+    if "HX-Request" in request.headers:
+        return HTMLResponse(
+            f"<div class='alert-box' style='padding: 12px; background: #FFF1F2; color: #BE123C; border-radius: 8px;'>Jornada '{camp.title}' cancelada.</div>"
+        )
+    return RedirectResponse(url="/admin/sterilizations", status_code=303)
+
+
+# ── Admin CRUD: Animals ─────────────────────────────────────────────────────
+
+
+@router.get("/admin/animals", response_class=HTMLResponse)
+async def admin_animals_list(
+    request: Request,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    animals_res = await db.execute(
+        select(AnimalProfile).order_by(AnimalProfile.created_at.desc())
+    )
+    animals = animals_res.scalars().all()
+    return templates.TemplateResponse(
+        request, "admin_animals.html", {"animals": animals}
+    )
+
+
+@router.get("/admin/animals/{animal_id}/edit", response_class=HTMLResponse)
+async def admin_get_animal_edit(
+    request: Request,
+    animal_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    animal = (
+        await db.execute(select(AnimalProfile).where(AnimalProfile.id == animal_id))
+    ).scalar_one_or_none()
+    if not animal:
+        raise HTTPException(status_code=404, detail="Peludo no encontrado")
+    return templates.TemplateResponse(
+        request, "admin_animal_edit.html", {"animal": animal}
+    )
+
+
+@router.post("/admin/animals/{animal_id}/edit")
+async def admin_post_animal_edit(
+    request: Request,
+    animal_id: int,
+    name: str = Form(...),
+    species: str = Form(...),
+    municipality: str = Form(...),
+    age_years: int | None = Form(None),
+    status: str = Form("available"),
+    is_sterilized: bool = Form(False),
+    description: str | None = Form(None),
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    animal = (
+        await db.execute(select(AnimalProfile).where(AnimalProfile.id == animal_id))
+    ).scalar_one_or_none()
+    if not animal:
+        raise HTTPException(status_code=404, detail="Peludo no encontrado")
+    animal.name = name
+    animal.species = species
+    animal.municipality = municipality
+    animal.age_years = age_years
+    animal.status = status
+    animal.is_sterilized = is_sterilized
+    animal.description = description
+    await db.commit()
+    await db.refresh(animal)
+    return RedirectResponse(url="/admin/animals", status_code=303)
+
+
+@router.post("/admin/animals/{animal_id}/delete")
+async def admin_post_animal_delete(
+    request: Request,
+    animal_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    animal = (
+        await db.execute(select(AnimalProfile).where(AnimalProfile.id == animal_id))
+    ).scalar_one_or_none()
+    if not animal:
+        raise HTTPException(status_code=404, detail="Peludo no encontrado")
+    await db.delete(animal)
+    await db.commit()
+    if "HX-Request" in request.headers:
+        return HTMLResponse(
+            f"<div class='alert-box' style='padding: 12px; background: #FFF1F2; color: #BE123C; border-radius: 8px;'>Perfil de '{animal.name}' eliminado.</div>"
+        )
+    return RedirectResponse(url="/admin/animals", status_code=303)

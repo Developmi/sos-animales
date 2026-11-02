@@ -98,9 +98,10 @@ unzip -q "$TMP_DIR/leaflet.zip" -d "$TMP_DIR/leaflet"
 
 STATIC_JS="$ROOT/app/static/js/vendor"
 STATIC_CSS="$ROOT/app/static/css/vendor"
+STATIC_CSS_IMAGES="$ROOT/app/static/css/vendor/images"
 STATIC_IMAGES="$ROOT/app/static/images/vendor/leaflet"
 
-mkdir -p "$STATIC_JS" "$STATIC_CSS" "$STATIC_IMAGES"
+mkdir -p "$STATIC_JS" "$STATIC_CSS" "$STATIC_CSS_IMAGES" "$STATIC_IMAGES"
 
 # Install HTMX
 cp "$TMP_DIR/htmx.min.js" "$STATIC_JS/htmx.min.js"
@@ -113,10 +114,12 @@ cp "$TMP_DIR/leaflet/dist/leaflet.css" "$STATIC_CSS/leaflet.css"
 chmod 644 "$STATIC_JS/leaflet.js" "$STATIC_CSS/leaflet.css"
 echo "  -> Installed $STATIC_JS/leaflet.js and $STATIC_CSS/leaflet.css"
 
-# Install Leaflet images/markers
+# Install Leaflet images/markers (both in vendor images and relative to leaflet.css)
 cp -r "$TMP_DIR/leaflet/dist/images/." "$STATIC_IMAGES/"
 chmod 644 "$STATIC_IMAGES"/*
-echo "  -> Installed Leaflet marker assets in $STATIC_IMAGES"
+cp -r "$TMP_DIR/leaflet/dist/images/." "$STATIC_CSS_IMAGES/"
+chmod 644 "$STATIC_CSS_IMAGES"/*
+echo "  -> Installed Leaflet marker assets in $STATIC_IMAGES and $STATIC_CSS_IMAGES"
 
 echo "==> [Gate 4] Running Post-Install Security Audit..."
 echo "Scanning installed static vendor assets with Trivy..."

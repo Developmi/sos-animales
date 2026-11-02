@@ -12,7 +12,14 @@
   <div class="profile-layout">
     <!-- Left Column: Gallery & Share -->
     <div class="gallery-wrapper">
-      <div class="gallery-main">
+      <div 
+        class="gallery-main" 
+        onclick="openLightbox(document.getElementById('main-profile-img').src, 'Foto de {{ animal.name }}')"
+        role="button"
+        tabindex="0"
+        title="Haz clic para ampliar la foto"
+        aria-label="Ampliar foto de {{ animal.name }}"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox(document.getElementById('main-profile-img').src, 'Foto de {{ animal.name }}');}">
         <img id="main-profile-img" src="{{ animal.foto_url }}" alt="Foto de {{ animal.name }}" />
         <div class="pet-media-chips">
           {% if animal.is_sterilized %}
@@ -22,17 +29,31 @@
             {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}Caso Adoptado{% else %}Disponible para Adopción{% endif %}
           </span>
         </div>
+        <div class="gallery-zoom-badge" aria-hidden="true">
+          {{ icons.search("", 16) }} Ampliar foto
+        </div>
       </div>
 
-      {% if animal.foto_urls and animal.foto_urls | length > 1 %}
-        <div class="gallery-thumbs" aria-label="Galería de fotos adicionales">
-          {% for url in animal.foto_urls %}
+      {# Unified photo gallery: Primary foto_url + additional foto_urls #}
+      {% set all_photos = [animal.foto_url] %}
+      {% if animal.foto_urls %}
+        {% for u in animal.foto_urls %}
+          {% if u and u != animal.foto_url and u not in all_photos %}
+            {% set _ = all_photos.append(u) %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      {% if all_photos | length > 1 %}
+        <div class="gallery-thumbs" aria-label="Galería de fotos del peludo">
+          {% for url in all_photos %}
             <div 
               class="gallery-thumb {% if loop.first %}active{% endif %}" 
-              onclick="document.getElementById('main-profile-img').src='{{ url }}'; document.querySelectorAll('.gallery-thumb').forEach(el => el.classList.remove('active')); this.classList.add('active');"
+              onclick="switchProfilePhoto('{{ url }}', this)" 
               role="button"
               tabindex="0"
-              aria-label="Ver foto {{ loop.index }}">
+              aria-label="Ver foto {{ loop.index }} de {{ animal.name }}"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchProfilePhoto('{{ url }}', this);}">
               <img src="{{ url }}" alt="Miniatura {{ loop.index }} de {{ animal.name }}" />
             </div>
           {% endfor %}
@@ -237,4 +258,47 @@
     {% endif %}
   </section>
 </div>
+
+<!-- Accessible Lightbox Modal -->
+<div id="lightbox-modal" class="lightbox-modal" role="dialog" aria-modal="true" aria-label="Vista ampliada de la foto" style="display: none;">
+  <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+  <div class="lightbox-content">
+    <button type="button" class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar imagen">&times;</button>
+    <img id="lightbox-img" src="" alt="Foto ampliada" />
+  </div>
+</div>
+
+<script>
+  function openLightbox(src, alt) {
+    var modal = document.getElementById('lightbox-modal');
+    var img = document.getElementById('lightbox-img');
+    if (!modal || !img) return;
+    img.src = src;
+    img.alt = alt || 'Foto ampliada';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    var modal = document.getElementById('lightbox-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function switchProfilePhoto(src, thumbElement) {
+    var mainImg = document.getElementById('main-profile-img');
+    if (mainImg) mainImg.src = src;
+    document.querySelectorAll('.gallery-thumb').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    if (thumbElement) thumbElement.classList.add('active');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeLightbox();
+    }
+  });
+</script>
 {% endblock %}

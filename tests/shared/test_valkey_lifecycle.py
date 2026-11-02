@@ -4,6 +4,7 @@ Tests init_valkey, close_valkey, and that geocode_address works
 after lifecycle initialization instead of import-time connection.
 """
 
+from collections.abc import AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -11,6 +12,13 @@ import pytest
 from app.config import settings
 from app.shared import geo
 from app.shared.geo import close_valkey, geocode_address, init_valkey
+
+
+@pytest.fixture(autouse=True)
+async def _ensure_valkey_closed() -> AsyncGenerator[None, None]:
+    """Ensure valkey_client is properly closed after every test."""
+    yield
+    await close_valkey()
 
 
 def test_init_valkey_creates_client() -> None:

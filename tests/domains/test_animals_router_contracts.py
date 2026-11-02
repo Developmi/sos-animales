@@ -633,6 +633,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
         compatible_otros_animales=None,
         microchip=None,
         source_url=None,
+        accept_terms=True,
         background_tasks=BackgroundTasks(),
         db=db_session,
     )
@@ -664,6 +665,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
         compatible_otros_animales=None,
         microchip=None,
         source_url=None,
+        accept_terms=True,
         background_tasks=BackgroundTasks(),
         db=db_session,
     )
@@ -700,6 +702,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
         compatible_otros_animales=None,
         microchip=None,
         source_url=None,
+        accept_terms=True,
         background_tasks=BackgroundTasks(),
         db=db_session,
     )
@@ -735,6 +738,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales=None,
             microchip=None,
             source_url=None,
+            accept_terms=True,
             background_tasks=BackgroundTasks(),
             db=db_session,
         )
@@ -770,6 +774,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales=None,
             microchip=None,
             source_url=None,
+            accept_terms=True,
             background_tasks=BackgroundTasks(),
             db=db_session,
         )
@@ -806,6 +811,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales=None,
             microchip=None,
             source_url=None,
+            accept_terms=True,
             background_tasks=BackgroundTasks(),
             db=db_session,
         )
@@ -847,6 +853,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales=None,
             microchip=None,
             source_url=None,
+            accept_terms=True,
             background_tasks=BackgroundTasks(),
             db=db_session,
         )
@@ -890,6 +897,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales="false",
             microchip="123456",
             source_url=None,
+            accept_terms=True,
             background_tasks=bg_tasks,
             db=db_session,
         )
@@ -928,6 +936,7 @@ async def test_post_animal_direct_calls_covering_all_router_branches(
             compatible_otros_animales=None,
             microchip=None,
             source_url=None,
+            accept_terms=True,
             background_tasks=BackgroundTasks(),
             db=db_session,
         )
@@ -1209,3 +1218,23 @@ def test_render_error_and_success_cards_directly() -> None:
     assert "Boby" in success_html
     assert "boby@fundacion.org" in success_html
     assert "/animals/42" in success_html
+
+
+@pytest.mark.asyncio
+async def test_post_new_animal_without_accept_terms_rejected_with_400(
+    app_client: AsyncClient,
+    active_source: Source,
+) -> None:
+    """Phase 4: Submitting an animal without accepting terms must be rejected with HTTP 400."""
+    fake_png = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+    files = {"foto": ("perro.png", io.BytesIO(fake_png), "image/png")}
+    data = {
+        "source_id": str(active_source.id),
+        "name": "SinTerminos",
+        "species": "canino",
+        "municipality": "Bogotá",
+        # Notice: accept_terms is omitted, as browsers do for unchecked checkboxes
+    }
+    response = await app_client.post("/animals/", data=data, files=files)
+    assert response.status_code == 400
+    assert "Consentimiento requerido" in response.text

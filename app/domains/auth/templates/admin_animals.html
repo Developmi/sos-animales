@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Gestión de Peluditos — Administración SOS Animales{% endblock %}
+
+{% block content %}
+<div class="container creation-view">
+  {% set active_tab = 'animals' %}
+  {% include "admin_nav.html" %}
+
+  <div class="creation-card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin: 0 0 4px 0;">
+          {{ icons.dog("", 20) }} Peluditos en Adopción ({{ animals | length }})
+        </h2>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+          Edita perfiles, estados de adopción, esterilización o elimina casos completados o duplicados.
+        </p>
+      </div>
+      <a href="/animals/new" class="btn-primary" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
+        {{ icons.plus("", 16) }} Publicar Peludito
+      </a>
+    </div>
+
+    <!-- Contenedor dinámico de edición inline / modal -->
+    <div id="admin-animal-edit-container" style="margin-bottom: 20px;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      {% for pet in animals %}
+        <div id="animal-row-{{ pet.id }}" style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 260px;">
+            <img src="{{ pet.foto_url }}" alt="{{ pet.name }}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid var(--color-border); flex-shrink: 0;" />
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--color-text-main);">{{ pet.name }}</h3>
+                <span class="brand-badge" style="background: var(--color-bg-subtle); color: var(--color-text-secondary); font-size: 11px; padding: 2px 8px; border-radius: 6px;">
+                  {{ pet.species }}
+                </span>
+                {% if pet.status == 'adopted' or pet.status == 'ADOPTADO' %}
+                  <span class="brand-badge" style="background: rgba(100, 116, 139, 0.15); color: #64748B; font-size: 11px; padding: 2px 8px; border-radius: 6px;">ADOPTADO</span>
+                {% else %}
+                  <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">DISPONIBLE</span>
+                {% endif %}
+                {% if pet.is_sterilized %}
+                  <span class="brand-badge" style="background: rgba(13, 148, 136, 0.12); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">ESTERILIZADO</span>
+                {% endif %}
+              </div>
+              <div style="font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap;">
+                <span>📍 {{ pet.municipality | capitalize }}{% if pet.department %}, {{ pet.department | capitalize }}{% endif %}</span>
+                <span>🎂 {{ pet.age_years or 'Desconocida' }} años</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="/animals/{{ pet.id }}" target="_blank" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; text-decoration: none;">
+              Ver
+            </a>
+            <button 
+              type="button" 
+              class="btn-secondary" 
+              style="font-size: 12px; padding: 6px 12px;"
+              hx-get="/admin/animals/{{ pet.id }}/edit"
+              hx-target="#admin-animal-edit-container"
+              hx-swap="innerHTML"
+            >
+              {{ icons.edit("", 14) }} Editar
+            </button>
+            <form hx-post="/admin/animals/{{ pet.id }}/delete" hx-target="#animal-row-{{ pet.id }}" hx-swap="outerHTML" hx-confirm="¿Deseas eliminar permanentemente el perfil de este peludo?" style="margin: 0;">
+              <button type="submit" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; color: #BE123C; border-color: #FECDD3;">
+                {{ icons.trash("", 14) }} Eliminar
+              </button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: var(--color-text-secondary); padding: 24px;">No hay peluditos registrados.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

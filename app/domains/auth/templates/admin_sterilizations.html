@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import "macros/icons.html" as icons %}
+
+{% block title %}Gestión de Esterilizaciones — Administración SOS Animales{% endblock %}
+
+{% block content %}
+<div class="container creation-view">
+  {% set active_tab = 'sterilizations' %}
+  {% include "admin_nav.html" %}
+
+  <div class="creation-card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin: 0 0 4px 0;">
+          {{ icons.calendar("", 20) }} Jornadas y Campañas de Esterilización ({{ campaigns | length }})
+        </h2>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+          Supervisa cupos, ajusta cronogramas y gestiona el estado operativo de las jornadas.
+        </p>
+      </div>
+      <a href="/sterilization/new" class="btn-primary" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
+        {{ icons.plus("", 16) }} Nueva Jornada
+      </a>
+    </div>
+
+    <!-- Contenedor dinámico de edición inline / modal -->
+    <div id="admin-campaign-edit-container" style="margin-bottom: 20px;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      {% for camp in campaigns %}
+        <div id="campaign-row-{{ camp.id }}" style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div style="flex: 1; min-width: 260px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--color-text-main);">{{ camp.title }}</h3>
+              {% if camp.status == 'active' %}
+                <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">ACTIVA</span>
+              {% elif camp.status == 'completed' %}
+                <span class="brand-badge" style="background: rgba(100, 116, 139, 0.15); color: #64748B; font-size: 11px; padding: 2px 8px; border-radius: 6px;">FINALIZADA</span>
+              {% elif camp.status == 'cancelled' %}
+                <span class="brand-badge" style="background: #FFF1F2; color: #BE123C; font-size: 11px; padding: 2px 8px; border-radius: 6px;">CANCELADA</span>
+              {% else %}
+                <span class="brand-badge" style="background: var(--color-bg-subtle); color: var(--color-text-secondary); font-size: 11px; padding: 2px 8px; border-radius: 6px;">{{ camp.status | upper }}</span>
+              {% endif %}
+            </div>
+            <div style="font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap;">
+              <span>📍 {{ camp.municipality | capitalize }}</span>
+              <span>📅 {{ camp.starts_at.strftime('%d/%m/%Y') if camp.starts_at else 'Sin fecha' }}</span>
+              <span>🎟️ Capacidad: {{ camp.capacity or 0 }}</span>
+              {% if camp.address %}<span>📌 {{ camp.address }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="/sterilization/campaigns/{{ camp.id }}" target="_blank" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; text-decoration: none;">
+              Ver
+            </a>
+            <button 
+              type="button" 
+              class="btn-secondary" 
+              style="font-size: 12px; padding: 6px 12px;"
+              hx-get="/admin/sterilizations/campaigns/{{ camp.id }}/edit"
+              hx-target="#admin-campaign-edit-container"
+              hx-swap="innerHTML"
+            >
+              {{ icons.edit("", 14) }} Editar
+            </button>
+            <form hx-post="/admin/sterilizations/campaigns/{{ camp.id }}/delete" hx-target="#campaign-row-{{ camp.id }}" hx-swap="outerHTML" hx-confirm="¿Deseas cancelar o eliminar esta campaña?" style="margin: 0;">
+              <button type="submit" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; color: #BE123C; border-color: #FECDD3;">
+                {{ icons.trash("", 14) }} Eliminar
+              </button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: var(--color-text-secondary); padding: 24px;">No hay jornadas registradas.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

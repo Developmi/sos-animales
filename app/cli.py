@@ -6,6 +6,7 @@ import sys
 from collections.abc import Sequence
 
 from app.shared import maintenance
+from app.shared.email import test_smtp_connection
 
 
 async def handle_maintenance(args: argparse.Namespace) -> int:
@@ -49,6 +50,18 @@ async def handle_maintenance(args: argparse.Namespace) -> int:
     return 1
 
 
+def handle_test_smtp(args: argparse.Namespace) -> int:
+    """Execute live diagnostic test of SMTP configuration and connectivity."""
+    to_email: str | None = getattr(args, "to", None)
+    print("Iniciando prueba de diagnóstico SMTP...")
+    ok, message = test_smtp_connection(to_email=to_email)
+    if ok:
+        print(f"✓ ÉXITO: {message}")
+        return 0
+    print(f"✗ ERROR: {message}")
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build root CLI parser with subcommands."""
     parser = argparse.ArgumentParser(
@@ -75,6 +88,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Motivo opcional del mantenimiento (visible en logs y admin)",
     )
 
+    # Subcommand: test-smtp
+    smtp_parser = subparsers.add_parser(
+        "test-smtp",
+        help="Probar conectividad y autenticación SMTP en vivo",
+    )
+    smtp_parser.add_argument(
+        "--to",
+        "-t",
+        type=str,
+        default=None,
+        help="Destinatario opcional para enviar un correo de prueba real",
+    )
+
     return parser
 
 
@@ -85,6 +111,9 @@ async def main(args: Sequence[str] | None = None) -> int:
 
     if parsed_args.subcommand == "maintenance":
         return await handle_maintenance(parsed_args)
+
+    if parsed_args.subcommand == "test-smtp":
+        return handle_test_smtp(parsed_args)
 
     parser.print_help()
     return 1

@@ -1,0 +1,68 @@
+<div class="creation-card" style="border: 2px solid var(--color-teal); background: #F0FDFA; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 style="font-size: 16px; font-weight: 700; color: var(--color-teal); margin: 0;">
+      Editar Fundación: {{ source.name }}
+    </h3>
+    <button type="button" class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="document.getElementById('admin-source-edit-container').innerHTML = '';">
+      Cancelar
+    </button>
+  </div>
+
+  <form method="post" action="/admin/sources/{{ source.id }}/edit" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Nombre Oficial</label>
+      <input type="text" name="name" value="{{ source.name }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Tipo de Organización</label>
+      <select name="type" required style="width: 100%; padding: 8px 12px; font-size: 13px;">
+        <option value="verified_shelter" {% if source.type == 'verified_shelter' %}selected{% endif %}>Albergue Verificado</option>
+        <option value="rescue_network" {% if source.type == 'rescue_network' %}selected{% endif %}>Red de Rescatistas</option>
+        <option value="municipal_entity" {% if source.type == 'municipal_entity' %}selected{% endif %}>Entidad Municipal / Zoonosis</option>
+        <option value="veterinary_clinic" {% if source.type == 'veterinary_clinic' %}selected{% endif %}>Clínica Veterinaria</option>
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Municipio</label>
+      <input type="text" name="municipality" value="{{ source.municipality }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Departamento</label>
+      <input type="text" name="department" value="{{ source.department or '' }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Correo de Contacto</label>
+      <input type="email" name="contact_email" value="{{ source.contact_email or '' }}" style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">WhatsApp / Teléfono</label>
+      <input type="text" name="contact_whatsapp" value="{{ source.contact_whatsapp or '' }}" style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Estado de Verificación</label>
+      <select name="status" style="width: 100%; padding: 8px 12px; font-size: 13px;">
+        <option value="pending" {% if source.status == 'pending' %}selected{% endif %}>Pendiente</option>
+        <option value="verified" {% if source.status == 'verified' %}selected{% endif %}>Oficial Verificada</option>
+        <option value="rejected" {% if source.status == 'rejected' %}selected{% endif %}>Rechazada</option>
+        <option value="inactive" {% if source.status == 'inactive' %}selected{% endif %}>Inactiva</option>
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding-top: 22px;">
+      <input type="checkbox" id="edit-is-active" name="is_active" value="true" {% if source.is_active %}checked{% endif %} />
+      <label for="edit-is-active" style="font-size: 13px; font-weight: 600; cursor: pointer;">Organización Activa</label>
+    </div>
+
+    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+      <button type="submit" class="btn-primary" style="font-size: 13px; padding: 8px 20px;">
+        Guardar Cambios
+      </button>
+    </div>
+  </form>
+</div>

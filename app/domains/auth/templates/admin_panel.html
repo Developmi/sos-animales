@@ -5,24 +5,8 @@
 
 {% block content %}
 <div class="container creation-view">
-  <!-- Header del Panel -->
-  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
-    <div>
-      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <span class="brand-badge" style="background: rgba(13, 148, 136, 0.12); color: var(--color-teal); border: 1px solid var(--color-teal-border); border-radius: 9999px; padding: 4px 12px; font-weight: 700; font-size: 12px;">
-          {{ icons.shield_check("", 14) }} ADMINISTRACIÓN CENTRAL
-        </span>
-      </div>
-      <h1 class="page-title" style="margin: 0 0 6px 0;">Panel de Administración</h1>
-      <p class="page-subtitle" style="margin: 0;">Supervisa la red, aprueba albergues y coordina las jornadas nacionales</p>
-    </div>
-
-    <form method="post" action="/auth/logout" style="margin: 0;">
-      <button type="submit" class="btn-secondary" style="font-size: 14px; padding: 8px 16px; border-radius: var(--radius-md);">
-        Cerrar Sesión
-      </button>
-    </form>
-  </div>
+  {% set active_tab = 'overview' %}
+  {% include "admin_nav.html" %}
 
   <!-- Control Operativo de Emergencia: Modo Mantenimiento -->
   {% include "maintenance_card.html" %}

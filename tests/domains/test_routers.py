@@ -54,7 +54,7 @@ async def auth_client() -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(autouse=True)
 def db_override():  # type: ignore[no-untyped-def]
     """Override get_db with a mock that returns safe defaults.
 

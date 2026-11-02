@@ -252,7 +252,7 @@
       </div>
 
       <!-- Consentimiento obligatorio Ley 1581 de 2012 -->
-      <div style="margin-bottom: 20px;">
+      <div id="terms-container" style="margin-bottom: 20px; padding: 10px; border-radius: var(--radius-md); transition: background var(--transition-fast);">
         <label class="form-checkbox-row" style="align-items: flex-start; gap: 10px; cursor: pointer;">
           <input type="checkbox" id="pet-accept-terms" name="accept_terms" value="true" required style="margin-top: 3px;" />
           <span style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.5;">
@@ -336,11 +336,17 @@ function handleAnimalFormSubmit(e) {
   const muni = document.getElementById('pet-muni');
   const age = document.getElementById('pet-age-months');
   const desc = document.getElementById('pet-desc');
+  const terms = document.getElementById('pet-accept-terms');
+  const termsContainer = document.getElementById('terms-container');
 
   // Restaurar bordes previos
   [foto, name, species, muni, age, desc].forEach(el => {
     if (el) el.style.borderColor = 'var(--color-border)';
   });
+  if (termsContainer) {
+    termsContainer.style.background = 'transparent';
+    termsContainer.style.border = 'none';
+  }
 
   if (!foto.files || foto.files.length === 0) {
     missing.push({ el: foto, msg: 'Foto principal del animal (requerida)' });
@@ -360,6 +366,13 @@ function handleAnimalFormSubmit(e) {
   if (!desc.value.trim()) {
     missing.push({ el: desc, msg: 'Historia de rescate y personalidad' });
   }
+  if (!terms || !terms.checked) {
+    missing.push({
+      el: termsContainer || terms,
+      msg: 'Debes autorizar el tratamiento de datos personales (Ley 1581 de 2012) para continuar.',
+      isTerms: true,
+    });
+  }
 
   const summary = document.getElementById('form-validation-summary');
   const list = document.getElementById('form-validation-list');
@@ -368,14 +381,19 @@ function handleAnimalFormSubmit(e) {
     e.preventDefault();
     list.innerHTML = '';
     missing.forEach(item => {
-      item.el.style.borderColor = '#BE123C';
+      if (item.isTerms && termsContainer) {
+        termsContainer.style.background = '#FFF1F2';
+        termsContainer.style.border = '1px solid #FECDD3';
+      } else if (item.el && item.el.style) {
+        item.el.style.borderColor = '#BE123C';
+      }
       const li = document.createElement('li');
       li.innerText = item.msg;
       list.appendChild(li);
     });
     summary.style.display = 'block';
     missing[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    missing[0].el.focus();
+    if (missing[0].el.focus) missing[0].el.focus();
     return false;
   }
 

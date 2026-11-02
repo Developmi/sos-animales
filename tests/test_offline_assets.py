@@ -42,10 +42,19 @@ async def test_offline_vendor_assets_exist_and_accessible() -> None:
         assert leaflet_css_res.status_code == 200
         assert "leaflet" in leaflet_css_res.text
 
-        # Leaflet Marker Image
+        # Leaflet Marker Images in standard vendor directory
         marker_res = await client.get("/static/images/vendor/leaflet/marker-icon.png")
         assert marker_res.status_code == 200
         assert len(marker_res.content) > 0
+
+        # Leaflet Marker Images relative to leaflet.css (prevent 404 from CSS relative resolution)
+        css_marker_res = await client.get("/static/css/vendor/images/marker-icon.png")
+        assert css_marker_res.status_code == 200
+        assert len(css_marker_res.content) > 0
+
+        css_shadow_res = await client.get("/static/css/vendor/images/marker-shadow.png")
+        assert css_shadow_res.status_code == 200
+        assert len(css_shadow_res.content) > 0
 
 
 def test_no_external_cdn_in_templates() -> None:

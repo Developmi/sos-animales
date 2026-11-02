@@ -102,6 +102,32 @@ async def test_cli_maintenance_commands(capsys: pytest.CaptureFixture[str]) -> N
 
 
 @pytest.mark.asyncio
+async def test_cli_test_smtp_command(capsys: pytest.CaptureFixture[str]) -> None:
+    """Verify CLI interface for test-smtp subcommand."""
+    from app.cli import main as cli_main
+
+    with patch(
+        "app.cli.test_smtp_connection",
+        return_value=(True, "Conexión exitosa"),
+    ):
+        ret = await cli_main(["test-smtp", "--to", "admin@sos-animales.org"])
+        assert ret == 0
+        captured = capsys.readouterr()
+        assert "ÉXITO" in captured.out
+        assert "Conexión exitosa" in captured.out
+
+    with patch(
+        "app.cli.test_smtp_connection",
+        return_value=(False, "Autenticación fallida"),
+    ):
+        ret = await cli_main(["test-smtp"])
+        assert ret == 1
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.out
+        assert "Autenticación fallida" in captured.out
+
+
+@pytest.mark.asyncio
 async def test_middleware_allows_traffic_when_inactive() -> None:
     """When maintenance is inactive, normal routes respond normally."""
     with patch(

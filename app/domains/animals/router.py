@@ -193,7 +193,7 @@ async def post_new_animal(
     compatible_otros_animales: str | None = Form(None),
     microchip: str | None = Form(None),
     source_url: str | None = Form(None),
-    accept_terms: bool = Form(True),
+    accept_terms: bool = Form(False),
     background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:

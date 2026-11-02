@@ -8,6 +8,7 @@ Covers:
 5. Readiness endpoint (/health/ready) degraded status reporting without service interruption.
 """
 
+import asyncio
 import io
 from collections.abc import AsyncGenerator
 from unittest.mock import MagicMock, patch
@@ -17,7 +18,7 @@ import pytest_asyncio
 from fastapi import UploadFile
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from app.database import get_db
 from app.domains.animals.tools import upload_photo_to_r2
@@ -127,25 +128,27 @@ async def test_r2_configured_failure_does_not_silently_mask_as_fake_placeholder(
 
 @pytest.mark.asyncio
 async def test_database_statement_timeout_cancels_runaway_queries(
-    db_session: AsyncSession,
+    engine: AsyncEngine,
 ) -> None:
     """Validate that configured statement_timeout cancels queries that exceed execution time limits."""
-    # Set ultra-short timeout on session (100ms) and simulate slow query (300ms)
-    await db_session.execute(text("SET statement_timeout = 100"))
+    # Set ultra-short timeout on dedicated connection (100ms) and simulate slow query (300ms)
+    async with engine.connect() as conn:
+        await conn.execute(text("SET statement_timeout = 100"))
 
-    with pytest.raises(Exception) as exc_info:
-        await db_session.execute(text("SELECT pg_sleep(0.3)"))
+        with pytest.raises(Exception) as exc_info:
+            await conn.execute(text("SELECT pg_sleep(0.3)"))
 
-    # Must be canceled by PostgreSQL
-    error_msg = str(exc_info.value).lower()
-    assert (
-        "canceling statement due to statement timeout" in error_msg
-        or "statement_timeout" in error_msg
-        or "querycancelederror" in error_msg
-    )
+        # Must be canceled by PostgreSQL
+        error_msg = str(exc_info.value).lower()
+        assert (
+            "canceling statement due to statement timeout" in error_msg
+            or "statement_timeout" in error_msg
+            or "querycancelederror" in error_msg
+        )
 
-    # Rollback session to restore clean state
-    await db_session.rollback()
+        # Rollback connection to restore clean state and await cancellation resolution
+        await conn.rollback()
+        await asyncio.sleep(0.4)
 
 
 @pytest.mark.asyncio

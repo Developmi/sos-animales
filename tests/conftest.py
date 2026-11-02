@@ -56,12 +56,16 @@ async def db_session(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     transaction = await connection.begin()
 
     AsyncSessionTest = async_sessionmaker(
-        bind=connection, class_=AsyncSession, expire_on_commit=False
+        bind=connection,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        join_transaction_mode="create_savepoint",
     )
 
     async with AsyncSessionTest() as session:
         yield session
 
     # Roll back all changes made during the test execution
-    await transaction.rollback()
+    if transaction.is_active:
+        await transaction.rollback()
     await connection.close()
