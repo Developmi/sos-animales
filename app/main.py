@@ -77,6 +77,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Shutdown
     await cache.close_valkey()
     geo.valkey_client = None
+    await engine.dispose()
 
 
 # Template engine configuration
@@ -131,7 +132,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-app = FastAPI(title="SOS Animales", version="1.0.3", lifespan=lifespan)
+app = FastAPI(title="SOS Animales", version="1.1.0", lifespan=lifespan)
 
 # Maintenance interceptor: outer layer behind proxy headers
 app.add_middleware(MaintenanceMiddleware)

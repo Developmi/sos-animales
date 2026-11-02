@@ -1,6 +1,6 @@
 [project]
 name = "sos-animales"
-version = "1.0.3"
+version = "1.1.0"
 description = "Mapa nacional colaborativo de esterilización, perfiles de animales y verificación de fundaciones en Colombia"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -24,6 +24,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.16.0",
     "mypy>=2.2.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",

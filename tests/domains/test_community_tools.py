@@ -89,8 +89,11 @@ async def test_register_update_creates_with_defaults(
 
 @pytest.mark.asyncio
 async def test_register_update_requires_xor_target(db_session: AsyncSession) -> None:
-    with pytest.raises(IntegrityError):
-        await register_update(db_session, "full", note="sin target")
+    try:
+        with pytest.raises(IntegrityError):
+            await register_update(db_session, "full", note="sin target")
+    finally:
+        await db_session.rollback()
 
 
 # ── TC-02b ─────────────────────────────────────────────────────────────────

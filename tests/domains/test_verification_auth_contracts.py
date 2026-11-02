@@ -161,7 +161,9 @@ class TestAuthMiddleware:
     @pytest.mark.asyncio
     async def test_require_auth_invalid_tampered_token(self) -> None:
         """require_auth raises 401 with 'Token inválido' when token signature fails."""
-        token = create_test_token(sub="admin", secret="wrong_signature_secret")
+        token = create_test_token(
+            sub="admin", secret="wrong_signature_secret_at_least_32_bytes_long"
+        )
         request = Request(
             {"type": "http", "headers": [(b"cookie", f"access_token={token}".encode())]}
         )
@@ -232,7 +234,9 @@ class TestAuthMiddleware:
     @pytest.mark.asyncio
     async def test_get_current_admin_invalid_token(self) -> None:
         """get_current_admin returns False on tampered or malformed token."""
-        token = create_test_token(sub="admin", secret="invalid_secret_key")
+        token = create_test_token(
+            sub="admin", secret="invalid_secret_key_at_least_32_bytes_long_here"
+        )
         request = Request(
             {"type": "http", "headers": [(b"cookie", f"access_token={token}".encode())]}
         )
@@ -288,7 +292,7 @@ class TestAuthMiddleware:
         expired_token = create_test_token(sub="admin", expired=True)
         response = await async_client.get(
             "/admin/",
-            cookies={"access_token": expired_token},
+            headers={"cookie": f"access_token={expired_token}"},
             follow_redirects=False,
         )
         assert response.status_code == 302
@@ -299,10 +303,12 @@ class TestAuthMiddleware:
         self, async_client: AsyncClient
     ) -> None:
         """GET /admin/ with tampered token cookie redirects to /auth/login."""
-        tampered_token = create_test_token(sub="admin", secret="fake_secret")
+        tampered_token = create_test_token(
+            sub="admin", secret="fake_secret_at_least_32_bytes_long_here"
+        )
         response = await async_client.get(
             "/admin/",
-            cookies={"access_token": tampered_token},
+            headers={"cookie": f"access_token={tampered_token}"},
             follow_redirects=False,
         )
         assert response.status_code == 302
@@ -316,7 +322,7 @@ class TestAuthMiddleware:
         user_token = create_test_token(sub="guest")
         response = await async_client.get(
             "/admin/",
-            cookies={"access_token": user_token},
+            headers={"cookie": f"access_token={user_token}"},
             follow_redirects=False,
         )
         assert response.status_code == 302
@@ -330,7 +336,7 @@ class TestAuthMiddleware:
         valid_token = create_test_token(sub="admin")
         response = await async_client.get(
             "/admin/",
-            cookies={"access_token": valid_token},
+            headers={"cookie": f"access_token={valid_token}"},
             follow_redirects=False,
         )
         assert response.status_code == 200
@@ -370,7 +376,7 @@ class TestVerificationRouter:
         response = await async_client.post(
             "/verification/request",
             data={"source_id": 999999, "evidence": "Comprobantes"},
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 404
         assert "Fuente no encontrada" in response.text
@@ -384,7 +390,7 @@ class TestVerificationRouter:
         response = await async_client.post(
             "/verification/request",
             data={"source_id": sample_inactive_source.id, "evidence": "Comprobantes"},
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 404
         assert "Fuente no encontrada" in response.text
@@ -404,7 +410,7 @@ class TestVerificationRouter:
                 "source_id": sample_active_source.id,
                 "evidence": "Certificados de vacunación y fotos del predio",
             },
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 200
         assert "Solicitud" in response.text
@@ -423,7 +429,7 @@ class TestVerificationRouter:
             response = await async_client.post(
                 "/verification/request",
                 data={"source_id": sample_active_source.id, "evidence": "Fotos"},
-                cookies={"access_token": admin_token},
+                headers={"cookie": f"access_token={admin_token}"},
             )
         assert response.status_code == 400
         assert "La fuente ya cuenta con una solicitud activa" in response.text
@@ -481,7 +487,7 @@ class TestVerificationRouter:
                 "crit_3": "true",
                 "global_notes": notes,
             },
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 200
         assert (
@@ -525,7 +531,7 @@ class TestVerificationRouter:
                 "crit_2": "false",  # failing criterion
                 "crit_3": "true",
             },
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 200
         assert (
@@ -546,7 +552,7 @@ class TestVerificationRouter:
         response = await async_client.post(
             "/verification/review",
             json={"approved": True, "notes": "Approved via contract"},
-            cookies={"access_token": admin_token},
+            headers={"cookie": f"access_token={admin_token}"},
         )
         assert response.status_code == 404
 
