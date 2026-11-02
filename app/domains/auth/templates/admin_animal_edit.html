@@ -1,0 +1,60 @@
+<div class="creation-card" style="border: 2px solid var(--color-teal); background: #F0FDFA; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 style="font-size: 16px; font-weight: 700; color: var(--color-teal); margin: 0;">
+      Editar Peludo: {{ animal.name }}
+    </h3>
+    <button type="button" class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="document.getElementById('admin-animal-edit-container').innerHTML = '';">
+      Cancelar
+    </button>
+  </div>
+
+  <form method="post" action="/admin/animals/{{ animal.id }}/edit" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Nombre del Peludo</label>
+      <input type="text" name="name" value="{{ animal.name }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Especie</label>
+      <select name="species" required style="width: 100%; padding: 8px 12px; font-size: 13px;">
+        <option value="canino" {% if animal.species == 'canino' %}selected{% endif %}>Canino (Perro)</option>
+        <option value="felino" {% if animal.species == 'felino' %}selected{% endif %}>Felino (Gato)</option>
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Municipio</label>
+      <input type="text" name="municipality" value="{{ animal.municipality }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Edad en Años</label>
+      <input type="number" name="age_years" value="{{ animal.age_years or 0 }}" style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Estado de Adopción</label>
+      <select name="status" style="width: 100%; padding: 8px 12px; font-size: 13px;">
+        <option value="available" {% if animal.status == 'available' %}selected{% endif %}>Disponible para Adopción</option>
+        <option value="adopted" {% if animal.status == 'adopted' or animal.status == 'ADOPTADO' %}selected{% endif %}>Adoptado (Caso Exitoso)</option>
+        <option value="in_treatment" {% if animal.status == 'in_treatment' %}selected{% endif %}>En Tratamiento / Recuperación</option>
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding-top: 22px;">
+      <input type="checkbox" id="edit-is-sterilized" name="is_sterilized" value="true" {% if animal.is_sterilized %}checked{% endif %} />
+      <label for="edit-is-sterilized" style="font-size: 13px; font-weight: 600; cursor: pointer;">Animal Esterilizado</label>
+    </div>
+
+    <div style="grid-column: 1 / -1;">
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Historia y Personalidad</label>
+      <textarea name="description" rows="3" style="width: 100%; padding: 8px 12px; font-size: 13px;">{{ animal.description or '' }}</textarea>
+    </div>
+
+    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+      <button type="submit" class="btn-primary" style="font-size: 13px; padding: 8px 20px;">
+        Guardar Cambios
+      </button>
+    </div>
+  </form>
+</div>

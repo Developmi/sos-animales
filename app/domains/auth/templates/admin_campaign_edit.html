@@ -1,0 +1,48 @@
+<div class="creation-card" style="border: 2px solid var(--color-teal); background: #F0FDFA; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 style="font-size: 16px; font-weight: 700; color: var(--color-teal); margin: 0;">
+      Editar Jornada: {{ campaign.title }}
+    </h3>
+    <button type="button" class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="document.getElementById('admin-campaign-edit-container').innerHTML = '';">
+      Cancelar
+    </button>
+  </div>
+
+  <form method="post" action="/admin/sterilizations/campaigns/{{ campaign.id }}/edit" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+    <div style="grid-column: 1 / -1;">
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Título de la Jornada</label>
+      <input type="text" name="title" value="{{ campaign.title }}" required style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Dirección / Lugar</label>
+      <input type="text" name="address" value="{{ campaign.address or '' }}" style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Cupos Totales Estimados</label>
+      <input type="number" name="capacity" value="{{ campaign.capacity or 0 }}" style="width: 100%; padding: 8px 12px; font-size: 13px;" />
+    </div>
+
+    <div>
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Estado Operativo</label>
+      <select name="status" style="width: 100%; padding: 8px 12px; font-size: 13px;">
+        <option value="scheduled" {% if campaign.status == 'scheduled' %}selected{% endif %}>Programada (Próxima)</option>
+        <option value="full" {% if campaign.status == 'full' %}selected{% endif %}>Cupos Agotados</option>
+        <option value="completed" {% if campaign.status == 'completed' %}selected{% endif %}>Finalizada / Completada</option>
+        <option value="cancelled" {% if campaign.status == 'cancelled' %}selected{% endif %}>Cancelada</option>
+      </select>
+    </div>
+
+    <div style="grid-column: 1 / -1;">
+      <label style="font-size: 12px; font-weight: 700; color: var(--color-text-main); display: block; margin-bottom: 4px;">Requisitos Quirúrgicos & Preparación</label>
+      <textarea name="requirements" rows="3" style="width: 100%; padding: 8px 12px; font-size: 13px;">{{ campaign.requirements or '' }}</textarea>
+    </div>
+
+    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+      <button type="submit" class="btn-primary" style="font-size: 13px; padding: 8px 20px;">
+        Guardar Cambios
+      </button>
+    </div>
+  </form>
+</div>
