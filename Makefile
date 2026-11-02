@@ -386,6 +386,14 @@ maintenance-status: ## Query current maintenance mode status
 		$(UV) python -m app.cli maintenance status; \
 	fi
 
+.PHONY: test-smtp
+test-smtp: ## Test live SMTP connection (usage: make test-smtp [TO=email@example.com])
+	@if [ -n "$$(docker compose ps -q web 2>/dev/null)" ]; then \
+		$(DOCKER_COMPOSE) exec web python -m app.cli test-smtp $(if $(TO),--to $(TO),); \
+	else \
+		$(UV) python -m app.cli test-smtp $(if $(TO),--to $(TO),); \
+	fi
+
 # ------------------------------------------------------------------------------
 # Release Preflight Gate
 # ------------------------------------------------------------------------------
