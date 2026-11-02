@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-11-02
+
+### Added
+- **Full Admin CRUD Management Suite**:
+  - Implemented centralized administrative management interfaces for **Fundaciones & Refugios** (`/admin/sources`), **Jornadas de Esterilización** (`/admin/sterilizations`), and **Peluditos en Adopción** (`/admin/animals`).
+  - Added full create, edit, deactivate/delete, and status update capabilities protected by `Role.ADMIN` session authentication.
+  - Added responsive sub-navigation tabs across all admin sections with Warm Humanist styling and accessible SVG icons.
+- **Accessible Lightbox Modal & Responsive Photo Gallery**:
+  - Added click-to-zoom interactive modal lightbox for full-resolution pet photo viewing with accessible keyboard controls (Escape to close) and focus management.
+  - Updated pet photo containers with adaptable aspect ratios and subtle backdrop to prevent clipping or cropping of vertical portrait photos.
+  - Unified photo gallery in animal detail view to render all uploaded images (N=3+), fixing previous thumbnail hiding bug and allowing switching back to primary photo.
+- **Resilient SMTP Transport & Live Diagnostics CLI**:
+  - Added automatic detection for SSL direct connection (`smtplib.SMTP_SSL`) on port 465 alongside STARTTLS on port 587 with strict 10s socket timeout.
+  - Added operational CLI diagnostic command `python -m app.cli test-smtp [--to email]` and Makefile target `make test-smtp` for live end-to-end verification.
+
+### Fixed
+- **Leaflet Marker Asset 404 Resolution**:
+  - Resolved relative CSS marker image lookup (`marker-icon.png`, `marker-shadow.png`) by synchronizing assets to `app/static/css/vendor/images/` and configuring explicit `L.Icon.Default.imagePath`.
+- **Adoption Policies Terms Acceptance Validation**:
+  - Fixed client-side validation in `profile_form.html` to prevent bypassing adoption policies terms agreement on form submission.
+  - Enforced strict `accept_terms: bool = Form(False)` default in FastAPI endpoint to require explicit affirmative consent under Ley 1581 de 2012.
 
 ## [1.0.3] - 2026-11-01
 
