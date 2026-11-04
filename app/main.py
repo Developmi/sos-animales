@@ -132,7 +132,7 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-app = FastAPI(title="SOS Animales", version="1.1.0", lifespan=lifespan)
+app = FastAPI(title="SOS Animales", version="1.2.0", lifespan=lifespan)
 
 # Maintenance interceptor: outer layer behind proxy headers
 app.add_middleware(MaintenanceMiddleware)

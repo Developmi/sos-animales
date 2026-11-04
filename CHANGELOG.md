@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-11-03
+
+### Added
+- **Email Provider Adapter Architecture**:
+  - Implemented modular `EmailProvider` protocol supporting dynamic provider dispatching via `.env` configuration.
+  - Added modern `ResendEmailProvider` utilizing Resend REST API (`POST https://api.resend.com/emails`) over HTTPS (port 443) via `httpx`.
+  - Added backward-compatible fallback to `SMTP_PASSWORD` when formatted with `re_` prefix for frictionless onboarding.
+  - Added operational CLI diagnostics via `python -m app.cli test-email [--to email]` with provider awareness and credential testing (`GET /api-keys`).
+  - Added default configuration values in `app/config.py` preventing startup errors when running without legacy SMTP environment variables.
+
+### Changed
+- Refactored traditional SMTP delivery into `SmtpEmailProvider` without modifying existing behavior or security semantics (CWE-532 log sanitization).
+- Updated `.env.example` with detailed instructions for selecting between `EMAIL_PROVIDER=smtp` and `EMAIL_PROVIDER=resend`.
+- Upgraded Python dependencies: `fastapi` (0.162.0), `alembic` (1.20.1), `boto3` (1.43.123).
+- Upgraded developer tool dependencies: `ruff` (0.17.2), `pytest-asyncio` (1.4.1).
+- Upgraded CI GitHub Actions: `astral-sh/setup-uv` (v10.3.2), `docker/login-action` (v4.7.0).
+
 ## [1.1.0] - 2026-11-02
 
 ### Added
