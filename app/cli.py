@@ -5,6 +5,7 @@ import asyncio
 import sys
 from collections.abc import Sequence
 
+from app.config import settings
 from app.shared import maintenance
 from app.shared.email import test_smtp_connection
 
@@ -51,9 +52,10 @@ async def handle_maintenance(args: argparse.Namespace) -> int:
 
 
 def handle_test_smtp(args: argparse.Namespace) -> int:
-    """Execute live diagnostic test of SMTP configuration and connectivity."""
+    """Execute live diagnostic test of email provider configuration and connectivity."""
     to_email: str | None = getattr(args, "to", None)
-    print("Iniciando prueba de diagnóstico SMTP...")
+    provider_name = (settings.EMAIL_PROVIDER or "smtp").lower()
+    print(f"Iniciando prueba de diagnóstico (proveedor: {provider_name})...")
     ok, message = test_smtp_connection(to_email=to_email)
     if ok:
         print(f"✓ ÉXITO: {message}")
@@ -88,18 +90,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Motivo opcional del mantenimiento (visible en logs y admin)",
     )
 
-    # Subcommand: test-smtp
-    smtp_parser = subparsers.add_parser(
-        "test-smtp",
-        help="Probar conectividad y autenticación SMTP en vivo",
-    )
-    smtp_parser.add_argument(
-        "--to",
-        "-t",
-        type=str,
-        default=None,
-        help="Destinatario opcional para enviar un correo de prueba real",
-    )
+    # Subcommand: test-smtp / test-email
+    for cmd_name in ("test-smtp", "test-email"):
+        smtp_parser = subparsers.add_parser(
+            cmd_name,
+            help=f"Probar conectividad y autenticación de correo ({cmd_name})",
+        )
+        smtp_parser.add_argument(
+            "--to",
+            "-t",
+            type=str,
+            default=None,
+            help="Destinatario opcional para enviar un correo de prueba real",
+        )
 
     return parser
 
@@ -112,7 +115,7 @@ async def main(args: Sequence[str] | None = None) -> int:
     if parsed_args.subcommand == "maintenance":
         return await handle_maintenance(parsed_args)
 
-    if parsed_args.subcommand == "test-smtp":
+    if parsed_args.subcommand in ("test-smtp", "test-email"):
         return handle_test_smtp(parsed_args)
 
     parser.print_help()

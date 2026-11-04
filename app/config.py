@@ -29,12 +29,14 @@ class Settings(BaseSettings):
     PLAUSIBLE_DOMAIN: str | None = None
     PLAUSIBLE_URL: str | None = None
 
-    # SMTP configuration for transactional emails
-    SMTP_HOST: str
-    SMTP_PORT: int
-    SMTP_USER: str
-    SMTP_PASSWORD: str
-    FROM_EMAIL: str
+    # Transactional email configuration (adapter pattern)
+    EMAIL_PROVIDER: str = "smtp"
+    RESEND_API_KEY: str | None = None
+    SMTP_HOST: str = "localhost"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    FROM_EMAIL: str = "noreply@sos-animales.org"
 
     # Cloudflare R2 object storage (optional - falls back to placeholder when empty)
     R2_ENDPOINT: str | None = None
@@ -85,6 +87,16 @@ class Settings(BaseSettings):
                     f"Invalid entry '{entry}' in TRUSTED_PROXY_IPS. Use valid IP or CIDR notation (e.g. '100.64.0.0/10'), not glob wildcards."
                 ) from err
         return ",".join(entries)
+
+    @field_validator("EMAIL_PROVIDER")
+    @classmethod
+    def validate_email_provider(cls, v: str) -> str:
+        provider = v.strip().lower()
+        if provider not in ("smtp", "resend"):
+            raise ValueError(
+                f"Invalid EMAIL_PROVIDER '{v}'. Supported providers are 'smtp' or 'resend'."
+            )
+        return provider
 
     @field_validator("FRESHNESS_HIDE_DAYS")
     @classmethod
