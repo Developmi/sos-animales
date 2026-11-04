@@ -126,6 +126,16 @@ async def test_cli_test_smtp_command(capsys: pytest.CaptureFixture[str]) -> None
         assert "ERROR" in captured.out
         assert "Autenticación fallida" in captured.out
 
+    with patch(
+        "app.cli.test_smtp_connection",
+        return_value=(True, "Conexión exitosa vía Resend"),
+    ):
+        ret = await cli_main(["test-email", "--to", "admin@sos-animales.org"])
+        assert ret == 0
+        captured = capsys.readouterr()
+        assert "ÉXITO" in captured.out
+        assert "Conexión exitosa vía Resend" in captured.out
+
 
 @pytest.mark.asyncio
 async def test_middleware_allows_traffic_when_inactive() -> None:
