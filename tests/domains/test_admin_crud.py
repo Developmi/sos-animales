@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.domains.animals.models import AnimalProfile
+from app.domains.community.models import CommunityUpdate
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign
 from app.main import app
@@ -179,7 +180,23 @@ async def test_admin_sources_delete_deactivates_or_removes(
     # Check that source is either deleted or marked inactive
     res = await db_session.execute(select(Source).where(Source.id == source.id))
     s = res.scalar_one_or_none()
-    assert s is None or s.is_active is False or s.status == "inactive"
+    assert s is not None and s.is_active is False and s.status == "inactive"
+
+    # Test status_filter query on sources list
+    inactive_list = await admin_client.get("/admin/sources?status_filter=inactive")
+    assert inactive_list.status_code == 200
+    assert "Fundación Para Borrar" in inactive_list.text
+
+    active_list = await admin_client.get("/admin/sources?status_filter=active")
+    assert active_list.status_code == 200
+    assert "Fundación Para Borrar" not in active_list.text
+
+    # Reactivate source
+    reactivate_resp = await admin_client.post(f"/admin/sources/{source.id}/reactivate")
+    assert reactivate_resp.status_code in (200, 303)
+    await db_session.refresh(source)
+    assert source.is_active is True
+    assert source.status == "verified"
 
 
 # ── 3. Sterilizations CRUD ──────────────────────────────────────────────────
@@ -258,7 +275,24 @@ async def test_admin_sterilizations_list_update_delete(
 
     res = await db_session.execute(select(Campaign).where(Campaign.id == campaign.id))
     c = res.scalar_one_or_none()
-    assert c is None or c.status == "cancelled"
+    assert c is not None and c.status == "cancelled"
+
+    # Test status_filter query on sterilizations list
+    canc_list = await admin_client.get("/admin/sterilizations?status_filter=cancelled")
+    assert canc_list.status_code == 200
+    assert "Jornada Masiva Norte Modificada" in canc_list.text
+
+    sched_list = await admin_client.get("/admin/sterilizations?status_filter=scheduled")
+    assert sched_list.status_code == 200
+    assert "Jornada Masiva Norte Modificada" not in sched_list.text
+
+    # Reactivate campaign
+    react_camp = await admin_client.post(
+        f"/admin/sterilizations/campaigns/{campaign.id}/reactivate"
+    )
+    assert react_camp.status_code in (200, 303)
+    await db_session.refresh(campaign)
+    assert campaign.status == "scheduled"
 
 
 # ── 4. Animals CRUD ─────────────────────────────────────────────────────────
@@ -324,6 +358,15 @@ async def test_admin_animals_list_update_delete(
     assert animal.status == "adopted"
     assert animal.is_sterilized is True
 
+    # Add a dependent community report to test foreign key handling during hard delete
+    report = CommunityUpdate(
+        animal_id=animal.id,
+        update_type="confirmed",
+        note="Caso verificado en terreno.",
+    )
+    db_session.add(report)
+    await db_session.commit()
+
     # 4. Delete animal
     del_resp = await admin_client.post(f"/admin/animals/{animal.id}/delete")
     assert del_resp.status_code in (200, 303)
@@ -332,4 +375,5 @@ async def test_admin_animals_list_update_delete(
         select(AnimalProfile).where(AnimalProfile.id == animal.id)
     )
     a = res.scalar_one_or_none()
+    assert a is None
     assert a is None
