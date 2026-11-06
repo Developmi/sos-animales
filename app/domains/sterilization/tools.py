@@ -89,11 +89,11 @@ def get_freshness_status(obj: Campaign | FixedPoint) -> str:
 
 async def find_nearby_campaigns(
     db: AsyncSession,
-    municipality: str,
+    municipality: str | None = None,
     species: str | None = None,
     limit: int = 50,
 ) -> list[Campaign]:
-    """Find scheduled campaigns in a municipality.
+    """Find scheduled campaigns nationwide or filtered by municipality.
 
     Enforces freshness policy: hides campaigns unconfirmed for more than
     FRESHNESS_HIDE_DAYS days.
@@ -101,12 +101,14 @@ async def find_nearby_campaigns(
     cutoff = datetime.now(UTC) - timedelta(days=settings.FRESHNESS_HIDE_DAYS)
 
     query = select(Campaign).where(
-        Campaign.municipality.ilike(f"%{municipality}%"),
         Campaign.status == "scheduled",
         Campaign.starts_at >= datetime.now(UTC),
         # Hide stale data: fall back to created_at if last_confirmed_at is null
         func.coalesce(Campaign.last_confirmed_at, Campaign.created_at) >= cutoff,
     )
+
+    if municipality and municipality.strip():
+        query = query.where(Campaign.municipality.ilike(f"%{municipality.strip()}%"))
 
     if species:
         query = query.where(Campaign.species.contains([species]))

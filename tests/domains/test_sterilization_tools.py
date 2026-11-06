@@ -182,6 +182,13 @@ async def test_find_nearby_campaigns_by_municipality(
     assert len(results) >= 1
     assert all("medellin" in c.municipality.lower() for c in results)
 
+    # Search nationwide with None or empty municipality returns both
+    all_results = await find_nearby_campaigns(db_session, None)
+    assert len(all_results) >= 2
+    titles = [c.title for c in all_results]
+    assert "Jornada Bogotá" in titles
+    assert "Jornada Medellín" in titles
+
 
 # ── TC-06: Find campaigns by species ─────────────────────────────────────────
 

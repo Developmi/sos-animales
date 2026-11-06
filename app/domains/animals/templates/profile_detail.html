@@ -231,27 +231,49 @@
     {% if animal.status == 'available' %}
       <details class="pin-accordion" style="margin-top: 24px;">
         <summary class="pin-accordion-summary">
-          <span>¿Eres el rescatista o fundación que subió a {{ animal.name }}? Marcar como adoptado con tu PIN</span>
+          <span>¿Eres la fundación o rescatista de {{ animal.name }}? Gestionar o dar de baja con tu PIN</span>
           {{ icons.chevron_down("", 18) }}
         </summary>
         <div class="pin-accordion-body">
           <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">
-            Ingresa el código PIN de 4 dígitos que se te envió al correo para marcar este caso como Adoptado y retirar la disponibilidad:
+            Ingresa el código PIN de 4 dígitos enviado a tu correo para gestionar este caso:
           </p>
-          <form hx-post="/animals/{{ animal.id }}/adopt" hx-target="#adopt-result" hx-swap="innerHTML" class="pin-input-group">
-            <input 
-              type="password" 
-              name="pin"
-              class="pin-input" 
-              placeholder="••••" 
-              maxlength="4" 
-              required
-              aria-label="Código PIN de 4 dígitos"
-            />
-            <button type="submit" class="btn-primary">
-              {{ icons.key_pin("", 18) }} Marcar como Adoptado
-            </button>
-          </form>
+          <div class="pin-input-group" style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input 
+                type="password" 
+                id="animal-pin-input-{{ animal.id }}"
+                name="pin"
+                class="pin-input" 
+                placeholder="••••" 
+                maxlength="4" 
+                required
+                aria-label="Código PIN de 4 dígitos"
+              />
+              <button 
+                type="button" 
+                class="btn-primary"
+                hx-post="/animals/{{ animal.id }}/adopt"
+                hx-include="#animal-pin-input-{{ animal.id }}"
+                hx-target="#adopt-result"
+                hx-swap="innerHTML"
+              >
+                {{ icons.key_pin("", 18) }} Marcar como Adoptado
+              </button>
+              <button 
+                type="button" 
+                class="btn-secondary"
+                style="color: #BE123C; border-color: #FECDD3;"
+                hx-post="/animals/{{ animal.id }}/deactivate"
+                hx-include="#animal-pin-input-{{ animal.id }}"
+                hx-target="#adopt-result"
+                hx-swap="innerHTML"
+                hx-confirm="¿Deseas retirar y dar de baja esta publicación?"
+              >
+                {{ icons.trash("", 16) }} Dar de baja publicación
+              </button>
+            </div>
+          </div>
           <div id="adopt-result" style="margin-top: 12px;"></div>
         </div>
       </details>

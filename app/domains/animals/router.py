@@ -30,6 +30,7 @@ from app.database import get_db
 from app.domains.animals.schemas import AdoptAction, AnimalCreate
 from app.domains.animals.tools import (
     create_animal_profile,
+    deactivate_animal_profile,
     get_animal_detail,
     list_animals_by_filters,
     mark_as_adopted,
@@ -370,6 +371,41 @@ async def adopt_animal(
             request=request,
             name="adopt_success.html",
             context={"animal_id": animal_id},
+        )
+    else:
+        await record_failed_pin_attempt(client_ip, animal_id, window_seconds=3600)
+        return templates.TemplateResponse(
+            request=request,
+            name="adopt_error.html",
+            context={},
+        )
+
+
+@router.post("/{animal_id}/deactivate", response_class=HTMLResponse)
+async def deactivate_animal(
+    request: Request,
+    animal_id: int,
+    pin: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    """Verify PIN and deactivate/retire animal profile from public catalog."""
+    client_ip = get_client_ip(request)
+    if not await check_pin_rate_limit(
+        client_ip, animal_id, max_attempts=5, window_seconds=3600
+    ):
+        return HTMLResponse(
+            content="<div class='alert-box' style='color: #E11D48; padding: 12px; background: #FFF1F2; border-radius: 8px;'>Demasiados intentos fallidos. Por seguridad, espera unos minutos antes de intentar de nuevo.</div>",
+            status_code=429,
+        )
+
+    # Validate PIN with schema
+    AdoptAction(pin=pin)
+    success = await deactivate_animal_profile(db, animal_id, pin)
+
+    if success:
+        await reset_pin_attempts(client_ip, animal_id)
+        return HTMLResponse(
+            content="<div class='alert-box' style='padding: 16px; background: #FFF1F2; color: #BE123C; border-radius: 8px; font-weight: 600;'>Esta publicación ha sido retirada exitosamente del catálogo público.</div>"
         )
     else:
         await record_failed_pin_attempt(client_ip, animal_id, window_seconds=3600)

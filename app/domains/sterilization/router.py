@@ -140,7 +140,7 @@ async def search_page(request: Request) -> HTMLResponse:
 @router.get("/campaigns", response_class=HTMLResponse)
 async def get_campaigns_htmx(
     request: Request,
-    municipality: str = Query("bogota"),
+    municipality: str | None = Query(None),
     species: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:

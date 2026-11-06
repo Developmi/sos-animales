@@ -3,10 +3,10 @@ from datetime import UTC, datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -14,6 +14,7 @@ from app.database import get_db
 from app.domains.animals.models import AnimalProfile
 from app.domains.auth import rate_limit
 from app.domains.auth.middleware import require_auth
+from app.domains.community.models import CommunityUpdate
 from app.domains.sources.models import Source
 from app.domains.sterilization.models import Campaign, FixedPoint
 from app.shared import maintenance
@@ -209,13 +210,21 @@ async def admin_verify_source(
 @router.get("/admin/sources", response_class=HTMLResponse)
 async def admin_sources_list(
     request: Request,
+    status_filter: str = Query("all"),
     _: None = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    sources_res = await db.execute(select(Source).order_by(Source.created_at.desc()))
+    stmt = select(Source).order_by(Source.created_at.desc())
+    if status_filter == "active":
+        stmt = stmt.where(Source.is_active.is_(True))
+    elif status_filter == "inactive":
+        stmt = stmt.where(Source.is_active.is_(False))
+    sources_res = await db.execute(stmt)
     sources = sources_res.scalars().all()
     return templates.TemplateResponse(
-        request, "admin_sources.html", {"sources": sources}
+        request,
+        "admin_sources.html",
+        {"sources": sources, "status_filter": status_filter},
     )
 
 
@@ -291,17 +300,51 @@ async def admin_post_source_delete(
     return RedirectResponse(url="/admin/sources", status_code=303)
 
 
+@router.post("/admin/sources/{source_id}/reactivate")
+async def admin_post_source_reactivate(
+    request: Request,
+    source_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Reactivate an inactive foundation/shelter."""
+    source = (
+        await db.execute(select(Source).where(Source.id == source_id))
+    ).scalar_one_or_none()
+    if not source:
+        raise HTTPException(status_code=404, detail="Fundación no encontrada")
+    source.is_active = True
+    source.status = "verified"
+    await db.commit()
+    if "HX-Request" in request.headers:
+        return HTMLResponse(
+            f"<div class='alert-box' style='padding: 12px; background: #ECFDF5; color: #047857; border-radius: 8px;'>Organización '{source.name}' reactivada exitosamente.</div>"
+        )
+    return RedirectResponse(url="/admin/sources", status_code=303)
+
+
 # ── Admin CRUD: Sterilizations ───────────────────────────────────────────────
 
 
 @router.get("/admin/sterilizations", response_class=HTMLResponse)
 async def admin_sterilizations_list(
     request: Request,
+    status_filter: str = Query("all"),
     _: None = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    camps_res = await db.execute(select(Campaign).order_by(Campaign.starts_at.desc()))
+    stmt = select(Campaign).order_by(Campaign.starts_at.desc())
+    if status_filter == "scheduled":
+        stmt = stmt.where(Campaign.status == "scheduled")
+    elif status_filter == "cancelled":
+        stmt = stmt.where(Campaign.status == "cancelled")
+    camps_res = await db.execute(stmt)
     campaigns = camps_res.scalars().all()
+    return templates.TemplateResponse(
+        request,
+        "admin_sterilizations.html",
+        {"campaigns": campaigns, "status_filter": status_filter},
+    )
     return templates.TemplateResponse(
         request, "admin_sterilizations.html", {"campaigns": campaigns}
     )
@@ -374,21 +417,47 @@ async def admin_post_campaign_delete(
     return RedirectResponse(url="/admin/sterilizations", status_code=303)
 
 
+@router.post("/admin/sterilizations/campaigns/{campaign_id}/reactivate")
+async def admin_post_campaign_reactivate(
+    request: Request,
+    campaign_id: int,
+    _: None = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Reactivate a cancelled sterilization campaign."""
+    camp = (
+        await db.execute(select(Campaign).where(Campaign.id == campaign_id))
+    ).scalar_one_or_none()
+    if not camp:
+        raise HTTPException(status_code=404, detail="Jornada no encontrada")
+    camp.status = "scheduled"
+    await db.commit()
+    if "HX-Request" in request.headers:
+        return HTMLResponse(
+            f"<div class='alert-box' style='padding: 12px; background: #ECFDF5; color: #047857; border-radius: 8px;'>Jornada '{camp.title}' reactivada como programada.</div>"
+        )
+    return RedirectResponse(url="/admin/sterilizations", status_code=303)
+
+
 # ── Admin CRUD: Animals ─────────────────────────────────────────────────────
 
 
 @router.get("/admin/animals", response_class=HTMLResponse)
 async def admin_animals_list(
     request: Request,
+    status_filter: str = Query("all"),
     _: None = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    animals_res = await db.execute(
-        select(AnimalProfile).order_by(AnimalProfile.created_at.desc())
-    )
+    stmt = select(AnimalProfile).order_by(AnimalProfile.created_at.desc())
+    if status_filter != "all":
+        stmt = stmt.where(AnimalProfile.status == status_filter)
+    animals_res = await db.execute(stmt)
     animals = animals_res.scalars().all()
     return templates.TemplateResponse(
-        request, "admin_animals.html", {"animals": animals}
+        request,
+        "admin_animals.html",
+        {"animals": animals, "status_filter": status_filter},
     )
 
 
@@ -452,6 +521,11 @@ async def admin_post_animal_delete(
     ).scalar_one_or_none()
     if not animal:
         raise HTTPException(status_code=404, detail="Peludo no encontrado")
+
+    # Clean foreign key references in community reports before hard delete
+    await db.execute(
+        delete(CommunityUpdate).where(CommunityUpdate.animal_id == animal_id)
+    )
     await db.delete(animal)
     await db.commit()
     if "HX-Request" in request.headers:

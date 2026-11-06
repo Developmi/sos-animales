@@ -183,6 +183,24 @@ async def mark_as_adopted(db: AsyncSession, animal_id: int, pin: str) -> bool:
     return False
 
 
+async def deactivate_animal_profile(db: AsyncSession, animal_id: int, pin: str) -> bool:
+    """Verify PIN and update animal status to 'inactive'."""
+    result = await db.execute(
+        select(AnimalProfile).where(AnimalProfile.id == animal_id)
+    )
+    animal = result.scalar_one_or_none()
+
+    if not animal or not animal.pin_hash:
+        return False
+
+    if verify_pin(pin, animal.pin_hash):
+        animal.status = "inactive"
+        await db.commit()
+        return True
+
+    return False
+
+
 async def list_animals_by_filters(
     db: AsyncSession,
     municipality: str | None = None,
