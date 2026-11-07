@@ -23,6 +23,22 @@
       </a>
     </div>
 
+    <!-- Filtros de Estado -->
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+      <a href="/admin/animals?status_filter=all" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'all' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Todos
+      </a>
+      <a href="/admin/animals?status_filter=available" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'available' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Disponibles
+      </a>
+      <a href="/admin/animals?status_filter=adopted" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'adopted' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Adoptados
+      </a>
+      <a href="/admin/animals?status_filter=inactive" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'inactive' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Inactivos / Retirados
+      </a>
+    </div>
+
     <!-- Contenedor dinámico de edición inline / modal -->
     <div id="admin-animal-edit-container" style="margin-bottom: 20px;"></div>
 
@@ -39,6 +55,8 @@
                 </span>
                 {% if pet.status == 'adopted' or pet.status == 'ADOPTADO' %}
                   <span class="brand-badge" style="background: rgba(100, 116, 139, 0.15); color: #64748B; font-size: 11px; padding: 2px 8px; border-radius: 6px;">ADOPTADO</span>
+                {% elif pet.status == 'inactive' %}
+                  <span class="brand-badge" style="background: #FFF1F2; color: #BE123C; font-size: 11px; padding: 2px 8px; border-radius: 6px;">INACTIVO</span>
                 {% else %}
                   <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">DISPONIBLE</span>
                 {% endif %}

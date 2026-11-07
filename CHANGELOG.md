@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-11-06
+
+### Added
+- **Lightweight Case Governance via Email & PIN**:
+  - Added `POST /animals/{id}/deactivate` endpoint allowing rescuers and shelters to immediately retire/deactivate publications using their 4-digit security PIN without user accounts or passwords.
+  - Updated management notification email in `app/shared/email.py` with clear bilingual/Spanish instructions for both adopting and retiring listings.
+  - Enhanced animal profile detail page (`profile_detail.html`) with dual-action PIN management (Adopt or Deactivate).
+- **Admin Panel Soft-Delete Clarification & Filters**:
+  - Added status filtering tabs (`Todas`, `Activas`, `Inactivas` / `Programadas`, `Canceladas` / `Disponibles`, `Adoptados`, `Inactivos`) in `/admin/sources`, `/admin/sterilizations`, and `/admin/animals`.
+  - Added one-click reactivation endpoints (`POST /admin/sources/{id}/reactivate`, `POST /admin/sterilizations/campaigns/{id}/reactivate`) to quickly restore mistakenly deactivated records.
+  - Added clean cascade deletion of related community reports when permanently purging animals in `/admin/animals/{id}/delete`.
+- **Nationwide Default Loading on Sterilization Map**:
+  - Updated `/sterilization/campaigns` route to accept optional `municipality` query parameter defaulting to `None`.
+  - Updated `find_nearby_campaigns` tool to query scheduled campaigns nationwide when no municipality filter is provided, enabling Leaflet `map.fitBounds` to display all active surgical points across Colombia upon landing.
+
 ## [1.2.0] - 2026-11-03
 
 ### Added

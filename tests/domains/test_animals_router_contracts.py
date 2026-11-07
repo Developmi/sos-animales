@@ -1159,6 +1159,52 @@ async def test_adopt_animal_direct_calls_covering_all_branches(
     assert resp_no_client.status_code == 200
 
 
+@pytest.mark.asyncio
+async def test_deactivate_animal_endpoint_all_branches(
+    app_client: AsyncClient,
+    active_source: Source,
+    db_session: AsyncSession,
+) -> None:
+    """Verifies POST /animals/{id}/deactivate flow including success, wrong PIN, and rate limiting."""
+    created = await create_animal_profile(
+        db_session,
+        active_source.id,
+        {"name": "Deactivate Target", "species": "canino", "municipality": "Bogotá"},
+        "https://r2.test/deact.jpg",
+    )
+    animal = created["animal"]
+    pin = created["raw_pin"]
+
+    # Wrong PIN returns error fragment
+    res_wrong = await app_client.post(
+        f"/animals/{animal.id}/deactivate",
+        data={"pin": "0000"},
+    )
+    assert res_wrong.status_code == 200
+    assert "pin incorrecto" in res_wrong.text.lower()
+
+    # Rate limiting lockout
+    with patch("app.domains.animals.router.check_pin_rate_limit", return_value=False):
+        res_rl = await app_client.post(
+            f"/animals/{animal.id}/deactivate",
+            data={"pin": pin},
+        )
+        assert res_rl.status_code == 429
+        assert "Demasiados intentos fallidos" in res_rl.text
+
+    # Success deactivation
+    res_ok = await app_client.post(
+        f"/animals/{animal.id}/deactivate",
+        data={"pin": pin},
+    )
+    assert res_ok.status_code == 200
+    assert "retirada exitosamente" in res_ok.text
+
+    # Verify status changed in database
+    await db_session.refresh(animal)
+    assert animal.status == "inactive"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 7. CONTRACT TESTS FOR BUGS AND ANOMALIES
 # ─────────────────────────────────────────────────────────────────────────────

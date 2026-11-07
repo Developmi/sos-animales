@@ -359,3 +359,36 @@ async def test_create_animal_profile_with_age_months(
     assert animal.id is not None
     assert animal.age_months == 3
     assert animal.name == "Cachorrito Toby"
+
+
+@pytest.mark.asyncio
+async def test_deactivate_animal_profile_with_pin(
+    db_session: AsyncSession, sample_source: Source
+) -> None:
+    """Deactivating an animal profile with correct PIN sets status to inactive."""
+    from app.domains.animals.tools import deactivate_animal_profile
+
+    data = {
+        "name": "Peludo Para Desactivar",
+        "species": "felino",
+        "municipality": "Bogotá",
+        "is_sterilized": True,
+    }
+    result = await create_animal_profile(
+        db_session, sample_source.id, data, "https://placeholder.com/cat.jpg"
+    )
+    animal = result["animal"]
+    raw_pin = result["raw_pin"]
+
+    # Incorrect PIN fails
+    wrong = await deactivate_animal_profile(db_session, animal.id, "0000")
+    assert wrong is False
+
+    # Correct PIN succeeds and sets status to inactive
+    success = await deactivate_animal_profile(db_session, animal.id, raw_pin)
+    assert success is True
+    assert animal.status == "inactive"
+
+    # Non-existent animal returns False
+    not_found = await deactivate_animal_profile(db_session, 999999, raw_pin)
+    assert not_found is False

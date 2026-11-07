@@ -23,6 +23,19 @@
       </a>
     </div>
 
+    <!-- Filtros de Estado -->
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+      <a href="/admin/sterilizations?status_filter=all" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'all' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Todas
+      </a>
+      <a href="/admin/sterilizations?status_filter=scheduled" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'scheduled' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Programadas
+      </a>
+      <a href="/admin/sterilizations?status_filter=cancelled" class="btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none; {% if status_filter == 'cancelled' %}background: var(--color-teal); color: #fff; border-color: var(--color-teal);{% endif %}">
+        Canceladas
+      </a>
+    </div>
+
     <!-- Contenedor dinámico de edición inline / modal -->
     <div id="admin-campaign-edit-container" style="margin-bottom: 20px;"></div>
 
@@ -32,8 +45,8 @@
           <div style="flex: 1; min-width: 260px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
               <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--color-text-main);">{{ camp.title }}</h3>
-              {% if camp.status == 'active' %}
-                <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">ACTIVA</span>
+              {% if camp.status == 'active' or camp.status == 'scheduled' %}
+                <span class="brand-badge" style="background: rgba(13, 148, 136, 0.15); color: var(--color-teal); font-size: 11px; padding: 2px 8px; border-radius: 6px;">PROGRAMADA</span>
               {% elif camp.status == 'completed' %}
                 <span class="brand-badge" style="background: rgba(100, 116, 139, 0.15); color: #64748B; font-size: 11px; padding: 2px 8px; border-radius: 6px;">FINALIZADA</span>
               {% elif camp.status == 'cancelled' %}
@@ -64,11 +77,19 @@
             >
               {{ icons.edit("", 14) }} Editar
             </button>
-            <form hx-post="/admin/sterilizations/campaigns/{{ camp.id }}/delete" hx-target="#campaign-row-{{ camp.id }}" hx-swap="outerHTML" hx-confirm="¿Deseas cancelar o eliminar esta campaña?" style="margin: 0;">
-              <button type="submit" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; color: #BE123C; border-color: #FECDD3;">
-                {{ icons.trash("", 14) }} Eliminar
-              </button>
-            </form>
+            {% if camp.status != 'cancelled' %}
+              <form hx-post="/admin/sterilizations/campaigns/{{ camp.id }}/delete" hx-target="#campaign-row-{{ camp.id }}" hx-swap="outerHTML" hx-confirm="¿Deseas cancelar esta jornada? Dejará de aparecer en el mapa público." style="margin: 0;">
+                <button type="submit" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; color: #BE123C; border-color: #FECDD3;">
+                  {{ icons.trash("", 14) }} Cancelar
+                </button>
+              </form>
+            {% else %}
+              <form hx-post="/admin/sterilizations/campaigns/{{ camp.id }}/reactivate" hx-target="#campaign-row-{{ camp.id }}" hx-swap="outerHTML" hx-confirm="¿Deseas reactivar esta jornada de esterilización?" style="margin: 0;">
+                <button type="submit" class="btn-secondary" style="font-size: 12px; padding: 6px 12px; color: #047857; border-color: #A7F3D0;">
+                  {{ icons.check("", 14) }} Reactivar
+                </button>
+              </form>
+            {% endif %}
           </div>
         </div>
       {% else %}

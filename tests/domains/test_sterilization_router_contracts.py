@@ -311,6 +311,11 @@ async def test_get_campaigns_htmx_filters(
     )
     assert res3.status_code == 200
 
+    # Default load with no municipality parameter returns all campaigns nationwide
+    res_default = await app_client.get("/sterilization/campaigns")
+    assert res_default.status_code == 200
+    assert "Esterilización Chapinero Felinos" in res_default.text
+
 
 # ==============================================================================
 # SECTION 5: FIXED POINTS (GET & POST)

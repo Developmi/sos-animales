@@ -34,15 +34,21 @@ def _prepare_and_login(server: smtplib.SMTP) -> None:
 
 def _build_pin_email_body(entity_name: str, pin: str) -> str:
     """Generate plaintext body for management PIN delivery."""
-    return f"""Hello,
+    return f"""Hola,
 
-Your publication '{entity_name}' has been created successfully.
+Tu publicación de '{entity_name}' ha sido registrada en SOS Animales Colombia.
 
-Your 4-digit security PIN is: {pin}
+Tu PIN de seguridad de 4 dígitos es: {pin}
 
-Please save this PIN securely. You will need it to update the status (e.g., mark as adopted, full, or cancelled).
+Conserva este código seguro. Lo necesitarás para gestionar directamente tu publicación:
+• Marcar como Adoptado cuando el peludo encuentre hogar.
+• Dar de baja o retirar la publicación si ya no está disponible o no autorizas el caso.
 
-Thank you for using SOS Animales.
+Para gestionar este caso, visita la ficha de '{entity_name}' e ingresa tu PIN.
+
+Gracias por ayudar a proteger a los animales.
+SOS Animales Colombia
+https://sos-animales.org
 """
 
 
